@@ -4,14 +4,18 @@
 #include <android/sensor.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-
+#include "FileIO/FileIO.h"
+#include "ContentManager/PNGLoader.h"
+#include "Input/Input.h"
 #include <android_native_app_glue.h>
 #include <android/log.h>
 
 #include <time.h>
 
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
+
+#include "AudioSystem.h"
+
+
 
 struct saved_state {
     float angle;
@@ -27,9 +31,13 @@ public:
     ~Engine();
 
     android_app * app;
-    ASensorManager* sensorManager;
-    const ASensor* accelerometerSensor;
-    ASensorEventQueue* sensorEventQueue;
+
+
+
+    AudioSystem audioSystem;
+    FileIO* fileIOSystem;
+
+    PNGLoader pngLoader;
 
     int animating;
     EGLDisplay display;
@@ -41,23 +49,30 @@ public:
     struct saved_state state;
 
     void Initialize();
+    void Release();
     int InitDisplay();
     void DrawFrame();
     void TerminateDisplay();
 
-    int32_t ProcessTouchInput(AInputEvent*event);
-    int32_t ProcessKeyInput(AInputEvent*event);
+    void ProcessTouchInput(const TouchEvent& event);
+    void ProcessKeyInput(const KeyEvent& event);
+    void ProcessAccelerometer(float x, float y, float z);
+
+    void onSaveState();
+    void onInitWindow();
+    void onTerminateWindow();
+    void onGainedFocus();
+    void onLostFocus();
+    void onPause();
+    void onResume();
+
+    GLuint texture;
 
 
-    void ProcessSystemCommands(int32_t command);
-    void ProcessAccelerometer();
-
-    void AcquireWakeLock();
-    void ReleaseWakeLock();
 
 
     int frameCounter;
-    double lastTime;
+    U64 lastTime;
     float posX, posY;
     float deltaX, deltaY;
 

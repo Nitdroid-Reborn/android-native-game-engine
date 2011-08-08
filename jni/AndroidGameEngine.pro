@@ -11,11 +11,49 @@ INCLUDEPATH += "/home/mateusz/Workspace/SDKs/android-ndk-r6/platforms/android-9/
 # Input
 SOURCES += main.cpp \
     Engine.cpp \
-    Utils.cpp
+    Utils.cpp \
+    AudioSystem.cpp \
+    FileIO/BufferStream.cpp \
+    FileIO/AndroidFileIO.cpp \
+    ContentManager/PNGLoader.cpp \
+    Clock.cpp \
+    Input/Input.cpp
 
 HEADERS += \
     Engine.h \
-    Utils.h
+    Utils.h \
+    AudioSystem.h \
+    EngineTypes.h \
+    FileIO/FileIO.h \
+    FileIO/BufferStream.h \
+    FileIO/AndroidFileIO.h \
+    ContentManager/PNGLoader.h \
+    Clock.h \
+    Input/Input.h
+
+OTHER_FILES += \
+    Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

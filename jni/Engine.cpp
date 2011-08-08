@@ -1,6 +1,15 @@
 #include "Engine.h"
+#include "FileIO/AndroidFileIO.h"
 #include <android/keycodes.h>
 #include "Utils.h"
+
+
+static const char hello[] =
+                #include "hello_clip.h"
+                ;
+static const char android[] =
+                #include "android_clip.h"
+                ;
 
 Engine::Engine()
 {
@@ -11,7 +20,7 @@ Engine::Engine()
     posY=250;
     deltaX=1;
     deltaY=1;
-    lastTime = getCurrentTime();
+    lastTime = getCurrentTimeInMsec();
 }
 
 Engine::~Engine() {
@@ -20,12 +29,28 @@ Engine::~Engine() {
 
 
 void Engine::Initialize() {
-    sensorManager = ASensorManager_getInstance();
-    accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager,
-                ASENSOR_TYPE_ACCELEROMETER);
-    sensorEventQueue = ASensorManager_createEventQueue(sensorManager,
-                app->looper, LOOPER_ID_USER, NULL, NULL);
+
+
+
+    audioSystem.CreateEngine();
+    fileIOSystem = new AndroidFileIO();
+    fileIOSystem->Initialize(app->activity->assetManager);
+
+ //   audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
+  //  audioSystem.SetAssetPlayerStatus(true);
+
 }
+
+void Engine::Release() {
+    audioSystem.Shutdown();
+    fileIOSystem->Release();
+    delete fileIOSystem;
+    fileIOSystem = NULL;
+    TerminateDisplay();
+}
+
+
+
 
 int Engine::InitDisplay() {
     // initialize OpenGL ES and EGL
@@ -79,6 +104,9 @@ int Engine::InitDisplay() {
     this->height = h;
     this->state.angle = 0;
 
+    glEnable(GL_TEXTURE_2D);
+    texture = pngLoader.load("logo2.png");
+
     // Initialize GL state.
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
     glEnable(GL_CULL_FACE);
@@ -110,6 +138,17 @@ void Engine::DrawFrame() {
 
     int w = 80;
 
+    float texCoords[8] = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+    };
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+
     for(int i=0;i<4;i++) {
         if(touch[i]==false)
             continue;
@@ -121,13 +160,20 @@ void Engine::DrawFrame() {
             touchX[i]+w, touchY[i]-w
           };
 
-        glColor4f(1,0,0,1);
 
         glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
         glVertexPointer(2, GL_FLOAT, 0, ver);
+        glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
+
     }
+
+    glDisable(GL_TEXTURE_2D);
 
 
     posX+=deltaX;
@@ -142,12 +188,12 @@ void Engine::DrawFrame() {
 
     if(frameCounter>60) {
         frameCounter=0;
-        double now = getCurrentTime();
+        U64 now = getCurrentTimeInMsec();
 
-        double deltaTime = now - lastTime;
+        float deltaTime = (now - lastTime)/1000.0f;
 
         LOGI("%f", 60.0f/deltaTime);
-        lastTime = getCurrentTime();
+        lastTime = getCurrentTimeInMsec();
     }
 }
 
@@ -168,180 +214,74 @@ void Engine::TerminateDisplay() {
     surface = EGL_NO_SURFACE;
 }
 
-int32_t Engine::ProcessTouchInput(AInputEvent *event) {
-    if(AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN) {
-
-
-
-        int32_t action = AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
-        int32_t pointerIndex = (AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>>AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-
-        int32_t pointerId = AMotionEvent_getPointerId(event, pointerIndex);
-
-        switch(action) {
-            case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN:
-                touch[pointerId] = true;
-                touchX[pointerId] = AMotionEvent_getX(event, pointerIndex);
-                touchY[pointerId] = AMotionEvent_getY(event, pointerIndex);
-                break;
-
-            case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP:
-                touch[pointerId] = false;
-                touchX[pointerId] = AMotionEvent_getX(event, pointerIndex);
-                touchY[pointerId] = AMotionEvent_getY(event, pointerIndex);
-                break;
-
-            case AMOTION_EVENT_ACTION_MOVE:
-                int pointerCount = AMotionEvent_getPointerCount(event);
-                for(int i=0; i<pointerCount; i++) {
-                    pointerIndex = i;
-                    pointerId = AMotionEvent_getPointerId(event, pointerIndex);
-                    touchX[pointerId] = AMotionEvent_getX(event, pointerIndex);
-                    touchY[pointerId] = AMotionEvent_getY(event, pointerIndex);
-                }
-                break;
-        }
-        return 1;
+void Engine::ProcessTouchInput(const TouchEvent& event) {
+    if(event.action==ENGINE_TOUCHACTION_DOWN) {
+     //   LOGI("Touch event: down, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
+        touch[event.pointerId] = true;
+        touchX[event.pointerId] = event.posX;
+        touchY[event.pointerId] = event.posY;
     }
-    else  {
-        if(AMotionEvent_getAction(event)==AMOTION_EVENT_ACTION_DOWN) {
-            LOGI("Touchpad pressed");
-        }
-        else if(AMotionEvent_getAction(event) == AMOTION_EVENT_ACTION_MOVE) {
-            float x, y;
-            x = AMotionEvent_getX(event, 0);
-            y = AMotionEvent_getY(event, 0);
-
-            if(x>0) LOGI("Touchpad right");
-            if(x<0) LOGI("Touchpad left");
-            if(y>0) LOGI("Touchpad down");
-            if(y<0) LOGI("Touchpad up");
-        }
+    else if(event.action == ENGINE_TOUCHACTION_UP) {
+       // LOGI("Touch event: up, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
+        touch[event.pointerId] = false;
+        touchX[event.pointerId] = event.posX;
+        touchY[event.pointerId] = event.posY;
     }
-    return 0;
+    else {
+       // LOGI("Touch event: move, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
+        touchX[event.pointerId] = event.posX;
+        touchY[event.pointerId] = event.posY;
+    }
+
+
 }
 
-int32_t Engine::ProcessKeyInput(AInputEvent *event) {
-    if(AKeyEvent_getKeyCode(event)==AKEYCODE_BACK)
-        return 0;
-    LOGI("Key input, %d,  %d", AKeyEvent_getAction(event), AKeyEvent_getKeyCode(event));
+void Engine::ProcessKeyInput(const KeyEvent& event) {
+    if(event.action==ENGINE_KEYACTION_DOWN)
+        LOGI("Touch event: down, code %d", event.keyCode);
+    else if(event.action == ENGINE_KEYACTION_UP)
+        LOGI("Touch event: up, code %d", event.keyCode);
+
 }
 
 
-void Engine::AcquireWakeLock() {
-    JavaVM* lJavaVM = app->activity->vm;
-    JNIEnv* lJNIEnv = app->activity->env;
 
-    JavaVMAttachArgs lJavaVMAttachArgs;
-    lJavaVMAttachArgs.version = JNI_VERSION_1_6;
-    lJavaVMAttachArgs.name = "NativeThread";
-    lJavaVMAttachArgs.group = NULL;
 
-    jint lResult=lJavaVM->AttachCurrentThread(&lJNIEnv, &lJavaVMAttachArgs);
-    if (lResult == JNI_ERR) {
-        LOGI("error");
-    }
-
-    jobject lNativeActivity = app->activity->clazz;
-    jclass ClassNativeActivity = lJNIEnv->GetObjectClass(lNativeActivity);
-
-    jmethodID method = lJNIEnv->GetMethodID(ClassNativeActivity, "lock", "()V");
-    lJNIEnv->CallVoidMethod(lNativeActivity, method);
-
-    lJavaVM->DetachCurrentThread();
+void Engine::onGainedFocus() {
+    animating = 1;
 }
 
-void Engine::ReleaseWakeLock() {
-    JavaVM* lJavaVM = app->activity->vm;
-    JNIEnv* lJNIEnv = app->activity->env;
-
-    JavaVMAttachArgs lJavaVMAttachArgs;
-    lJavaVMAttachArgs.version = JNI_VERSION_1_6;
-    lJavaVMAttachArgs.name = "NativeThread";
-    lJavaVMAttachArgs.group = NULL;
-
-    jint lResult=lJavaVM->AttachCurrentThread(&lJNIEnv, &lJavaVMAttachArgs);
-    if (lResult == JNI_ERR) {
-        LOGI("error");
-    }
-
-    jobject lNativeActivity = app->activity->clazz;
-    jclass ClassNativeActivity = lJNIEnv->GetObjectClass(lNativeActivity);
-
-    jmethodID method = lJNIEnv->GetMethodID(ClassNativeActivity, "unlock", "()V");
-    lJNIEnv->CallVoidMethod(lNativeActivity, method);
-
-    lJavaVM->DetachCurrentThread();
+void Engine::onLostFocus() {
+    animating = 0;
 }
 
-void Engine::ProcessSystemCommands(int32_t command) {
-    switch (command) {
-        case APP_CMD_SAVE_STATE:
-            // The system has asked us to save our current state.  Do so.
-            app->savedState = malloc(sizeof(struct saved_state));
-            *((struct saved_state*)app->savedState) = state;
-            app->savedStateSize = sizeof(struct saved_state);
-            break;
-        case APP_CMD_INIT_WINDOW:
-            // The window is being shown, get it ready.
-            if (app->window != NULL) {
-                InitDisplay();
-                DrawFrame();
-            }
-            break;
+void Engine::onSaveState() {
+    app->savedState = malloc(sizeof(struct saved_state));
+    *((struct saved_state*)app->savedState) = state;
+    app->savedStateSize = sizeof(struct saved_state);
+}
 
-
-        case APP_CMD_TERM_WINDOW:
-            // The window is being hidden or closed, clean it up.
-            TerminateDisplay();
-            break;
-
-
-        case APP_CMD_GAINED_FOCUS:
-        /*    if (accelerometerSensor != NULL) {
-                ASensorEventQueue_enableSensor(sensorEventQueue,
-                        accelerometerSensor);
-                // We'd like to get 60 events per second (in us).
-                ASensorEventQueue_setEventRate(sensorEventQueue,
-                        accelerometerSensor, (1000L/60)*1000);
-            }*/
-            animating = 1;
-            AcquireWakeLock();
-        break;
-
-
-        case APP_CMD_LOST_FOCUS:
-            /*if (accelerometerSensor != NULL) {
-                ASensorEventQueue_disableSensor(sensorEventQueue,
-                        accelerometerSensor);
-            }*/
-            // Also stop animating.*/
-            animating = 0;
-            DrawFrame();
-            ReleaseWakeLock();
-        break;
-
-
-        case APP_CMD_RESUME:
-
-            break;
-
-        case APP_CMD_PAUSE:
-
-            break;
+void Engine::onInitWindow() {
+    if (app->window != NULL) {
+        InitDisplay();
+        DrawFrame();
     }
 }
 
-void Engine::ProcessAccelerometer() {
-    if(accelerometerSensor != NULL) {
-        ASensorEvent event;
-        while (ASensorEventQueue_getEvents(sensorEventQueue,
-                &event, 1) > 0) {
-            /*LOGI("accelerometer: x=%f y=%f z=%f",
-                    event.acceleration.x, event.acceleration.y,
-                    event.acceleration.z);*/
-        }
-    }
+void Engine::onTerminateWindow() {
+    TerminateDisplay();
+}
+
+void Engine::onPause() {
+
+}
+
+void Engine::onResume() {
+
+}
+
+
+void Engine::ProcessAccelerometer(float x, float y, float z) {
+           /* LOGI("accelerometer: x=%f y=%f z=%f",
+                    x, y, z);*/
 }

@@ -14,12 +14,29 @@
 #
 LOCAL_PATH := $(call my-dir)
 
+
+include $(CLEAR_VARS)
+LOCAL_MODULE            := libpng
+LOCAL_LDLIBS            := -lz
+LOCAL_SRC_FILES         := libpng.a
+include $(PREBUILT_STATIC_LIBRARY)
+
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := android-game-engine
-LOCAL_SRC_FILES := main.cpp Engine.cpp Utils.cpp
-LOCAL_LDLIBS    := -llog -landroid -lEGL -lGLESv1_CM
-LOCAL_STATIC_LIBRARIES := android_native_app_glue
+LOCAL_SRC_FILES := main.cpp \
+                   Engine.cpp \
+                   Utils.cpp \
+                   AudioSystem.cpp \
+                   ContentManager/PNGLoader.cpp \
+                   FileIO/AndroidFileIO.cpp \
+                   FileIO/BufferStream.cpp \
+                   Clock.cpp \
+                   Input/Input.cpp
+
+LOCAL_LDLIBS    := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
+LOCAL_STATIC_LIBRARIES := android_native_app_glue libpng
 
 include $(BUILD_SHARED_LIBRARY)
 

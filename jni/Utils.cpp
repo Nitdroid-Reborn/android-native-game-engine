@@ -1,8 +1,8 @@
 #include "Utils.h"
 #include <time.h>
 
-double getCurrentTime() {
+U64 getCurrentTimeInMsec() {
     timespec t;
     clock_gettime(CLOCK_REALTIME, &t);
-    return (double)t.tv_sec + (double)t.tv_nsec/1e9;
+    return (U64)((double)t.tv_sec*1000 + (double)t.tv_nsec/1e6);
 }

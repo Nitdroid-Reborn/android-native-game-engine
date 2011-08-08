@@ -2,6 +2,7 @@ package com.polrola.mateusz.AndroidGameEngine;
 
 import android.app.NativeActivity;
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -19,6 +20,8 @@ public class NativeGameActivity extends NativeActivity {
 		Context context = (Context)this;
 		PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "native-activity");
+		
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
 	
 	public void lock() {

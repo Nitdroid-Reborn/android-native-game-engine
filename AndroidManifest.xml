@@ -26,6 +26,7 @@
     </application>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
 
 </manifest> 
 <!-- END_INCLUDE(manifest) -->
