@@ -3,13 +3,31 @@
 #include <android/keycodes.h>
 #include "Utils.h"
 
-
 static const char hello[] =
                 #include "hello_clip.h"
                 ;
 static const char android[] =
                 #include "android_clip.h"
                 ;
+
+#define PI 3.1415926535897932f
+
+static void gluPerspective(GLfloat fovy, GLfloat aspect,
+                           GLfloat zNear, GLfloat zFar)
+{
+    GLfloat xmin, xmax, ymin, ymax;
+
+    ymax = zNear * (GLfloat)tan(fovy * PI / 360);
+    ymin = -ymax;
+    xmin = ymin * aspect;
+    xmax = ymax * aspect;
+
+    glFrustumx((GLfixed)(xmin * 65536), (GLfixed)(xmax * 65536),
+               (GLfixed)(ymin * 65536), (GLfixed)(ymax * 65536),
+               (GLfixed)(zNear * 65536), (GLfixed)(zFar * 65536));
+}
+
+
 
 Engine::Engine()
 {
@@ -21,9 +39,16 @@ Engine::Engine()
     deltaX=1;
     deltaY=1;
     lastTime = getCurrentTimeInMsec();
+    exit = false;
+
+
+    centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
+    dpad = new VirtualDPad(125, 355, 100, 25);
 }
 
 Engine::~Engine() {
+    delete dpad;
+    delete centerKey;
     LOGI("Engine closed");
 }
 
@@ -36,6 +61,15 @@ void Engine::Initialize() {
     fileIOSystem = new AndroidFileIO();
     fileIOSystem->Initialize(app->activity->assetManager);
 
+    inputSystem = new Input();
+
+    virtualInputSystem = new VirtualInput();
+    virtualInputSystem->AddKey(centerKey);
+    virtualInputSystem->AddKey(dpad);
+
+
+    model.Load("model.ms3d");
+
  //   audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
   //  audioSystem.SetAssetPlayerStatus(true);
 
@@ -46,6 +80,12 @@ void Engine::Release() {
     fileIOSystem->Release();
     delete fileIOSystem;
     fileIOSystem = NULL;
+
+    delete inputSystem;
+    inputSystem = NULL;
+
+    delete virtualInputSystem;
+    virtualInputSystem = NULL;
     TerminateDisplay();
 }
 
@@ -119,7 +159,8 @@ int Engine::InitDisplay() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrthof(0.0, w, h, 0.0, 0.0, 1.0);
+    //glOrthof(0.0, w, h, 0.0, 0.0, 1.0);
+    gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glViewport(0, 0, (int) w, (int) h);
@@ -127,7 +168,7 @@ int Engine::InitDisplay() {
     return 0;
 }
 
-void Engine::DrawFrame() {
+void Engine::Render() {
     if(display == NULL) {
         return;
     }
@@ -135,6 +176,8 @@ void Engine::DrawFrame() {
     // Just fill the screen with a color.
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glLoadIdentity();
 
     int w = 80;
 
@@ -145,11 +188,33 @@ void Engine::DrawFrame() {
         1.0f, 1.0f,
     };
 
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texture);
 
+    glColor4f(1,1,1,1);
+    glPushMatrix();
+        glScalef(0.01, 0.01, 0.01);
+        glTranslatef(0, -20, -80);
+        glRotatef(angleY, 0, 1, 0);
+        glRotatef(angleX, 1, 0, 0);
 
-    for(int i=0;i<4;i++) {
+        model.Render();
+
+        glPopMatrix();
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glOrthof(0.0, width, height, 0.0, 0.0, 1.0);
+   centerKey->Draw();
+   dpad->Draw();
+
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   gluPerspective(54.0f, (float)width/(float)height, 0.1f, 100.0f);
+   glMatrixMode(GL_MODELVIEW);
+
+    /*for(int i=0;i<4;i++) {
         if(touch[i]==false)
             continue;
 
@@ -171,16 +236,45 @@ void Engine::DrawFrame() {
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
 
-    }
+    }*/
+
+
+    /*GLfloat vertices[] = {1,1,1,  -1,1,1,  -1,-1,1,  1,-1,1,        // v0-v1-v2-v3
+                          1,1,1,  1,-1,1,  1,-1,-1,  1,1,-1,        // v0-v3-v4-v5
+                          1,1,1,  1,1,-1,  -1,1,-1,  -1,1,1,        // v0-v5-v6-v1
+                          -1,1,1,  -1,1,-1,  -1,-1,-1,  -1,-1,1,    // v1-v6-v7-v2
+                          -1,-1,-1,  1,-1,-1,  1,-1,1,  -1,-1,1,    // v7-v4-v3-v2
+                          1,-1,-1,  -1,-1,-1,  -1,1,-1,  1,1,-1};   // v4-v7-v6-v5
+
+
+    GLubyte indices[] = {0,1,2,3,
+                         4,5,6,7,
+                         8,9,10,11,
+                         12,13,14,15,
+                         16,17,18,19,
+                         20,21,22,23};*/
+
+
+  /*  glPushMatrix();
+    glScalef(0.01, 0.01, 0.01);
+    glTranslatef(0, -20, -80);
+    glRotatef(angle, 0, 1, 0);*/
+   /* glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glDrawElements(GL_TRIANGLE_STRIP, 24, GL_UNSIGNED_BYTE, indices);
+
+*/
+  /*  model.Render();
+
+    glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
-
 
     posX+=deltaX;
     posY+=deltaY;
 
     if(posX>=width || posX <=0)deltaX*=-1;
-    if(posY>=height || posY <=0)deltaY*=-1;
+    if(posY>=height || posY <=0)deltaY*=-1;*/
 
     eglSwapBuffers(display, surface);
 
@@ -215,33 +309,16 @@ void Engine::TerminateDisplay() {
 }
 
 void Engine::ProcessTouchInput(const TouchEvent& event) {
-    if(event.action==ENGINE_TOUCHACTION_DOWN) {
-     //   LOGI("Touch event: down, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-        touch[event.pointerId] = true;
-        touchX[event.pointerId] = event.posX;
-        touchY[event.pointerId] = event.posY;
-    }
-    else if(event.action == ENGINE_TOUCHACTION_UP) {
-       // LOGI("Touch event: up, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-        touch[event.pointerId] = false;
-        touchX[event.pointerId] = event.posX;
-        touchY[event.pointerId] = event.posY;
-    }
-    else {
-       // LOGI("Touch event: move, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-        touchX[event.pointerId] = event.posX;
-        touchY[event.pointerId] = event.posY;
-    }
-
-
+    if(!virtualInputSystem->NewTouchEvent(event))
+        inputSystem->ProcessTouchEvent(event);
 }
 
 void Engine::ProcessKeyInput(const KeyEvent& event) {
-    if(event.action==ENGINE_KEYACTION_DOWN)
-        LOGI("Touch event: down, code %d", event.keyCode);
-    else if(event.action == ENGINE_KEYACTION_UP)
-        LOGI("Touch event: up, code %d", event.keyCode);
-
+    if(event.keyCode==ENGINE_KEYCODE_ESCAPE && event.action == ENGINE_KEYACTION_DOWN) {
+        exit=true;
+    }
+    else
+        inputSystem->ProcessKeyEvent(event);
 }
 
 
@@ -264,7 +341,7 @@ void Engine::onSaveState() {
 void Engine::onInitWindow() {
     if (app->window != NULL) {
         InitDisplay();
-        DrawFrame();
+        Render();
     }
 }
 
@@ -284,4 +361,33 @@ void Engine::onResume() {
 void Engine::ProcessAccelerometer(float x, float y, float z) {
            /* LOGI("accelerometer: x=%f y=%f z=%f",
                     x, y, z);*/
+}
+
+void Engine::onFrameStart() {
+    vector<KeyEvent> events = virtualInputSystem->GetEvents();
+    for(int i=0;i<events.size();++i) {
+        inputSystem->ProcessKeyEvent(events[i]);
+    }
+    inputSystem->StartFrame();
+}
+
+void Engine::onFrameEnd() {
+    inputSystem->EndFrame();
+}
+
+void Engine::update() {
+    /*if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_CENTER))
+        LOGI("G pressed");*/
+
+    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_CENTER))
+        LOGI("G just pressed");
+
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT))
+        angleY-=1.0f;
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT))
+        angleY+=1.0f;
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_UP))
+        angleX+=1.0f;
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_DOWN))
+        angleX-=1.0f;
 }

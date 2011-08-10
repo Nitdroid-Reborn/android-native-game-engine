@@ -17,7 +17,23 @@ SOURCES += main.cpp \
     FileIO/AndroidFileIO.cpp \
     ContentManager/PNGLoader.cpp \
     Clock.cpp \
-    Input/Input.cpp
+    Input/Input.cpp \
+    Math/Vector4.cpp \
+    Math/Vector3.cpp \
+    Math/Vector2.cpp \
+    Math/Ray.cpp \
+    Math/Plane.cpp \
+    Math/Matrix4x4.cpp \
+    Math/Frustum.cpp \
+    Math/BoundingBox.cpp \
+    MyModel.cpp \
+    Input/KeysState.cpp \
+    VirtualInput.cpp \
+    VirtualKey.cpp \
+    VirtualInput/VirtualKey.cpp \
+    VirtualInput/VirtualInput.cpp \
+    VirtualInput/VirtualSingleKey.cpp \
+    VirtualInput/VirtualDPad.cpp
 
 HEADERS += \
     Engine.h \
@@ -29,10 +45,45 @@ HEADERS += \
     FileIO/AndroidFileIO.h \
     ContentManager/PNGLoader.h \
     Clock.h \
-    Input/Input.h
+    Input/Input.h \
+    Math/Vector4.h \
+    Math/Vector3.h \
+    Math/Vector2.h \
+    Math/Ray.h \
+    Math/Plane.h \
+    Math/Matrix4x4.h \
+    Math/MathLib.h \
+    Math/Frustum.h \
+    Math/BoundingBox.h \
+    MyModel.h \
+    Input/KeysState.h \
+    Input/InputKeys.h \
+    VirtualInput.h \
+    VirtualKey.h \
+    VirtualInput/VirtualKey.h \
+    VirtualInput/VirtualInput.h \
+    VirtualInput/VirtualSingleKey.h \
+    VirtualInput/VirtualDPad.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

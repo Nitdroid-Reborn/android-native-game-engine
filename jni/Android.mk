@@ -33,7 +33,22 @@ LOCAL_SRC_FILES := main.cpp \
                    FileIO/AndroidFileIO.cpp \
                    FileIO/BufferStream.cpp \
                    Clock.cpp \
-                   Input/Input.cpp
+                   Input/Input.cpp \
+                   Input/KeysState.cpp \
+                   Math/BoundingBox.cpp \
+                   Math/Frustum.cpp \
+                   Math/Matrix4x4.cpp \
+                   Math/Plane.cpp \
+                   Math/Ray.cpp \
+                   Math/Vector2.cpp \
+                   Math/Vector3.cpp \
+                   Math/Vector4.cpp \
+                   MyModel.cpp \
+                   VirtualInput/VirtualInput.cpp \
+                   VirtualInput/VirtualKey.cpp \
+                   VirtualInput/VirtualSingleKey.cpp \
+                   VirtualInput/VirtualDPad.cpp
+
 
 LOCAL_LDLIBS    := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
 LOCAL_STATIC_LIBRARIES := android_native_app_glue libpng

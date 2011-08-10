@@ -61,6 +61,8 @@ bool AndroidFileIO::ReadAsset(const char *path, U8* buffer, U32 bufferSize, U32&
     bytesRead = AAsset_read(asset, buffer, bufferSize);
 
     AAsset_close(asset);
+
+    return true;
 }
 
 

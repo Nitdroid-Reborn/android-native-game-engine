@@ -26,7 +26,7 @@ using namespace std;
 
 
 
-static char keyMapper[110];
+static U64 keyMapper[110];
 
 ASensorManager* sensorManager;
 const ASensor* accelerometerSensor;
@@ -95,6 +95,8 @@ static void initKeyMapper() {
     keyMapper[AKEYCODE_SLASH] = ENGINE_KEYCODE_SLASH;
     keyMapper[AKEYCODE_AT] = ENGINE_KEYCODE_AT;
     keyMapper[AKEYCODE_PLUS] = ENGINE_KEYCODE_PLUS;
+    keyMapper[AKEYCODE_MENU] = ENGINE_KEYCODE_MENU;
+    keyMapper[AKEYCODE_BACK] = ENGINE_KEYCODE_ESCAPE;
 }
 
 
@@ -155,6 +157,11 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 
     int32_t eventType = AInputEvent_getType(event);
 
+    static bool touchPadLeft;
+    static bool touchPadRight;
+    static bool touchPadUp;
+    static bool touchPadDown;
+
     if(eventType == AINPUT_EVENT_TYPE_MOTION) {
         if(AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN) {
 
@@ -204,13 +211,12 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
             }
             return 1;
         }
-        else  {
+        /*else  {
             KeyEvent engineKeyEvent;
             char action = AMotionEvent_getAction(event);
             if(action==AMOTION_EVENT_ACTION_DOWN) {
                 engineKeyEvent.action = ENGINE_KEYACTION_DOWN;
                 engineKeyEvent.keyCode = ENGINE_KEYCODE_CENTER;
-                LOGI("Touchpad pressed");
             }
             else if(action == AMOTION_EVENT_ACTION_UP) {
                 engineKeyEvent.action = ENGINE_KEYACTION_UP;
@@ -223,28 +229,44 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 
                 engineKeyEvent.action = ENGINE_KEYACTION_DOWN;
 
-                if(x>0) engineKeyEvent.keyCode = ENGINE_KEYCODE_RIGHT;
-                if(x<0) engineKeyEvent.keyCode = ENGINE_KEYCODE_LEFT;
-                if(y>0) engineKeyEvent.keyCode = ENGINE_KEYCODE_DOWN;
-                if(y<0) engineKeyEvent.keyCode = ENGINE_KEYCODE_UP;
+                if(x>0) {
+                    engineKeyEvent.keyCode = ENGINE_KEYCODE_RIGHT;
+                    touchPadRight=true;
+                }
+                else if(x<0) {
+                    engineKeyEvent.keyCode = ENGINE_KEYCODE_LEFT;
+                    touchPadLeft=true;
+                }
+                else if(y>0) {
+                    engineKeyEvent.keyCode = ENGINE_KEYCODE_DOWN;
+                    touchPadDown=true;
+                }
+                else if(y<0) {
+                    engineKeyEvent.keyCode = ENGINE_KEYCODE_UP;
+                    touchPadUp=true;
+                }
             }
 
             engine->ProcessKeyInput(engineKeyEvent);
-        }
+            return 1;
+        }*/
+
+
     }
     else if(eventType == AINPUT_EVENT_TYPE_KEY) {
-        char engineKeyCode = keyMapper[AKeyEvent_getKeyCode(event)];
+        EngineKeyCode engineKeyCode = keyMapper[AKeyEvent_getKeyCode(event)];
         char keyAction = AKeyEvent_getAction(event);
 
         if(engineKeyCode != ENGINE_KEYCODE_UNKNOWN && keyAction != AKEY_EVENT_ACTION_MULTIPLE) {
             KeyEvent engineKeyEvent;
-            engineKeyEvent.keyCode = (EngineKeyCodes)engineKeyCode;
+            engineKeyEvent.keyCode = engineKeyCode;
             if(keyAction == AKEY_EVENT_ACTION_DOWN)
                 engineKeyEvent.action = ENGINE_KEYACTION_DOWN;
             else
                 engineKeyEvent.action = ENGINE_KEYACTION_UP;
 
             engine->ProcessKeyInput(engineKeyEvent);
+            return 1;
         }
     }
 
@@ -342,8 +364,8 @@ void android_main(struct android_app* app) {
 
     engine.Initialize();
 
-
-    while (1) {
+    LOGI("%d", sizeof(U64));
+    while (!engine.exit) {
         // Read all pending events.
         int ident;
         int events;
@@ -378,13 +400,13 @@ void android_main(struct android_app* app) {
             }
         }
 
-        if (engine.animating) {
-            // Done with events; draw next animation frame.
-
-            // Drawing is throttled to the screen update rate, so there
-            // is no need to do timing here.
-            engine.DrawFrame();
-        }
+        engine.onFrameStart();
+        engine.update();
+        engine.Render();
+        engine.onFrameEnd();
     }
+    engine.Release();
+    ANativeActivity_finish(app->activity);
+    return;
 }
 //END_INCLUDE(all)
