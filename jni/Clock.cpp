@@ -23,6 +23,10 @@ void Clock::update(U64 realMSeconds) {
     }
 }
 
+void Clock::reset() {
+    mseconds = 0;
+}
+
 void Clock::setPaused(bool paused) {
     this->paused = paused;
 }

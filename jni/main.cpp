@@ -1,32 +1,23 @@
-
 #include <jni.h>
 #include <errno.h>
-
-#include <EGL/egl.h>
-#include <GLES/gl.h>
 
 #include <android/sensor.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <android/window.h>
+
 #include <stdlib.h>
-#include <stdio.h>
-
-
-#include <cerrno>
-#include <cstddef>
-#include <string>
-#include "FileIO/AndroidFileIO.h"
-
 #include "Input/Input.h"
 
-using namespace std;
-
-#include "Engine.h"
+#include "AndroidEngine.h"
+#include "IEngine.h"
+#include "Utils.h"
 
 
 
 static U64 keyMapper[110];
+
+U64 lastTime;
 
 ASensorManager* sensorManager;
 const ASensor* accelerometerSensor;
@@ -153,14 +144,9 @@ void ReleaseWakeLock(android_app* app) {
  * Input event callback
  */
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
-    Engine* engine = (Engine*)app->userData;
+    IEngine* engine = (IEngine*)app->userData;
 
     int32_t eventType = AInputEvent_getType(event);
-
-    static bool touchPadLeft;
-    static bool touchPadRight;
-    static bool touchPadUp;
-    static bool touchPadDown;
 
     if(eventType == AINPUT_EVENT_TYPE_MOTION) {
         if(AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN) {
@@ -277,24 +263,24 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
  * System event callback
  */
 static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
-    Engine* engine = (Engine*)app->userData;
+    IEngine* engine = (IEngine*)app->userData;
 
     switch (cmd) {
         case APP_CMD_SAVE_STATE:
-            engine->onSaveState();
+            engine->OnSaveState();
             break;
         case APP_CMD_INIT_WINDOW:
-            engine->onInitWindow();
+            engine->OnInitWindow();
             break;
 
 
         case APP_CMD_TERM_WINDOW:
-            engine->onTerminateWindow();
+            engine->OnTerminateWindow();
             break;
 
 
         case APP_CMD_GAINED_FOCUS:
-            engine->onGainedFocus();
+            engine->OnGainedFocus();
             if (accelerometerSensor != NULL) {
                 ASensorEventQueue_enableSensor(sensorEventQueue,
                         accelerometerSensor);
@@ -307,7 +293,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 
 
         case APP_CMD_LOST_FOCUS:
-            engine->onLostFocus();
+            engine->OnLostFocus();
             if (accelerometerSensor != NULL) {
                 ASensorEventQueue_disableSensor(sensorEventQueue,
                         accelerometerSensor);
@@ -317,11 +303,11 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 
 
         case APP_CMD_RESUME:
-            engine->onResume();
+            engine->OnResume();
             break;
 
         case APP_CMD_PAUSE:
-            engine->onPause();
+            engine->OnPause();
             break;
     }
 }
@@ -338,22 +324,18 @@ void android_main(struct android_app* app) {
 
     initKeyMapper();
 
-    Engine engine;
+    AndroidEngine engine(app);
 
     app->userData = &engine;
     //set callbacks
     app->onAppCmd = engine_handle_cmd;
     app->onInputEvent = engine_handle_input;
-    engine.app = app;
 
 
     //set fullscreen
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_FULLSCREEN, 0);
 
     //restore state of application
-    if (app->savedState != NULL) {
-        engine.state = *(struct saved_state*)app->savedState;
-    }
 
 
     sensorManager = ASensorManager_getInstance();
@@ -364,8 +346,8 @@ void android_main(struct android_app* app) {
 
     engine.Initialize();
 
-    LOGI("%d", sizeof(U64));
-    while (!engine.exit) {
+    lastTime = getCurrentTimeInMsec();
+    while (1) {
         // Read all pending events.
         int ident;
         int events;
@@ -374,7 +356,7 @@ void android_main(struct android_app* app) {
         // If not animating, we will block forever waiting for events.
         // If animating, we loop until all events are read, then continue
         // to draw the next frame of animation.
-        while ((ident=ALooper_pollAll(engine.animating ? 0 : -1, NULL, &events,
+        while ((ident=ALooper_pollAll(engine.IsRunning() ? 0 : -1, NULL, &events,
                 (void**)&source)) >= 0) {
 
             // Process this event.
@@ -387,9 +369,9 @@ void android_main(struct android_app* app) {
                 ASensorEvent event;
                 while (ASensorEventQueue_getEvents(sensorEventQueue,
                         &event, 1) > 0) {
-                    engine.ProcessAccelerometer(event.acceleration.x,
-                                                event.acceleration.y,
-                                                event.acceleration.z);
+                    engine.ProcessAccelerometerInput(event.acceleration.x,
+                                                     event.acceleration.y,
+                                                     event.acceleration.z);
                 }
             }
 
@@ -400,13 +382,17 @@ void android_main(struct android_app* app) {
             }
         }
 
-        engine.onFrameStart();
-        engine.update();
+        if(engine.IsQuiting())
+            ANativeActivity_finish(app->activity);
+
+        //Start of new frame
+        U64 currentTime = getCurrentTimeInMsec();
+        float dt = (float)(currentTime - lastTime);
+        engine.OnFrameStart();
+        engine.Update(dt);
         engine.Render();
-        engine.onFrameEnd();
+        engine.OnFrameEnd();
+        lastTime = currentTime;
     }
-    engine.Release();
-    ANativeActivity_finish(app->activity);
-    return;
 }
 //END_INCLUDE(all)

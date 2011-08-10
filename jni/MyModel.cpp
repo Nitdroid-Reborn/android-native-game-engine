@@ -2,7 +2,7 @@
 #include <GLES/glext.h>
 #include <cstdio>
 #include "MyModel.h"
-#include "FileIO/FileIO.h"
+#include "FileIO/IFileIO.h"
 #include "FileIO/BufferStream.h"
 
 #define PI 3.14156
@@ -80,15 +80,14 @@ MyModel::~MyModel()
 
 void MyModel::Load(const char* filename)
 {
-    int len = FileIO::get()->GetAssetSize(filename);
+    int len = IFileIO::get()->GetAssetSize(filename);
     int* buffer = new int[len];
-    int read;
-    if(!FileIO::get()->ReadAsset(filename, (U8*)buffer, (U32)len, (U32&)read)) {
+    if(!IFileIO::get()->ReadAsset(filename, (U8*)buffer, (U32)len)) {
         delete[] buffer;
-        LOGE("blad readed %d", read);
+        LOGE("blad");
         return;
     }
-    BufferStream sb((U8*)buffer, len);
+    BufferStream sb(buffer, len);
 
     int i;
     char tempChar;
@@ -101,8 +100,8 @@ void MyModel::Load(const char* filename)
     char id[11];
     int version;
     memset(id, '\0', 11);
-    sb.read((U8*)id, 10);
-    sb.read((U8*)&version, sizeof(int));
+    sb.read(id, 10);
+    sb.read(&version, sizeof(int));
 
 
     if(strcmp(id, "MS3D000000")!=0 || version!=4)
@@ -114,52 +113,52 @@ void MyModel::Load(const char* filename)
 
     //Read vertices data
     //====================
-    sb.read((U8*)&numVertices, sizeof(short));
+    sb.read(&numVertices, sizeof(short));
 
     vertices = new MyModelVertex[numVertices];
 
 
     for(i=0;i<numVertices;i++)
     {
-        sb.read((U8*)tempString, 1);
-        sb.read((U8*)vertices[i].position, sizeof(float)*3);
-        sb.read((U8*)tempString, 1);
-        sb.read((U8*)tempString, 1);
+        sb.read(tempString, 1);
+        sb.read(vertices[i].position, sizeof(float)*3);
+        sb.read(tempString, 1);
+        sb.read(tempString, 1);
     }
     //====================
 
     //Read triangles data
     //====================
-    sb.read((U8*)&numTriangles, sizeof(short));
+    sb.read(&numTriangles, sizeof(short));
     triangles = new MyModelTriangle[numTriangles];
 
 
     for(i=0;i<numTriangles;i++)
     {
-        sb.read((U8*)tempString, sizeof(short));
-        sb.read((U8*)triangles[i].vertexIndices, sizeof(short)*3);
-        sb.read((U8*)triangles[i].vertexNormal, sizeof(float)*9);
-        sb.read((U8*)triangles[i].s, sizeof(float)*3);
-        sb.read((U8*)triangles[i].t, sizeof(float)*3);
-        sb.read((U8*)tempString, 1);
-        sb.read((U8*)&triangles[i].groupIndex, 1);
+        sb.read(tempString, sizeof(short));
+        sb.read(triangles[i].vertexIndices, sizeof(short)*3);
+        sb.read(triangles[i].vertexNormal, sizeof(float)*9);
+        sb.read(triangles[i].s, sizeof(float)*3);
+        sb.read(triangles[i].t, sizeof(float)*3);
+        sb.read(tempString, 1);
+        sb.read(&triangles[i].groupIndex, 1);
     }
     //====================
 
     //Read meshes data
     //====================
-    sb.read((U8*)&numMeshes, sizeof(short));
+    sb.read(&numMeshes, sizeof(short));
     meshes = new MyModelMesh[numMeshes];
 
     for(i=0;i<numMeshes;i++)
     {
-        sb.read((U8*)tempString, 1);
-        sb.read((U8*)tempString, 32);
-        sb.read((U8*)&meshes[i].numTriangles, sizeof(short));
+        sb.read(tempString, 1);
+        sb.read(tempString, 32);
+        sb.read(&meshes[i].numTriangles, sizeof(short));
 
         meshes[i].trianglesIndices = new unsigned short[meshes[i].numTriangles];
-        sb.read((U8*)meshes[i].trianglesIndices, sizeof(short)*meshes[i].numTriangles);
-        sb.read((U8*)&meshes[i].materialIndex, 1);
+        sb.read(meshes[i].trianglesIndices, sizeof(short)*meshes[i].numTriangles);
+        sb.read(&meshes[i].materialIndex, 1);
     }
 
     LOGI("Num vertices %d, num triangles %d, num meshes %d", numVertices, numTriangles, numMeshes);

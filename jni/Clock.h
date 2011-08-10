@@ -13,6 +13,7 @@ public:
     bool isPaused() const;
     void setTimeScale(F32 timeScale);
     F32 getTimeScale() const;
+    void reset();
 
     void singleStep();
 

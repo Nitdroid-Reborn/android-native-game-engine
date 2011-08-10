@@ -1,14 +1,8 @@
-#include "Engine.h"
+#include "AndroidEngine.h"
 #include "FileIO/AndroidFileIO.h"
 #include <android/keycodes.h>
 #include "Utils.h"
 
-static const char hello[] =
-                #include "hello_clip.h"
-                ;
-static const char android[] =
-                #include "android_clip.h"
-                ;
 
 #define PI 3.1415926535897932f
 
@@ -29,54 +23,55 @@ static void gluPerspective(GLfloat fovy, GLfloat aspect,
 
 
 
-Engine::Engine()
+AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 {
-    LOGI("Engine initialized");
+    LOGI("Engine created");
     frameCounter = 0;
 
-    posX=250;
-    posY=250;
-    deltaX=1;
-    deltaY=1;
-    lastTime = getCurrentTimeInMsec();
-    exit = false;
+    this->app = app;
+
+    isQuitting = false;
+
+    if (app->savedState != NULL) {
+        state = *(struct saved_state*)app->savedState;
+    }
 
 
-    centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
-    dpad = new VirtualDPad(125, 355, 100, 25);
+    //centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
+    //dpad = new VirtualDPad(125, 355, 100, 25);
 }
 
-Engine::~Engine() {
-    delete dpad;
-    delete centerKey;
-    LOGI("Engine closed");
+AndroidEngine::~AndroidEngine() {
+    LOGI("Engine destroyed");
 }
 
 
-void Engine::Initialize() {
-
-
-
-    audioSystem.CreateEngine();
-    fileIOSystem = new AndroidFileIO();
-    fileIOSystem->Initialize(app->activity->assetManager);
+void AndroidEngine::Initialize() {
+//    audioSystem.CreateEngine();
+    fileIOSystem = new AndroidFileIO(app->activity->assetManager);
+    fileIOSystem->Initialize();
 
     inputSystem = new Input();
 
-    virtualInputSystem = new VirtualInput();
+
+    LOGI("FileIO %p", IFileIO::get());
+
+
+
+
+/*    virtualInputSystem = new VirtualInput();
     virtualInputSystem->AddKey(centerKey);
-    virtualInputSystem->AddKey(dpad);
+    virtualInputSystem->AddKey(dpad);*/
 
 
-    model.Load("model.ms3d");
 
  //   audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
   //  audioSystem.SetAssetPlayerStatus(true);
 
 }
 
-void Engine::Release() {
-    audioSystem.Shutdown();
+void AndroidEngine::Release() {
+   // audioSystem.Shutdown();
     fileIOSystem->Release();
     delete fileIOSystem;
     fileIOSystem = NULL;
@@ -84,15 +79,13 @@ void Engine::Release() {
     delete inputSystem;
     inputSystem = NULL;
 
-    delete virtualInputSystem;
-    virtualInputSystem = NULL;
+   /* delete virtualInputSystem;
+    virtualInputSystem = NULL;*/
     TerminateDisplay();
 }
 
 
-
-
-int Engine::InitDisplay() {
+int AndroidEngine::InitDisplay() {
     // initialize OpenGL ES and EGL
 
     /*
@@ -107,7 +100,7 @@ int Engine::InitDisplay() {
             EGL_RED_SIZE, 8,
             EGL_NONE
     };
-    EGLint w, h, dummy, format;
+    EGLint w, h, format;
     EGLint numConfigs;
     EGLConfig config;
 
@@ -133,7 +126,7 @@ int Engine::InitDisplay() {
     context = eglCreateContext(display, config, NULL, NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        LOGW("Unable to eglMakeCurrent");
+        LOGE("Unable to eglMakeCurrent");
         return -1;
     }
 
@@ -145,7 +138,6 @@ int Engine::InitDisplay() {
     this->state.angle = 0;
 
     glEnable(GL_TEXTURE_2D);
-    texture = pngLoader.load("logo2.png");
 
     // Initialize GL state.
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
@@ -168,13 +160,30 @@ int Engine::InitDisplay() {
     return 0;
 }
 
-void Engine::Render() {
+void AndroidEngine::TerminateDisplay() {
+    if (display != EGL_NO_DISPLAY) {
+        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (context != EGL_NO_CONTEXT) {
+            eglDestroyContext(display, context);
+        }
+        if (surface != EGL_NO_SURFACE) {
+            eglDestroySurface(display, surface);
+        }
+        eglTerminate(display);
+    }
+    isRunning = false;
+    display = EGL_NO_DISPLAY;
+    context = EGL_NO_CONTEXT;
+    surface = EGL_NO_SURFACE;
+}
+
+void AndroidEngine::Render() {
     if(display == NULL) {
         return;
     }
 
     // Just fill the screen with a color.
-    glClearColor(0,0,0,1);
+   /* glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glLoadIdentity();
@@ -212,7 +221,7 @@ void Engine::Render() {
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
    gluPerspective(54.0f, (float)width/(float)height, 0.1f, 100.0f);
-   glMatrixMode(GL_MODELVIEW);
+   glMatrixMode(GL_MODELVIEW);*/
 
     /*for(int i=0;i<4;i++) {
         if(touch[i]==false)
@@ -282,112 +291,88 @@ void Engine::Render() {
 
     if(frameCounter>60) {
         frameCounter=0;
-        U64 now = getCurrentTimeInMsec();
-
-        float deltaTime = (now - lastTime)/1000.0f;
-
-        LOGI("%f", 60.0f/deltaTime);
-        lastTime = getCurrentTimeInMsec();
+        LOGI("%f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+        fpsClock.reset();
     }
 }
 
-void Engine::TerminateDisplay() {
-    if (display != EGL_NO_DISPLAY) {
-        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (context != EGL_NO_CONTEXT) {
-            eglDestroyContext(display, context);
-        }
-        if (surface != EGL_NO_SURFACE) {
-            eglDestroySurface(display, surface);
-        }
-        eglTerminate(display);
-    }
-    animating = 0;
-    display = EGL_NO_DISPLAY;
-    context = EGL_NO_CONTEXT;
-    surface = EGL_NO_SURFACE;
+
+
+void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
+    //if(!virtualInputSystem->NewTouchEvent(event))
+    inputSystem->ProcessTouchEvent(event);
 }
 
-void Engine::ProcessTouchInput(const TouchEvent& event) {
-    if(!virtualInputSystem->NewTouchEvent(event))
-        inputSystem->ProcessTouchEvent(event);
-}
-
-void Engine::ProcessKeyInput(const KeyEvent& event) {
+void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
     if(event.keyCode==ENGINE_KEYCODE_ESCAPE && event.action == ENGINE_KEYACTION_DOWN) {
-        exit=true;
+        isQuitting=true;
     }
     else
         inputSystem->ProcessKeyEvent(event);
 }
 
-
-
-
-void Engine::onGainedFocus() {
-    animating = 1;
+void AndroidEngine::OnGainedFocus() {
+    isRunning = 1;
 }
 
-void Engine::onLostFocus() {
-    animating = 0;
+void AndroidEngine::OnLostFocus() {
+    isRunning = 0;
 }
 
-void Engine::onSaveState() {
+void AndroidEngine::OnSaveState() {
     app->savedState = malloc(sizeof(struct saved_state));
     *((struct saved_state*)app->savedState) = state;
     app->savedStateSize = sizeof(struct saved_state);
 }
 
-void Engine::onInitWindow() {
+void AndroidEngine::OnInitWindow() {
     if (app->window != NULL) {
         InitDisplay();
         Render();
     }
 }
 
-void Engine::onTerminateWindow() {
+void AndroidEngine::OnTerminateWindow() {
     TerminateDisplay();
 }
 
-void Engine::onPause() {
+void AndroidEngine::OnPause() {
 
 }
 
-void Engine::onResume() {
+void AndroidEngine::OnResume() {
 
 }
 
 
-void Engine::ProcessAccelerometer(float x, float y, float z) {
+void AndroidEngine::ProcessAccelerometerInput(float x, float y, float z) {
            /* LOGI("accelerometer: x=%f y=%f z=%f",
                     x, y, z);*/
 }
 
-void Engine::onFrameStart() {
-    vector<KeyEvent> events = virtualInputSystem->GetEvents();
+void AndroidEngine::OnFrameStart() {
+   /* vector<KeyEvent> events = virtualInputSystem->GetEvents();
     for(int i=0;i<events.size();++i) {
         inputSystem->ProcessKeyEvent(events[i]);
-    }
+    }*/
     inputSystem->StartFrame();
 }
 
-void Engine::onFrameEnd() {
+void AndroidEngine::OnFrameEnd() {
     inputSystem->EndFrame();
 }
 
-void Engine::update() {
-    /*if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_CENTER))
-        LOGI("G pressed");*/
+void AndroidEngine::Update(float dt) {
+    this->dt = dt;
+    fpsClock.update(dt);
+}
 
-    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_CENTER))
-        LOGI("G just pressed");
 
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT))
-        angleY-=1.0f;
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT))
-        angleY+=1.0f;
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_UP))
-        angleX+=1.0f;
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_DOWN))
-        angleX-=1.0f;
+bool AndroidEngine::IsQuiting() const {
+    return isQuitting;
+}
+
+
+bool AndroidEngine::IsRunning() const {
+    return isRunning;
 }

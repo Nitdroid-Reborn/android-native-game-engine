@@ -9,39 +9,25 @@ const KeysState* Input::GetKeyState() const {
     return &keyState;
 }
 
+const TouchState* Input::GetTouchState() const {
+    return &touchState;
+}
+
 void Input::ProcessKeyEvent(const KeyEvent &event) {
     keyState.NewEvent(event);
-    if(event.action==ENGINE_KEYACTION_DOWN) {
-
-        //LOGI("Touch event: down, code %llu", event.keyCode);
-        //if(event.keyCode == ENGINE_KEYCODE_G)
-          //  LOGI("ok");
-    }
-    else if(event.action == ENGINE_KEYACTION_UP) {
-    }
-      //  LOGI("Touch event: up, code %d", event.keyCode);
 }
 
 void Input::ProcessTouchEvent(const TouchEvent &event) {
-    if(event.action==ENGINE_TOUCHACTION_DOWN) {
-       // LOGI("Touch event: down, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-
-    }
-    else if(event.action == ENGINE_TOUCHACTION_UP) {
-      //  LOGI("Touch event: up, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-
-    }
-    else {
-      //  LOGI("Touch event: move, id %d posx %f, posy %f", event.pointerId, event.posX, event.posY);
-
-    }
+    touchState.NewEvent(event);
 }
 
 
 void Input::EndFrame() {
     keyState.EndFrame();
+    touchState.EndFrame();
 }
 
 void Input::StartFrame() {
-    keyState.DetectKeyUpDownEvents();
+    keyState.StartFrame();
+    touchState.StartFrame();
 }

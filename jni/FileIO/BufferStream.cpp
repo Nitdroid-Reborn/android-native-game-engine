@@ -7,22 +7,22 @@ BufferStream::BufferStream() {
     this->bufferLength = 0;
 }
 
-BufferStream::BufferStream(U8 *buffer, U32 bufferLength)
+BufferStream::BufferStream(void *buffer, U32 bufferLength)
 {
-    this->buffer = buffer;
+    this->buffer = (U8*)buffer;
     currentPosition = 0;
     this->bufferLength=bufferLength;
 }
 
-void BufferStream::setBuffer(U8 *buffer, U32 bufferLength) {
-    this->buffer = buffer;
+void BufferStream::setBuffer(void *buffer, U32 bufferLength) {
+    this->buffer = (U8*)buffer;
     currentPosition = 0;
     this->bufferLength=bufferLength;
 }
 
-bool BufferStream::read(U8 *outputBuffer, U32 bytesToRead) {
+bool BufferStream::read(void *outputBuffer, U32 bytesToRead) {
     for(int i=0;i<bytesToRead;i++) {
-        if(!get(outputBuffer[i])) {
+        if(!get(((U8*)outputBuffer)[i])) {
             return false;
         }
     }

@@ -26,7 +26,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := android-game-engine
 LOCAL_SRC_FILES := main.cpp \
-                   Engine.cpp \
+                   AndroidEngine.cpp \
                    Utils.cpp \
                    AudioSystem.cpp \
                    ContentManager/PNGLoader.cpp \
@@ -35,6 +35,7 @@ LOCAL_SRC_FILES := main.cpp \
                    Clock.cpp \
                    Input/Input.cpp \
                    Input/KeysState.cpp \
+                   Input/TouchState.cpp \
                    Math/BoundingBox.cpp \
                    Math/Frustum.cpp \
                    Math/Matrix4x4.cpp \

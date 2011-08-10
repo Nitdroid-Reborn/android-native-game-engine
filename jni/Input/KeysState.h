@@ -9,12 +9,15 @@ public:
 
     bool IsKeyPressed(EngineKeyCode key) const;
     bool IsKeyJustPressed(EngineKeyCode key) const;
+    bool IsKeyJustReleased(EngineKeyCode key) const;
 
-    void DetectKeyUpDownEvents();
+    void StartFrame();
     void EndFrame();
+
     void NewEvent(const KeyEvent& event);
 
 private:
+    void DetectKeyUpDownEvents();
     U64 keyStates;
     U64 previousKeyStates;
     U64 keyDowns;

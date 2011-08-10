@@ -7,10 +7,10 @@ class BufferStream
 {
 public:
     BufferStream();
-    BufferStream(U8* buffer, U32 bufferLength);
+    BufferStream(void* buffer, U32 bufferLength);
 
-    void setBuffer(U8* buffer, U32 bufferLength);
-    bool read(U8* outputBuffer, U32 bytesToRead);
+    void setBuffer(void* buffer, U32 bufferLength);
+    bool read(void* outputBuffer, U32 bytesToRead);
     bool get(U8& byte);
     bool setPosition(U32 position);
     void resetPosition();

@@ -1,7 +1,6 @@
 #include "KeysState.h"
 #include "Utils.h"
-KeysState::KeysState()
-{
+KeysState::KeysState() {
     keyStates = 0x0;
     previousKeyStates = 0x0;
 }
@@ -21,9 +20,10 @@ bool KeysState::IsKeyJustPressed(EngineKeyCode key) const {
     return (keyDowns & key);
 }
 
-void KeysState::EndFrame() {
-    previousKeyStates = keyStates;
+bool KeysState::IsKeyJustReleased(EngineKeyCode key) const {
+    return (keyUps & key);
 }
+
 
 void KeysState::NewEvent(const KeyEvent &event) {
     if(event.action == ENGINE_KEYACTION_DOWN)
@@ -32,4 +32,10 @@ void KeysState::NewEvent(const KeyEvent &event) {
         keyStates = keyStates & (~event.keyCode);
 }
 
+void KeysState::StartFrame() {
+    DetectKeyUpDownEvents();
+}
 
+void KeysState::EndFrame() {
+    previousKeyStates = keyStates;
+}

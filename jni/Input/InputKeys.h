@@ -2,6 +2,9 @@
 #define INPUTKEYS_H
 #include "EngineTypes.h"
 typedef U64 EngineKeyCode;
+typedef U16 EnginePointerId;
+
+#define ENGINE_TOUCH_MAX_POINTERS 10
 
 static EngineKeyCode ENGINE_KEYCODE_UNKNOWN         = 0x0000000000000001LL;
 static EngineKeyCode ENGINE_KEYCODE_UP              = 0x0000000000000002LL;
@@ -64,6 +67,17 @@ static EngineKeyCode ENGINE_KEYCODE_PLUS            = 0x0200000000000000LL;
 static EngineKeyCode ENGINE_KEYCODE_MENU            = 0x0400000000000000LL;
 static EngineKeyCode ENGINE_KEYCODE_ESCAPE          = 0x0800000000000000LL;
 
+static EnginePointerId ENGINE_POINTER_0             = 0;
+static EnginePointerId ENGINE_POINTER_1             = 1;
+static EnginePointerId ENGINE_POINTER_2             = 2;
+static EnginePointerId ENGINE_POINTER_3             = 3;
+static EnginePointerId ENGINE_POINTER_4             = 4;
+static EnginePointerId ENGINE_POINTER_5             = 5;
+static EnginePointerId ENGINE_POINTER_6             = 6;
+static EnginePointerId ENGINE_POINTER_7             = 7;
+static EnginePointerId ENGINE_POINTER_8             = 8;
+static EnginePointerId ENGINE_POINTER_9             = 9;
+static EnginePointerId ENGINE_POINTER_10            = 10;
 
 enum EngineKeyActions {
     ENGINE_KEYACTION_DOWN    = 0,
@@ -84,7 +98,7 @@ struct KeyEvent {
 
 struct TouchEvent {
     EngineTouchActions action;
-    U8 pointerId;
+    EnginePointerId pointerId;
     F32 posX;
     F32 posY;
 };

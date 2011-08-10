@@ -10,7 +10,6 @@ INCLUDEPATH += "/home/mateusz/Workspace/SDKs/android-ndk-r6/platforms/android-9/
 
 # Input
 SOURCES += main.cpp \
-    Engine.cpp \
     Utils.cpp \
     AudioSystem.cpp \
     FileIO/BufferStream.cpp \
@@ -33,14 +32,14 @@ SOURCES += main.cpp \
     VirtualInput/VirtualKey.cpp \
     VirtualInput/VirtualInput.cpp \
     VirtualInput/VirtualSingleKey.cpp \
-    VirtualInput/VirtualDPad.cpp
+    VirtualInput/VirtualDPad.cpp \
+    Input/TouchState.cpp \
+    AndroidEngine.cpp
 
 HEADERS += \
-    Engine.h \
     Utils.h \
     AudioSystem.h \
     EngineTypes.h \
-    FileIO/FileIO.h \
     FileIO/BufferStream.h \
     FileIO/AndroidFileIO.h \
     ContentManager/PNGLoader.h \
@@ -63,10 +62,23 @@ HEADERS += \
     VirtualInput/VirtualKey.h \
     VirtualInput/VirtualInput.h \
     VirtualInput/VirtualSingleKey.h \
-    VirtualInput/VirtualDPad.h
+    VirtualInput/VirtualDPad.h \
+    Input/TouchState.h \
+    IEngine.h \
+    AndroidEngine.h \
+    FileIO/IFileIO.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
 
 
 
