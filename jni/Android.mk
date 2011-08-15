@@ -60,7 +60,9 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/SpriteBatcher.cpp \
                    MemoryManagement/StackAllocator.cpp \
                    Thread.cpp \
-                   Mutex.cpp
+                   Mutex.cpp \
+                   ConditionalVariable.cpp \
+                   AndroidRenderer.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

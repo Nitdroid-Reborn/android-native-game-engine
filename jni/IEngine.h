@@ -1,6 +1,6 @@
 #ifndef IENGINE_H
 #define IENGINE_H
-
+#include "Thread.h"
 #include "Input/InputKeys.h"
 
 class IEngine {
@@ -25,10 +25,10 @@ public:
     virtual void ProcessKeyInput(const KeyEvent&)=0;
     virtual void ProcessAccelerometerInput(float x, float y, float z)=0;
     virtual void Update(float dt)=0;
-    virtual void Render()=0;
+    //virtual void Render()=0;
 
-    virtual bool IsRunning() const=0;
-    virtual bool IsQuiting() const=0;
+    virtual bool IsRunning()=0;
+    virtual bool IsQuiting()=0;
 };
 
 #endif // IENGINE_H

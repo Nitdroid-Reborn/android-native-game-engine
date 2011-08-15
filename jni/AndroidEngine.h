@@ -16,7 +16,8 @@
 #include "VirtualInput/VirtualSingleKey.h"
 #include "VirtualInput/VirtualDPad.h"
 #include "Clock.h"
-
+#include "Mutex.h"
+#include "AndroidRenderer.h"
 #include "Graphics/ITexture.h"
 #include "Graphics/ISpriteBatcher.h"
 
@@ -52,25 +53,27 @@ public:
     void OnFrameStart();
     void OnFrameEnd();
 
+    void Render();
 
     void ProcessTouchInput(const TouchEvent& event);
     void ProcessKeyInput(const KeyEvent& event);
     void ProcessAccelerometerInput(float x, float y, float z);
 
-    void Render();
     void Update(float dt);
 
-    bool IsRunning() const;
-    bool IsQuiting() const;
+    bool IsRunning();
+    bool IsQuiting();
 
 private:
     android_app * app;
     struct saved_state state;
+    bool closeEngine;
 
 
    // AudioSystem audioSystem;
     IFileIO* fileIOSystem;
     Input* inputSystem;
+    IRenderer* renderer;
     VirtualInput* virtualInputSystem;
 
 
@@ -98,34 +101,11 @@ private:
     float dt;
     Clock fpsClock;
 
-  /*  float posX, posY;
-    float deltaX, deltaY;
+    bool initDisp;
+    bool termDisp;
 
-
-    float touchX[4];
-    float touchY[4];
-    bool touch[4];
-    float lastPosX;*/
-
-
-    //BOX2D
-    b2Vec2 gravity;
-
-    b2World* world;
-    bool doSleep;
-
-    bool started;
-    b2BodyDef groundBodyDef;
-    b2Body* groundBody;
-    b2PolygonShape groundBox;
-    b2BodyDef bodyDef;
-    b2Body* body;
-    b2PolygonShape dynamicBox;
-    b2FixtureDef fixtureDef;
-
-
-
-
+    Mutex mutex;
+    Mutex windowMutex;
 
 };
 

@@ -326,21 +326,6 @@ void android_main(struct android_app* app) {
 
 
 
-    StackAllocator stack(512);
-    StackAllocator::MemoryMarker marker = stack.GetMarker();
-    LOGI("Stack start %p", marker);
-    U8* mem;
-    mem = (U8*)stack.Alloc(3);
-
-    LOGI("Afer 3 %p", mem);
-    mem = (U8*)stack.Alloc(4);
-
-    LOGI("After 7 %p", mem);
-    mem = (U8*)stack.AllocAligned(4, 4);
-
-    LOGI("After 11 %p", mem);
-
-
     initKeyMapper();
 
     AndroidEngine engine(app);
@@ -365,7 +350,9 @@ void android_main(struct android_app* app) {
 
     engine.Initialize();
 
+
     lastTime = getCurrentTimeInMsec();
+
     while (1) {
         // Read all pending events.
         int ident;
@@ -396,7 +383,13 @@ void android_main(struct android_app* app) {
 
             // Check if we are exiting.
             if (app->destroyRequested != 0) {
+
+                LOGI("Engine closing");
                 engine.Release();
+
+                LOGI("Engine closed");
+
+
                 return;
             }
         }
@@ -405,15 +398,14 @@ void android_main(struct android_app* app) {
             ANativeActivity_finish(app->activity);
 
         if(engine.IsRunning()) {
-        //Start of new frame
             U64 currentTime = getCurrentTimeInMsec();
             float dt = (float)(currentTime - lastTime);
             engine.OnFrameStart();
             engine.Update(dt);
-            engine.Render();
             engine.OnFrameEnd();
             lastTime = currentTime;
         }
+
     }
 }
 //END_INCLUDE(all)

@@ -41,7 +41,9 @@ SOURCES += main.cpp \
     Graphics/SpriteBatcher.cpp \
     MemoryManagement/StackAllocator.cpp \
     Thread.cpp \
-    Mutex.cpp
+    Mutex.cpp \
+    AndroidRenderer.cpp \
+    ConditionalVariable.cpp
 
 HEADERS += \
     Utils.h \
@@ -82,10 +84,20 @@ HEADERS += \
     Graphics/SpriteBatcher.h \
     MemoryManagement/StackAllocator.h \
     Thread.h \
-    Mutex.h
+    Mutex.h \
+    IRenderer.h \
+    AndroidRenderer.h \
+    ConditionalVariable.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
 
 
 
