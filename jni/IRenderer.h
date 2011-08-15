@@ -17,6 +17,7 @@ public:
     virtual void OnTerminateWindow()=0;
     virtual void OnGainedFocus()=0;
     virtual void OnLostFocus()=0;
+    virtual void Wait()=0;
 };
 
 #endif // IRENDERER_H

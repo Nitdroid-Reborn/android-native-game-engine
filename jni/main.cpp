@@ -352,7 +352,7 @@ void android_main(struct android_app* app) {
 
 
     lastTime = getCurrentTimeInMsec();
-
+    engine.Start();
     while (1) {
         // Read all pending events.
         int ident;
@@ -383,13 +383,8 @@ void android_main(struct android_app* app) {
 
             // Check if we are exiting.
             if (app->destroyRequested != 0) {
-
-                LOGI("Engine closing");
                 engine.Release();
-
-                LOGI("Engine closed");
-
-
+                engine.WaitForStop();
                 return;
             }
         }
@@ -397,15 +392,14 @@ void android_main(struct android_app* app) {
         if(engine.IsQuiting())
             ANativeActivity_finish(app->activity);
 
-        if(engine.IsRunning()) {
+      /*  if(engine.IsRunning()) {
             U64 currentTime = getCurrentTimeInMsec();
             float dt = (float)(currentTime - lastTime);
             engine.OnFrameStart();
             engine.Update(dt);
             engine.OnFrameEnd();
             lastTime = currentTime;
-        }
-
+        }*/
     }
 }
 //END_INCLUDE(all)

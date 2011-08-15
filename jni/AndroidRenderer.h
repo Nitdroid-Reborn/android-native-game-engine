@@ -23,6 +23,7 @@ public:
     void OnLostFocus();
 
 
+    void Wait();
 private:
     void InitWindow();
     void TerminateWindow();
@@ -41,6 +42,10 @@ private:
     EGLSurface surface;
     EGLContext context;
     int32_t width;
+
+
+    U64 currentTime;
+    U64 lastTime;
     int32_t height;
     int frameCounter;
     float dt;

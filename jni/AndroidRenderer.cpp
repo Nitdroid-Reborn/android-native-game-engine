@@ -132,22 +132,17 @@ void AndroidRenderer::Release() {
 
     closing = true;
 
-    LOGI("Renderer released");
-
     mutex.Unlock();
 }
 
 void AndroidRenderer::Run() {
-    U64 currentTime;
-    U64 lastTime;
 
-    lastTime = getCurrentTimeInMsec();
+   // lastTime = getCurrentTimeInMsec();
     while(1) {
          mutex.Lock();
 
             if(closing) {
                 TerminateWindow();
-                LOGI("Renderer stopped");
                 mutex.Unlock();
                 return;
             }
@@ -171,8 +166,8 @@ void AndroidRenderer::Run() {
                     float dt = (float)(currentTime - lastTime);
                     fpsClock.update(dt);
 
-                    if(contextValid) {
-                       // glClearColor((float)frameCounter/60,1,0,1);
+                    //if(contextValid) {
+                    glClearColor((float)frameCounter/60.0f,1,1,1);
                         glClear(GL_COLOR_BUFFER_BIT);
 
                         eglSwapBuffers(display, surface);
@@ -181,15 +176,21 @@ void AndroidRenderer::Run() {
 
                          if(frameCounter>60) {
                              frameCounter=0;
-                             LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+                            // LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
                              fpsClock.reset();
                         }
 
-                            lastTime = currentTime;
-                    }
+                        lastTime = currentTime;
+                   // }
             //}
 
              mutex.Unlock();
-        }
-   // }
+      //  }
+    }
+}
+
+void AndroidRenderer::Wait() {
+    mutex.Lock();
+
+    mutex.Unlock();
 }

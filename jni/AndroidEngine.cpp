@@ -69,7 +69,7 @@ void AndroidEngine::Initialize() {
     texture = new Texture("logo.png");
     spriteBatcher = new SpriteBatcher(100);
 
-        renderer->Start();
+
 /*    virtualInputSystem = new VirtualInput();
     virtualInputSystem->AddKey(centerKey);
     virtualInputSystem->AddKey(dpad);*/
@@ -83,7 +83,6 @@ void AndroidEngine::Initialize() {
 
 void AndroidEngine::Release() {
     mutex.Lock();
-
     closeEngine = true;
 
    // audioSystem.Shutdown();
@@ -102,8 +101,6 @@ void AndroidEngine::Release() {
     renderer->Release();
     renderer->WaitForStop();
     LOGI("Renderer stopped");
-
-    LOGI("Engine released");
     mutex.Unlock();
 }
 
@@ -112,8 +109,8 @@ void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
     mutex.Lock();
     //if(!virtualInputSystem->NewTouchEvent(event))
     inputSystem->ProcessTouchEvent(event);
-
     mutex.Unlock();
+
 }
 
 void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
@@ -123,7 +120,6 @@ void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
     }
     else
         inputSystem->ProcessKeyEvent(event);
-
     mutex.Unlock();
 }
 
@@ -150,17 +146,13 @@ void AndroidEngine::OnSaveState() {
 }
 
 void AndroidEngine::OnInitWindow() {
-    mutex.Lock();
     if (app->window != NULL) {
         renderer->OnInitWindow();
     }
-    mutex.Unlock();
 }
 
 void AndroidEngine::OnTerminateWindow() {
-    mutex.Lock();
     renderer->OnTerminateWindow();
-    mutex.Unlock();
 }
 
 void AndroidEngine::OnPause() {
@@ -188,6 +180,7 @@ void AndroidEngine::OnFrameStart() {
 
 void AndroidEngine::OnFrameEnd() {
     inputSystem->EndFrame();
+    renderer->Wait();
 }
 
 void AndroidEngine::Update(float dt) {
@@ -196,6 +189,9 @@ void AndroidEngine::Update(float dt) {
 
     if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
         LOGI("down");
+
+//    if(inputSystem->GetTouchState()->IsPointerJustUp(ENGINE_POINTER_0))
+  //      LOGI("up");
 }
 
 
@@ -212,5 +208,21 @@ bool AndroidEngine::IsRunning() {
     bool res = isRunning;
     mutex.Unlock();
     return res;
+}
+
+
+void AndroidEngine::Run() {
+    renderer->Start();
+    while(1) {
+        mutex.Lock();
+        if(closeEngine) {
+            mutex.Unlock();
+            return;
+        }
+        OnFrameStart();
+        Update(1.0f/60.0f);
+        OnFrameEnd();
+        mutex.Unlock();
+    }
 }
 

@@ -55,6 +55,8 @@ public:
 
     void Render();
 
+    void Run();
+
     void ProcessTouchInput(const TouchEvent& event);
     void ProcessKeyInput(const KeyEvent& event);
     void ProcessAccelerometerInput(float x, float y, float z);

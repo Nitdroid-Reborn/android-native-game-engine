@@ -3,13 +3,16 @@
 #include "Thread.h"
 #include "Input/InputKeys.h"
 
-class IEngine {
+class IEngine : public Thread{
 public:
-    IEngine(){}
+    IEngine() : Thread() {}
     virtual ~IEngine(){}
 
     virtual void Initialize()=0;
     virtual void Release()=0;
+
+
+    virtual void Run()=0;
 
     virtual void OnSaveState()=0;
     virtual void OnInitWindow()=0;
