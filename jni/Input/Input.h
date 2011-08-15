@@ -10,16 +10,24 @@ class Input
 {
 public:
     Input();
+    virtual ~Input() {}
 
-    void ProcessKeyEvent(const KeyEvent&);
-    void ProcessTouchEvent(const TouchEvent&);
+    virtual bool Initialize();
+    virtual bool Release();
 
-    void StartFrame();
-    void EndFrame();
+    virtual void ProcessKeyEvent(const KeyEvent&);
+    virtual void ProcessTouchEvent(const TouchEvent&);
+
+    virtual void StartFrame();
+    virtual void EndFrame();
 
     const KeysState* GetKeyState() const;
     const TouchState* GetTouchState() const;
 
+    static Input* get() {return singleton;}
+
+protected:
+    static Input* singleton;
 private:
     KeysState keyState;
     TouchState touchState;

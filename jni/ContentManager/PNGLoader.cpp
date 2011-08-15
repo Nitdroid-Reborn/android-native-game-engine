@@ -17,7 +17,8 @@ void PNGLoader::pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t 
         return;
 }
 
-GLuint PNGLoader::load(const char *filename) {
+bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
+                     U16 &height, U8& colorDepth, bool &alpha) {
 
     U32 len = IFileIO::get()->GetAssetSize(filename);
     U8* buffer = new U8[len];
@@ -36,8 +37,9 @@ GLuint PNGLoader::load(const char *filename) {
     int is_png = !png_sig_cmp(header, 0, 8);
     if (!is_png) {
         delete[] buffer;
+        buffer = NULL;
         LOGE("Not a png file : %s", filename);
-        return 0;
+        return false;
       }
     LOGI("This is png file: %s", filename);
 
@@ -46,8 +48,9 @@ GLuint PNGLoader::load(const char *filename) {
           NULL, NULL);
       if (!png_ptr) {
         delete[] buffer;
+        buffer = NULL;
         LOGE("Unable to create png struct : %s", filename);
-        return 0;
+        return false;
       }
 
       //create png info struct
@@ -56,7 +59,8 @@ GLuint PNGLoader::load(const char *filename) {
         png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
         LOGE("Unable to create png info : %s", filename);
         delete[] buffer;
-        return 0;
+        buffer = NULL;
+        return false;
       }
 
       //create png info struct
@@ -65,15 +69,17 @@ GLuint PNGLoader::load(const char *filename) {
         png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
         LOGE("Unable to create png end info : %s", filename);
         delete[] buffer;
-        return 0;
+        buffer = NULL;
+        return false;
       }
 
       //png error stuff, not sure libpng man suggests this.
       if (setjmp(png_jmpbuf(png_ptr))) {
         delete[] buffer;
+        buffer = NULL;
         LOGE("Error during setjmp : %s", filename);
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        return 0;
+        return false;
       }
 
       //init png reading
@@ -94,10 +100,18 @@ GLuint PNGLoader::load(const char *filename) {
       png_get_IHDR(png_ptr, info_ptr, &twidth, &theight, &bit_depth, &color_type,
           NULL, NULL, NULL);
 
-
-      U32 width, height;
       width = twidth;
       height = theight;
+
+      if(color_type == PNG_COLOR_TYPE_RGB) {
+          colorDepth = 8;
+          alpha = false;
+      }
+      else {
+          colorDepth = 8;
+          alpha = true;
+      }
+
       //update width and height based on png info
 
       // Update the png info struct.
@@ -107,13 +121,14 @@ GLuint PNGLoader::load(const char *filename) {
       int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 
       // Allocate the image_data as a big block, to be given to opengl
-      png_byte *image_data = new png_byte[rowbytes * height];
-      if (!image_data) {
+      imageData = new png_byte[rowbytes * height];
+      if (!imageData) {
         //clean up memory and close stuff
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         LOGE("Unable to allocate image_data while loading %s ", filename);
         delete[] buffer;
-        return 0;
+        buffer = NULL;
+        return false;
       }
 
       //row_pointers is for pointing to image_data for reading the png with libpng
@@ -121,38 +136,25 @@ GLuint PNGLoader::load(const char *filename) {
       if (!row_pointers) {
         //clean up memory and close stuff
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        delete[] image_data;
+        delete[] imageData;
         LOGE("Unable to allocate row_pointer while loading %s ", filename);
         delete[] buffer;
-        return 0;
+        buffer = NULL;
+        return false;
       }
       // set the individual row_pointers to point at the correct offsets of image_data
-      for (int i = 0; i < height; ++i)
-        row_pointers[height - 1 - i] = image_data + i * rowbytes;
+    for (int i = 0; i < height; ++i)
+        row_pointers[height - 1 - i] = imageData + i * rowbytes;
 
       //read the png into image_data through row_pointers
       png_read_image(png_ptr, row_pointers);
 
-      //Now generate the OpenGL texture object
-      GLuint texture;
-      glGenTextures(1, &texture);
-      glBindTexture(GL_TEXTURE_2D, texture);
-      if(color_type == PNG_COLOR_TYPE_RGB) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-              GL_UNSIGNED_BYTE, (GLvoid*) image_data);
-      }
-      else {
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                GL_UNSIGNED_BYTE, (GLvoid*) image_data);
-      }
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glBindTexture(GL_TEXTURE_2D, 0);
 
       //clean up memory and close stuff
       png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-      delete[] image_data;
+
       delete[] row_pointers;
       delete[] buffer;
 
-      return texture;
+      return true;
 }

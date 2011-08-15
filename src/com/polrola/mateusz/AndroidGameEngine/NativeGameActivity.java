@@ -33,4 +33,9 @@ public class NativeGameActivity extends NativeActivity {
 		wakeLock.release();
 		Log.i("native-activity", "unlocked");
 	}
+	
+	static {
+		System.loadLibrary("box2d");
+		System.loadLibrary("png");
+	}
 }

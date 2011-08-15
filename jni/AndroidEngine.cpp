@@ -1,6 +1,8 @@
 #include "AndroidEngine.h"
 #include "FileIO/AndroidFileIO.h"
 #include <android/keycodes.h>
+#include "Graphics/Texture.h"
+#include "Graphics/SpriteBatcher.h"
 #include "Utils.h"
 
 
@@ -31,10 +33,13 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
     this->app = app;
 
     isQuitting = false;
+    isRunning = false;
 
     if (app->savedState != NULL) {
         state = *(struct saved_state*)app->savedState;
     }
+
+    started = false;
 
 
     //centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
@@ -52,9 +57,51 @@ void AndroidEngine::Initialize() {
     fileIOSystem->Initialize();
 
     inputSystem = new Input();
+    inputSystem->Initialize();
 
 
     LOGI("FileIO %p", IFileIO::get());
+
+    texture = new Texture("logo.png");
+    spriteBatcher = new SpriteBatcher(100);
+
+    isRunning = true;
+
+
+    doSleep = true;
+
+    gravity = b2Vec2(9.0, -9.81);
+
+    world = new b2World(gravity, doSleep);
+
+    groundBodyDef.position.Set(0.0f, -10.0f);
+
+    groundBody = world->CreateBody(&groundBodyDef);
+
+    groundBox.SetAsBox(50.0f, 10.0f);
+
+    b2FixtureDef boxShapeDef;
+    boxShapeDef.shape = &groundBox;
+    groundBody->CreateFixture(&boxShapeDef);
+
+
+    bodyDef.type = b2_dynamicBody;
+
+    bodyDef.position.Set(0.0f, 200.0f);
+
+    body = world->CreateBody(&bodyDef);
+
+    dynamicBox.SetAsBox(1.0f, 1.0f);
+
+    fixtureDef.shape = &dynamicBox;
+
+    fixtureDef.density = 1.0f;
+
+    fixtureDef.friction = 0.01f;
+
+    body->CreateFixture(&fixtureDef);
+
+
 
 
 
@@ -76,8 +123,11 @@ void AndroidEngine::Release() {
     delete fileIOSystem;
     fileIOSystem = NULL;
 
+    inputSystem->Release();
     delete inputSystem;
     inputSystem = NULL;
+
+    delete[] world;
 
    /* delete virtualInputSystem;
     virtualInputSystem = NULL;*/
@@ -151,11 +201,19 @@ int AndroidEngine::InitDisplay() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    //glOrthof(0.0, w, h, 0.0, 0.0, 1.0);
-    gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
+    glOrthof(0.0, w, h, 0.0, 0.0, 1.0);
+    //gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glViewport(0, 0, (int) w, (int) h);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+    texture->Load();
+
+    started = true;
 
     return 0;
 }
@@ -171,6 +229,7 @@ void AndroidEngine::TerminateDisplay() {
         }
         eglTerminate(display);
     }
+    texture->Dispose();
     isRunning = false;
     display = EGL_NO_DISPLAY;
     context = EGL_NO_CONTEXT;
@@ -182,6 +241,22 @@ void AndroidEngine::Render() {
         return;
     }
 
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glLoadIdentity();
+
+    TextureRegion region(0.0, 0.0, 1.0, 1.0, texture);
+
+
+    spriteBatcher->BeginBatch(texture);
+    b2Vec2 position = body->GetPosition();
+
+    float32 angle = body->GetAngle();
+
+
+    spriteBatcher->DrawSprite(position.x+60, position.y+60, 20, 20, region, angle);
+    spriteBatcher->EndBatch();
     // Just fill the screen with a color.
    /* glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -365,6 +440,11 @@ void AndroidEngine::OnFrameEnd() {
 void AndroidEngine::Update(float dt) {
     this->dt = dt;
     fpsClock.update(dt);
+
+    if(started) {
+        world->Step(dt/1000.0f, 6, 2);
+        world->ClearForces();
+    }
 }
 
 

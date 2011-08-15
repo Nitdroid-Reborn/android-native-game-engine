@@ -1,9 +1,23 @@
 #include "Input.h"
+#include <assert.h>
+
+Input* Input::singleton = NULL;
 
 Input::Input()
 {
 }
 
+
+bool Input::Initialize() {
+    assert(!singleton);
+    singleton = this;
+    return true;
+}
+
+bool Input::Release() {
+    singleton = NULL;
+    return true;
+}
 
 const KeysState* Input::GetKeyState() const {
     return &keyState;

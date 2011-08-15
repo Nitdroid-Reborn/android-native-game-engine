@@ -8,7 +8,7 @@ class PNGLoader
 {
 public:
     PNGLoader();
-    GLuint load(const char* filename);
+    bool Load(const char* filename, U8*& imageData, U16& width, U16& height, U8& colorDepth, bool& alpha);
 
 protected:
     static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t length);

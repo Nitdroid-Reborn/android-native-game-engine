@@ -17,7 +17,13 @@
 #include "VirtualInput/VirtualDPad.h"
 #include "Clock.h"
 
+#include "Graphics/ITexture.h"
+#include "Graphics/ISpriteBatcher.h"
+
 #include "AudioSystem.h"
+
+
+#include "Box2D/Box2D.h"
 
 
 
@@ -75,6 +81,9 @@ private:
     bool isRunning;
     bool isQuitting;
 
+    ITexture* texture;
+    ISpriteBatcher* spriteBatcher;
+
 
     EGLDisplay display;
     EGLSurface surface;
@@ -88,7 +97,7 @@ private:
     int frameCounter;
     float dt;
     Clock fpsClock;
-    MyModel model;
+
   /*  float posX, posY;
     float deltaX, deltaY;
 
@@ -97,6 +106,24 @@ private:
     float touchY[4];
     bool touch[4];
     float lastPosX;*/
+
+
+    //BOX2D
+    b2Vec2 gravity;
+
+    b2World* world;
+    bool doSleep;
+
+    bool started;
+    b2BodyDef groundBodyDef;
+    b2Body* groundBody;
+    b2PolygonShape groundBox;
+    b2BodyDef bodyDef;
+    b2Body* body;
+    b2PolygonShape dynamicBox;
+    b2FixtureDef fixtureDef;
+
+
 
 
 

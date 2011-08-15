@@ -13,6 +13,8 @@
 #include "IEngine.h"
 #include "Utils.h"
 
+#include "MemoryManagement/StackAllocator.h"
+
 
 
 static U64 keyMapper[110];
@@ -322,6 +324,23 @@ void android_main(struct android_app* app) {
     // Make sure glue isn't stripped.
     app_dummy();
 
+
+
+    StackAllocator stack(512);
+    StackAllocator::MemoryMarker marker = stack.GetMarker();
+    LOGI("Stack start %p", marker);
+    U8* mem;
+    mem = (U8*)stack.Alloc(3);
+
+    LOGI("Afer 3 %p", mem);
+    mem = (U8*)stack.Alloc(4);
+
+    LOGI("After 7 %p", mem);
+    mem = (U8*)stack.AllocAligned(4, 4);
+
+    LOGI("After 11 %p", mem);
+
+
     initKeyMapper();
 
     AndroidEngine engine(app);
@@ -385,14 +404,16 @@ void android_main(struct android_app* app) {
         if(engine.IsQuiting())
             ANativeActivity_finish(app->activity);
 
+        if(engine.IsRunning()) {
         //Start of new frame
-        U64 currentTime = getCurrentTimeInMsec();
-        float dt = (float)(currentTime - lastTime);
-        engine.OnFrameStart();
-        engine.Update(dt);
-        engine.Render();
-        engine.OnFrameEnd();
-        lastTime = currentTime;
+            U64 currentTime = getCurrentTimeInMsec();
+            float dt = (float)(currentTime - lastTime);
+            engine.OnFrameStart();
+            engine.Update(dt);
+            engine.Render();
+            engine.OnFrameEnd();
+            lastTime = currentTime;
+        }
     }
 }
 //END_INCLUDE(all)

@@ -17,6 +17,7 @@ AndroidFileIO::~AndroidFileIO() {
 
 bool AndroidFileIO::Initialize() {
     if(singleton!=NULL) {
+        assert(!singleton);
         LOGE("FileIO system already initialized");
         return false;
     }

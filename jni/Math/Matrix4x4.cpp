@@ -1,4 +1,5 @@
 #include <memory.h>
+#include <string.h>
 #include <Math/MathLib.h>
 
 Matrix4x4::Matrix4x4(float e0, float e1, float e2, float e3,

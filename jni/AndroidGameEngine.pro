@@ -34,7 +34,14 @@ SOURCES += main.cpp \
     VirtualInput/VirtualSingleKey.cpp \
     VirtualInput/VirtualDPad.cpp \
     Input/TouchState.cpp \
-    AndroidEngine.cpp
+    AndroidEngine.cpp \
+    Texture.cpp \
+    Graphics/Texture.cpp \
+    Graphics/TextureRegion.cpp \
+    Graphics/SpriteBatcher.cpp \
+    MemoryManagement/StackAllocator.cpp \
+    Thread.cpp \
+    Mutex.cpp
 
 HEADERS += \
     Utils.h \
@@ -66,10 +73,35 @@ HEADERS += \
     Input/TouchState.h \
     IEngine.h \
     AndroidEngine.h \
-    FileIO/IFileIO.h
+    FileIO/IFileIO.h \
+    Texture.h \
+    Graphics/Texture.h \
+    Graphics/ITexture.h \
+    Graphics/TextureRegion.h \
+    Graphics/ISpriteBatcher.h \
+    Graphics/SpriteBatcher.h \
+    MemoryManagement/StackAllocator.h \
+    Thread.h \
+    Mutex.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

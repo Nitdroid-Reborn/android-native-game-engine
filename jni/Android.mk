@@ -18,9 +18,15 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE            := libpng
 LOCAL_LDLIBS            := -lz
-LOCAL_SRC_FILES         := libpng.a
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES         := libpng/libpng.so
+include $(PREBUILT_SHARED_LIBRARY)
 
+
+
+include $(CLEAR_VARS)
+LOCAL_MODULE            := libbox2d
+LOCAL_SRC_FILES         := Box2D/libbox2d.so
+include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
@@ -48,11 +54,18 @@ LOCAL_SRC_FILES := main.cpp \
                    VirtualInput/VirtualInput.cpp \
                    VirtualInput/VirtualKey.cpp \
                    VirtualInput/VirtualSingleKey.cpp \
-                   VirtualInput/VirtualDPad.cpp
+                   VirtualInput/VirtualDPad.cpp \
+                   Graphics/Texture.cpp \
+                   Graphics/TextureRegion.cpp \
+                   Graphics/SpriteBatcher.cpp \
+                   MemoryManagement/StackAllocator.cpp \
+                   Thread.cpp \
+                   Mutex.cpp
 
 
-LOCAL_LDLIBS    := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
-LOCAL_STATIC_LIBRARIES := android_native_app_glue libpng
+LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
+LOCAL_SHARED_LIBRARIES :=  libpng libbox2d
+LOCAL_STATIC_LIBRARIES := android_native_app_glue
 
 include $(BUILD_SHARED_LIBRARY)
 

@@ -16,7 +16,6 @@ public:
     void resetPosition();
 
 private:
-
     U8* buffer;
     U32 currentPosition;
     U32 bufferLength;
