@@ -6,6 +6,10 @@
 #include "android_native_app_glue.h"
 #include "Clock.h"
 #include "ConditionalVariable.h"
+#include <vector>
+#include "Graphics/SpriteBatcher.h"
+
+using namespace std;
 
 class AndroidRenderer : public IRenderer
 {
@@ -14,16 +18,15 @@ public:
     ~AndroidRenderer(){}
 
     void Run();
-
     void Initialize();
     void Release();
     void OnInitWindow();
     void OnTerminateWindow();
     void OnGainedFocus();
     void OnLostFocus();
-
-
     void Wait();
+    void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f);
+
 private:
     void InitWindow();
     void TerminateWindow();
@@ -36,6 +39,7 @@ private:
     bool terminateWindow;
     bool closing;
     Mutex mutex;
+    Mutex queueMutex;
     bool active;
 
     EGLDisplay display;
@@ -50,7 +54,20 @@ private:
     int frameCounter;
     float dt;
     Clock fpsClock;
-    ConditionalVariable pauseConditionalVariable;
+    ConditionalVariable mainLoopCond;
+    SpriteBatcher* batcher;
+
+
+    struct Sprite {
+        F32 x;
+        F32 y;
+        F32 width;
+        F32 height;
+        F32 angle;
+    };
+
+    vector<Sprite> sprites;
+    vector<Sprite> oldSprites;
 };
 
 #endif // ANDROIDRENDERER_H

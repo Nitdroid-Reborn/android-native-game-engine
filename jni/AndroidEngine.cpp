@@ -4,7 +4,7 @@
 #include "Graphics/Texture.h"
 #include "Graphics/SpriteBatcher.h"
 #include "Utils.h"
-
+#include <unistd.h>
 
 #define PI 3.1415926535897932f
 
@@ -62,6 +62,7 @@ void AndroidEngine::Initialize() {
     inputSystem->Initialize();
 
     renderer = new AndroidRenderer(app);
+    renderer->Initialize();
 
 
     LOGI("FileIO %p", IFileIO::get());
@@ -106,11 +107,10 @@ void AndroidEngine::Release() {
 
 
 void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
-    mutex.Lock();
+   // mutex.Lock();
     //if(!virtualInputSystem->NewTouchEvent(event))
     inputSystem->ProcessTouchEvent(event);
-    mutex.Unlock();
-
+   // mutex.Unlock();
 }
 
 void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
@@ -180,15 +180,31 @@ void AndroidEngine::OnFrameStart() {
 
 void AndroidEngine::OnFrameEnd() {
     inputSystem->EndFrame();
-    renderer->Wait();
 }
 
 void AndroidEngine::Update(float dt) {
     this->dt = dt;
-    fpsClock.update(dt);
 
-    if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
-        LOGI("down");
+    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_0)) {
+        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_0),
+                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_0),
+                             120, 120, 0.0);
+    }
+    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_1)) {
+        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_1),
+                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_1),
+                             120, 120, 0.0);
+    }
+    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_2)) {
+        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_2),
+                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_2),
+                             120, 120, 0.0);
+    }
+    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_3)) {
+        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_3),
+                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_3),
+                             120, 120, 0.0);
+    }
 
 //    if(inputSystem->GetTouchState()->IsPointerJustUp(ENGINE_POINTER_0))
   //      LOGI("up");
@@ -219,10 +235,33 @@ void AndroidEngine::Run() {
             mutex.Unlock();
             return;
         }
+
+        currentTime = getCurrentTimeInMsec();
+        float dt = (float)(currentTime - lastTime);
+        fpsClock.update(dt);
+
+
         OnFrameStart();
-        Update(1.0f/60.0f);
+        Update(dt);
         OnFrameEnd();
-        mutex.Unlock();
+
+        renderer->Wait();
+
+
+      //  LOGI("Stop time: %f", (float)(t2-t1)/1000.0f);
+
+        frameCounter++;
+
+        if(frameCounter>60) {
+            frameCounter=0;
+            LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+            fpsClock.reset();
+        }
+
+       lastTime = currentTime;
+     //  usleep(15000);
+       mutex.UnlockQuasiFIFO(100);
+//       usleep(2000);
     }
 }
 

@@ -9,6 +9,7 @@ public:
     ~Mutex();
     void Lock();
     void Unlock();
+    void UnlockQuasiFIFO(int usec=10);
 
 private:
     pthread_mutex_t mutex;

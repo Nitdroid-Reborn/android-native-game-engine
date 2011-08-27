@@ -4,7 +4,10 @@
 #include "InputKeys.h"
 #include "KeysState.h"
 #include "TouchState.h"
+#include <vector>
+#include "Mutex.h"
 
+using namespace std;
 
 class Input
 {
@@ -31,6 +34,10 @@ protected:
 private:
     KeysState keyState;
     TouchState touchState;
+    vector<KeyEvent> pendingKeyEvents;
+    vector<TouchEvent> pendingTouchEvents;
+    Mutex mutex;
+
 };
 
 #endif // INPUT_H

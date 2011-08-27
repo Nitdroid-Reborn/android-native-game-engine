@@ -33,7 +33,7 @@ SpriteBatcher::~SpriteBatcher() {
 }
 
 void SpriteBatcher::BeginBatch(ITexture *texture) {
-    texture->Bind();
+   // texture->Bind();
     numSprites=0;
     verticesIndex=0;
 }

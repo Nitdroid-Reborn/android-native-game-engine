@@ -1,10 +1,13 @@
 #include "Input.h"
 #include <assert.h>
+#include "Utils.h"
 
 Input* Input::singleton = NULL;
 
 Input::Input()
 {
+    pendingKeyEvents.reserve(10);
+    pendingTouchEvents.reserve(10);
 }
 
 
@@ -28,11 +31,15 @@ const TouchState* Input::GetTouchState() const {
 }
 
 void Input::ProcessKeyEvent(const KeyEvent &event) {
-    keyState.NewEvent(event);
+    mutex.Lock();
+    pendingKeyEvents.push_back(event);
+    mutex.Unlock();
 }
 
 void Input::ProcessTouchEvent(const TouchEvent &event) {
-    touchState.NewEvent(event);
+    mutex.Lock();
+    pendingTouchEvents.push_back(event);
+    mutex.Unlock();
 }
 
 
@@ -42,6 +49,18 @@ void Input::EndFrame() {
 }
 
 void Input::StartFrame() {
+    mutex.Lock();
+    for(int i=0;i<pendingKeyEvents.size();i++) {
+        keyState.NewEvent(pendingKeyEvents[i]);
+    }
+    pendingKeyEvents.clear();
+
+    for(int i=0;i<pendingTouchEvents.size();i++) {
+        touchState.NewEvent(pendingTouchEvents[i]);
+    }
+    pendingTouchEvents.clear();
+    mutex.Unlock();
+
     keyState.StartFrame();
     touchState.StartFrame();
 }

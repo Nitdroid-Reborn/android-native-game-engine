@@ -66,6 +66,10 @@ public:
     bool IsRunning();
     bool IsQuiting();
 
+    bool buffersSwapped;
+
+    IRenderer* renderer;
+
 private:
     android_app * app;
     struct saved_state state;
@@ -75,7 +79,7 @@ private:
    // AudioSystem audioSystem;
     IFileIO* fileIOSystem;
     Input* inputSystem;
-    IRenderer* renderer;
+
     VirtualInput* virtualInputSystem;
 
 
@@ -102,6 +106,8 @@ private:
     int frameCounter;
     float dt;
     Clock fpsClock;
+    U64 currentTime;
+    U64 lastTime;
 
     bool initDisp;
     bool termDisp;

@@ -1,6 +1,9 @@
 #include "AndroidRenderer.h"
 #include "Utils.h"
 #include <GLES/gl.h>
+#include "Graphics/SpriteBatcher.h"
+#include <unistd.h>
+
 
 AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
 {
@@ -10,6 +13,7 @@ AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
     terminateWindow = false;
     closing = false;
     active = true;
+
 }
 
 void AndroidRenderer::OnInitWindow() {
@@ -124,13 +128,14 @@ void AndroidRenderer::TerminateWindow() {
 }
 
 void AndroidRenderer::Initialize() {
-
+    batcher = new SpriteBatcher(1000);
 }
 
 void AndroidRenderer::Release() {
     mutex.Lock();
 
     closing = true;
+    delete batcher;
 
     mutex.Unlock();
 }
@@ -140,6 +145,7 @@ void AndroidRenderer::Run() {
    // lastTime = getCurrentTimeInMsec();
     while(1) {
          mutex.Lock();
+         mainLoopCond.Signal();
 
             if(closing) {
                 TerminateWindow();
@@ -167,23 +173,32 @@ void AndroidRenderer::Run() {
                     fpsClock.update(dt);
 
                     //if(contextValid) {
-                    glClearColor((float)frameCounter/60.0f,1,1,1);
-                        glClear(GL_COLOR_BUFFER_BIT);
+                    glClearColor(0,0,0,1);
+                    glClear(GL_COLOR_BUFFER_BIT);
 
-                        eglSwapBuffers(display, surface);
+                    TextureRegion r(0,0, 1,1, 0);
+                    batcher->BeginBatch(0);
+                    for(int i=0;i<oldSprites.size();i++) {
+                        batcher->DrawSprite(oldSprites[i].x, oldSprites[i].y,
+                                            oldSprites[i].width, oldSprites[i].height,
+                                            r, oldSprites[i].angle);
+                    }
+
+                    batcher->EndBatch();
+
+                    eglSwapBuffers(display, surface);
 
                          frameCounter++;
 
                          if(frameCounter>60) {
                              frameCounter=0;
-                            // LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+                             LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
                              fpsClock.reset();
                         }
 
                         lastTime = currentTime;
                    // }
             //}
-
              mutex.Unlock();
       //  }
     }
@@ -191,6 +206,19 @@ void AndroidRenderer::Run() {
 
 void AndroidRenderer::Wait() {
     mutex.Lock();
-
+    oldSprites = sprites;
+    sprites.clear();
     mutex.Unlock();
+    mainLoopCond.Wait();
+}
+
+void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle) {
+    Sprite s;;
+    s.x = x;
+    s.y = y;
+    s.width = width;
+    s.height = height;
+    s.angle = angle;
+
+    sprites.push_back(s);
 }
