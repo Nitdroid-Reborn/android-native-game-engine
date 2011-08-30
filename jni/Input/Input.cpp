@@ -1,5 +1,4 @@
 #include "Input.h"
-#include <assert.h>
 #include <Utils/Utils.h>
 
 Input* Input::singleton = NULL;
@@ -12,13 +11,16 @@ Input::Input()
 
 
 bool Input::Initialize() {
-    assert(!singleton);
+    ASSERT(!singleton, "Input system already initialized");
     singleton = this;
+
+    Log(1, "Input system initialized");
     return true;
 }
 
 bool Input::Release() {
     singleton = NULL;
+    Log(1, "Input system released");
     return true;
 }
 

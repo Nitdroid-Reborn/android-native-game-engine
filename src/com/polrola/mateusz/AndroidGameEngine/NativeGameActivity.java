@@ -26,12 +26,12 @@ public class NativeGameActivity extends NativeActivity {
 	
 	public void lock() {
 		wakeLock.acquire();
-		Log.i("native-activity", "locked");
+		Log.i("native-activity", "WakeLock acquired");
 	}
 	
 	public void unlock() {
 		wakeLock.release();
-		Log.i("native-activity", "unlocked");
+		Log.i("native-activity", "WakeLock released");
 	}
 	
 	static {

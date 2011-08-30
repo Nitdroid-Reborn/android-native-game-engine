@@ -63,7 +63,9 @@ LOCAL_SRC_FILES := main.cpp \
                    Core/Mutex.cpp \
                    Core/ConditionalVariable.cpp \
                    Graphics/AndroidRenderer.cpp \
-                   ContentManager/AndroidContentManager.cpp
+                   ContentManager/AndroidContentManager.cpp \
+                   Utils/Log.cpp \
+                   Utils/Assert.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

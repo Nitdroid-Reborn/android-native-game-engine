@@ -388,11 +388,11 @@ void android_main(struct android_app* app) {
                 return;
             }
         }
-
         if(engine.IsQuiting())
             ANativeActivity_finish(app->activity);
 
         if(engine.IsRunning()) {
+
             engine.SingleFrame();
         }
     }

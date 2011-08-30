@@ -1,6 +1,5 @@
 #include "AndroidFileIO.h"
 #include <sys/stat.h>
-#include <assert.h>
 #include <Utils/Utils.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,17 +15,16 @@ AndroidFileIO::~AndroidFileIO() {
 }
 
 bool AndroidFileIO::Initialize() {
-    if(singleton!=NULL) {
-        assert(!singleton);
-        LOGE("FileIO system already initialized");
-        return false;
-    }
+    ASSERT(!singleton, "FileIO system already initialized");
+
     singleton = this;
 
     for(int i=0;i<256;i++)
         fileHandles[i]=NULL;
 
     numHandles=0;
+
+    Log(1, "Android FileIO system initialized");
     return true;
 }
 
@@ -39,6 +37,7 @@ bool AndroidFileIO::Release() {
         }
     }
     singleton = NULL;
+    Log(1, "Android FileIO system released");
     return true;
 }
 

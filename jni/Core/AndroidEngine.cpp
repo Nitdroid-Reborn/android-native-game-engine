@@ -27,7 +27,7 @@ static void gluPerspective(GLfloat fovy, GLfloat aspect,
 
 AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 {
-    LOGI("Engine created");
+    Log("Engine created");
     frameCounter = 0;
 
     this->app = app;
@@ -49,12 +49,13 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 }
 
 AndroidEngine::~AndroidEngine() {
-    LOGI("Engine destroyed");
+    Log("Engine destroyed");
 }
 
 
 void AndroidEngine::Initialize() {
 //    audioSystem.CreateEngine();
+
     fileIOSystem = new AndroidFileIO(app->activity->assetManager);
     fileIOSystem->Initialize();
 
@@ -66,8 +67,6 @@ void AndroidEngine::Initialize() {
 
     renderer = new AndroidRenderer(app);
     renderer->Initialize();
-
-    LOGI("FileIO %p", IFileIO::get());
 
 
     //contentManager->LoadTexture("logo.png");
@@ -109,48 +108,37 @@ void AndroidEngine::Release() {
 
     renderer->Release();
     renderer->WaitForStop();
-    LOGI("Renderer stopped");
    // mutex.UnlockQuasiFIFO();
 }
 
 
 void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
-   // mutex.Lock();
     //if(!virtualInputSystem->NewTouchEvent(event))
     inputSystem->ProcessTouchEvent(event);
-   // mutex.Unlock();
 }
 
 void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
-  //  mutex.Lock();
     if(event.keyCode==ENGINE_KEYCODE_ESCAPE && event.action == ENGINE_KEYACTION_DOWN) {
         isQuitting=true;
     }
     else
         inputSystem->ProcessKeyEvent(event);
- //   mutex.Unlock();
 }
 
 void AndroidEngine::OnGainedFocus() {
-  //  mutex.Lock();
     isRunning = 1;
     renderer->OnGainedFocus();
-  //  mutex.Unlock();
 }
 
 void AndroidEngine::OnLostFocus() {
-//   mutex.Lock();
     isRunning = 0;
     renderer->OnLostFocus();
- //   mutex.Unlock();
 }
 
 void AndroidEngine::OnSaveState() {
- //   mutex.Lock();
     app->savedState = malloc(sizeof(struct saved_state));
     *((struct saved_state*)app->savedState) = state;
     app->savedStateSize = sizeof(struct saved_state);
- //   mutex.Unlock();
 }
 
 void AndroidEngine::OnInitWindow() {
@@ -220,17 +208,13 @@ void AndroidEngine::Update(float dt) {
 
 
 bool AndroidEngine::IsQuiting() {
- //   mutex.Lock();
     bool res = isQuitting;
- //   mutex.Unlock();
     return res;
 }
 
 
 bool AndroidEngine::IsRunning() {
-    //mutex.Lock();
     bool res = isRunning;
-   // mutex.Unlock();
     return res;
 }
 
@@ -252,7 +236,7 @@ void AndroidEngine::SingleFrame() {
 
     if(frameCounter>60) {
         frameCounter=0;
-        LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+        Log(0, "MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
         fpsClock.reset();
     }
 

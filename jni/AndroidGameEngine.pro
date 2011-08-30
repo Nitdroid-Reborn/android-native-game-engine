@@ -50,7 +50,10 @@ SOURCES += main.cpp \
     Core/Thread.cpp \
     Core/Mutex.cpp \
     Core/ConditionalVariable.cpp \
-    Core/AndroidEngine.cpp
+    Core/AndroidEngine.cpp \
+    Utils/Log.cpp \
+    Utils/Assert.cpp \
+    Graphics/AndroidRenderer.cpp
 
 HEADERS += \
     Utils.h \
@@ -105,10 +108,18 @@ HEADERS += \
     Core/Mutex.h \
     Core/IEngine.h \
     Core/ConditionalVariable.h \
-    Core/AndroidEngine.h
+    Core/AndroidEngine.h \
+    Utils/Log.h \
+    Graphics/IRenderer.h \
+    Graphics/AndroidRenderer.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
 
 
 

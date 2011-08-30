@@ -14,13 +14,11 @@ AndroidContentManager::~AndroidContentManager() {
 }
 
 bool AndroidContentManager::Initialize() {
-    if(singleton != NULL) {
-        assert(!singleton);
-    }
+    ASSERT(!singleton, "ContentManager already initialized");
     singleton = this;
 
 
-    LOGI("Initializing android content manager");
+
     const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
             EGL_BLUE_SIZE, 8,
@@ -49,10 +47,10 @@ bool AndroidContentManager::Initialize() {
     context = eglCreateContext(display, config, NULL, NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        LOGE("Unable to eglMakeCurrent in context manager %d", eglGetError());
+        Log(3, "Unable to eglMakeCurrent in context manager %d", eglGetError());
         return false;
     }
-
+    Log(1, "Android Content Manager initialized");
     return true;
 }
 
@@ -70,7 +68,7 @@ bool AndroidContentManager::Release() {
     display = EGL_NO_DISPLAY;
     context = EGL_NO_CONTEXT;
     surface = EGL_NO_SURFACE;
-
+    Log(1, "Android Content Manager released");
     return true;
 }
 

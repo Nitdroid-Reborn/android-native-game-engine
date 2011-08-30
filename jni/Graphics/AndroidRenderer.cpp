@@ -19,8 +19,6 @@ AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
 
 void AndroidRenderer::OnInitWindow() {
     mutex.Lock();
-
-    LOGI("Initialize window");
     initWindow = true;
     mutex.Unlock();
 }
@@ -46,6 +44,7 @@ void AndroidRenderer::OnLostFocus() {
 }
 
 void AndroidRenderer::InitWindow() {
+    Log(1, "Renderer window initialized");
     const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
             EGL_BLUE_SIZE, 8,
@@ -78,12 +77,11 @@ void AndroidRenderer::InitWindow() {
     surface = eglCreateWindowSurface(display, config, app->window, NULL);
 
     const AndroidContentManager* manager = (const AndroidContentManager*)IContentManager::get();
-    LOGI("manager %p", manager);
 
     context = eglCreateContext(display, config, manager->GetEGLContext(), NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        LOGE("Unable to eglMakeCurrent");
+        Log("Unable to eglMakeCurrent");
         return;
     }
 
@@ -117,6 +115,7 @@ void AndroidRenderer::InitWindow() {
 }
 
 void AndroidRenderer::TerminateWindow() {
+    Log(1, "Renderer window destroyed");
     if (display != EGL_NO_DISPLAY) {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (context != EGL_NO_CONTEXT) {
@@ -134,6 +133,7 @@ void AndroidRenderer::TerminateWindow() {
 
 void AndroidRenderer::Initialize() {
     batcher = new SpriteBatcher(1000);
+    Log(1, "Android Renderer initialized");
 }
 
 void AndroidRenderer::Release() {
@@ -157,6 +157,7 @@ void AndroidRenderer::Run() {
             if(closing) {
                 TerminateWindow();
                 mutex.Unlock();
+                Log(1, "Android Renderer released");
                 return;
             }
 
@@ -193,17 +194,18 @@ void AndroidRenderer::Run() {
 
                     batcher->EndBatch();
 
-                    eglSwapBuffers(display, surface);
+                    if(contextValid)
+                        eglSwapBuffers(display, surface);
 
-                         frameCounter++;
+                     frameCounter++;
 
-                         if(frameCounter>60) {
-                             frameCounter=0;
-                          //   LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
-                             fpsClock.reset();
-                        }
+                     if(frameCounter>60) {
+                         frameCounter=0;
+                         Log(0, "FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+                         fpsClock.reset();
+                    }
 
-                        lastTime = currentTime;
+                    lastTime = currentTime;
                    // }
             //}
              mutex.Unlock();
