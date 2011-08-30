@@ -1,6 +1,6 @@
 #ifndef ITEXTURE_H
 #define ITEXTURE_H
-#include "EngineTypes.h"
+#include <Utils/EngineTypes.h>
 
 
 struct TextureInfo {

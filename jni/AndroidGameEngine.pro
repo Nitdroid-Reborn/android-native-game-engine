@@ -43,7 +43,14 @@ SOURCES += main.cpp \
     Thread.cpp \
     Mutex.cpp \
     AndroidRenderer.cpp \
-    ConditionalVariable.cpp
+    ConditionalVariable.cpp \
+    ContentManager/AndroidContentManager.cpp \
+    Utils/Utils.cpp \
+    Utils/Clock.cpp \
+    Core/Thread.cpp \
+    Core/Mutex.cpp \
+    Core/ConditionalVariable.cpp \
+    Core/AndroidEngine.cpp
 
 HEADERS += \
     Utils.h \
@@ -87,10 +94,33 @@ HEADERS += \
     Mutex.h \
     IRenderer.h \
     AndroidRenderer.h \
-    ConditionalVariable.h
+    ConditionalVariable.h \
+    ContentManager/IContentManager.h \
+    ContentManager/AndroidContentManager.h \
+    Utils/Assert.h \
+    Utils/Utils.h \
+    Utils/EngineTypes.h \
+    Utils/Clock.h \
+    Core/Thread.h \
+    Core/Mutex.h \
+    Core/IEngine.h \
+    Core/ConditionalVariable.h \
+    Core/AndroidEngine.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

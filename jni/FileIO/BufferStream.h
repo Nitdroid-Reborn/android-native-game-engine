@@ -1,7 +1,7 @@
 #ifndef BUFFERSTREAM_H
 #define BUFFERSTREAM_H
 
-#include "EngineTypes.h"
+#include <Utils/EngineTypes.h>
 
 class BufferStream
 {

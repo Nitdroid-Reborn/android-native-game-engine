@@ -1,8 +1,8 @@
 #ifndef IRENDERER_H
 #define IRENDERER_H
 
-#include "Thread.h"
-#include "Utils.h"
+#include <Core/Thread.h>
+#include <Utils/Utils.h>
 
 class IRenderer : public Thread
 {

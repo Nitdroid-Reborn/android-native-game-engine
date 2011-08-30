@@ -1,5 +1,5 @@
 #include "VirtualSingleKey.h"
-#include "Utils.h"
+#include <Utils/Utils.h>
 #include <GLES/gl.h>
 
 VirtualSingleKey::VirtualSingleKey(EngineKeyCode keyCode, float posX, float posY, float radius)

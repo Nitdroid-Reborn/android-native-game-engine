@@ -1,13 +1,14 @@
 #ifndef ANDROIDRENDERER_H
 #define ANDROIDRENDERER_H
 #include "IRenderer.h"
-#include "Mutex.h"
+#include <Core/Mutex.h>
 #include <EGL/egl.h>
 #include "android_native_app_glue.h"
-#include "Clock.h"
-#include "ConditionalVariable.h"
+#include <Utils/Clock.h>
+#include <Core/ConditionalVariable.h>
 #include <vector>
-#include "Graphics/SpriteBatcher.h"
+#include "SpriteBatcher.h"
+#include <ContentManager/IContentManager.h>
 
 using namespace std;
 
@@ -45,6 +46,7 @@ private:
     EGLDisplay display;
     EGLSurface surface;
     EGLContext context;
+
     int32_t width;
 
 

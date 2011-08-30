@@ -1,9 +1,9 @@
 #include "AndroidEngine.h"
-#include "FileIO/AndroidFileIO.h"
+#include <FileIO/AndroidFileIO.h>
 #include <android/keycodes.h>
-#include "Graphics/Texture.h"
-#include "Graphics/SpriteBatcher.h"
-#include "Utils.h"
+#include <Graphics/Texture.h>
+#include <Graphics/SpriteBatcher.h>
+#include <Utils/Utils.h>
 #include <unistd.h>
 
 #define PI 3.1415926535897932f
@@ -61,16 +61,21 @@ void AndroidEngine::Initialize() {
     inputSystem = new Input();
     inputSystem->Initialize();
 
+    contentManager = new AndroidContentManager();
+    contentManager->Initialize();
+
     renderer = new AndroidRenderer(app);
     renderer->Initialize();
 
-
     LOGI("FileIO %p", IFileIO::get());
 
-    texture = new Texture("logo.png");
+
+    //contentManager->LoadTexture("logo.png");
+
+   /* texture = new Texture("logo.png");
     spriteBatcher = new SpriteBatcher(100);
 
-
+*/
 /*    virtualInputSystem = new VirtualInput();
     virtualInputSystem->AddKey(centerKey);
     virtualInputSystem->AddKey(dpad);*/
@@ -83,7 +88,7 @@ void AndroidEngine::Initialize() {
 }
 
 void AndroidEngine::Release() {
-    mutex.Lock();
+   // mutex.Lock();
     closeEngine = true;
 
    // audioSystem.Shutdown();
@@ -98,11 +103,14 @@ void AndroidEngine::Release() {
    /* delete virtualInputSystem;
     virtualInputSystem = NULL;*/
 
+    contentManager->Release();
+    delete contentManager;
+    contentManager = NULL;
 
     renderer->Release();
     renderer->WaitForStop();
     LOGI("Renderer stopped");
-    mutex.Unlock();
+   // mutex.UnlockQuasiFIFO();
 }
 
 
@@ -114,35 +122,35 @@ void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
 }
 
 void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
-    mutex.Lock();
+  //  mutex.Lock();
     if(event.keyCode==ENGINE_KEYCODE_ESCAPE && event.action == ENGINE_KEYACTION_DOWN) {
         isQuitting=true;
     }
     else
         inputSystem->ProcessKeyEvent(event);
-    mutex.Unlock();
+ //   mutex.Unlock();
 }
 
 void AndroidEngine::OnGainedFocus() {
-    mutex.Lock();
+  //  mutex.Lock();
     isRunning = 1;
     renderer->OnGainedFocus();
-    mutex.Unlock();
+  //  mutex.Unlock();
 }
 
 void AndroidEngine::OnLostFocus() {
-    mutex.Lock();
+//   mutex.Lock();
     isRunning = 0;
     renderer->OnLostFocus();
-    mutex.Unlock();
+ //   mutex.Unlock();
 }
 
 void AndroidEngine::OnSaveState() {
-    mutex.Lock();
+ //   mutex.Lock();
     app->savedState = malloc(sizeof(struct saved_state));
     *((struct saved_state*)app->savedState) = state;
     app->savedStateSize = sizeof(struct saved_state);
-    mutex.Unlock();
+ //   mutex.Unlock();
 }
 
 void AndroidEngine::OnInitWindow() {
@@ -212,20 +220,44 @@ void AndroidEngine::Update(float dt) {
 
 
 bool AndroidEngine::IsQuiting() {
-    mutex.Lock();
+ //   mutex.Lock();
     bool res = isQuitting;
-    mutex.Unlock();
+ //   mutex.Unlock();
     return res;
 }
 
 
 bool AndroidEngine::IsRunning() {
-    mutex.Lock();
+    //mutex.Lock();
     bool res = isRunning;
-    mutex.Unlock();
+   // mutex.Unlock();
     return res;
 }
 
+void AndroidEngine::SingleFrame() {
+    if(closeEngine) {
+        return;
+    }
+    currentTime = getCurrentTimeInMsec();
+    float dt = (float)(currentTime - lastTime);
+    fpsClock.update(dt);
+
+
+    OnFrameStart();
+    Update(dt);
+
+    renderer->Wait();
+    OnFrameEnd();
+    frameCounter++;
+
+    if(frameCounter>60) {
+        frameCounter=0;
+        LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+        fpsClock.reset();
+    }
+
+    lastTime = currentTime;
+}
 
 void AndroidEngine::Run() {
     renderer->Start();
@@ -243,24 +275,30 @@ void AndroidEngine::Run() {
 
         OnFrameStart();
         Update(dt);
-        OnFrameEnd();
 
-        renderer->Wait();
 
+
+
+     //  mutex.Unlock();
+       renderer->Wait();
+     //  mutex.Lock();
+       OnFrameEnd();
+       frameCounter++;
+
+       if(frameCounter>60) {
+           frameCounter=0;
+      //     LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+           fpsClock.reset();
+       }
+
+       lastTime = currentTime;
+       mutex.UnlockQuasiFIFO(100);
 
       //  LOGI("Stop time: %f", (float)(t2-t1)/1000.0f);
 
-        frameCounter++;
 
-        if(frameCounter>60) {
-            frameCounter=0;
-            LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
-            fpsClock.reset();
-        }
-
-       lastTime = currentTime;
      //  usleep(15000);
-       mutex.UnlockQuasiFIFO(100);
+     //  mutex.UnlockQuasiFIFO(100);
 //       usleep(2000);
     }
 }

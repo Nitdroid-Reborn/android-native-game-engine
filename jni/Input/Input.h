@@ -5,7 +5,7 @@
 #include "KeysState.h"
 #include "TouchState.h"
 #include <vector>
-#include "Mutex.h"
+#include <Core/Mutex.h>
 
 using namespace std;
 

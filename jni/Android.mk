@@ -32,13 +32,13 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := android-game-engine
 LOCAL_SRC_FILES := main.cpp \
-                   AndroidEngine.cpp \
-                   Utils.cpp \
+                   Core/AndroidEngine.cpp \
+                   Utils/Utils.cpp \
                    AudioSystem.cpp \
                    ContentManager/PNGLoader.cpp \
                    FileIO/AndroidFileIO.cpp \
                    FileIO/BufferStream.cpp \
-                   Clock.cpp \
+                   Utils/Clock.cpp \
                    Input/Input.cpp \
                    Input/KeysState.cpp \
                    Input/TouchState.cpp \
@@ -59,10 +59,11 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/TextureRegion.cpp \
                    Graphics/SpriteBatcher.cpp \
                    MemoryManagement/StackAllocator.cpp \
-                   Thread.cpp \
-                   Mutex.cpp \
-                   ConditionalVariable.cpp \
-                   AndroidRenderer.cpp
+                   Core/Thread.cpp \
+                   Core/Mutex.cpp \
+                   Core/ConditionalVariable.cpp \
+                   Graphics/AndroidRenderer.cpp \
+                   ContentManager/AndroidContentManager.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

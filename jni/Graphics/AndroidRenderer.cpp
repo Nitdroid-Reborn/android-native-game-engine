@@ -1,8 +1,9 @@
 #include "AndroidRenderer.h"
-#include "Utils.h"
+#include <Utils/Utils.h>
 #include <GLES/gl.h>
-#include "Graphics/SpriteBatcher.h"
+#include "SpriteBatcher.h"
 #include <unistd.h>
+#include <ContentManager/AndroidContentManager.h>
 
 
 AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
@@ -75,7 +76,11 @@ void AndroidRenderer::InitWindow() {
     ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
 
     surface = eglCreateWindowSurface(display, config, app->window, NULL);
-    context = eglCreateContext(display, config, NULL, NULL);
+
+    const AndroidContentManager* manager = (const AndroidContentManager*)IContentManager::get();
+    LOGI("manager %p", manager);
+
+    context = eglCreateContext(display, config, manager->GetEGLContext(), NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         LOGE("Unable to eglMakeCurrent");
@@ -133,7 +138,9 @@ void AndroidRenderer::Initialize() {
 
 void AndroidRenderer::Release() {
     mutex.Lock();
+    mainLoopCond.Signal();
 
+    usleep(500);
     closing = true;
     delete batcher;
 
@@ -192,7 +199,7 @@ void AndroidRenderer::Run() {
 
                          if(frameCounter>60) {
                              frameCounter=0;
-                             LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+                          //   LOGI("FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
                              fpsClock.reset();
                         }
 

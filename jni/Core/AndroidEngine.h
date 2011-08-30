@@ -5,9 +5,9 @@
 #include <android/sensor.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include "FileIO/IFileIO.h"
-#include "ContentManager/PNGLoader.h"
-#include "Input/Input.h"
+#include <FileIO/IFileIO.h>
+#include <ContentManager/PNGLoader.h>
+#include <Input/Input.h>
 #include <android_native_app_glue.h>
 #include <android/log.h>
 #include "MyModel.h"
@@ -15,16 +15,15 @@
 #include "VirtualInput/VirtualInput.h"
 #include "VirtualInput/VirtualSingleKey.h"
 #include "VirtualInput/VirtualDPad.h"
-#include "Clock.h"
-#include "Mutex.h"
-#include "AndroidRenderer.h"
-#include "Graphics/ITexture.h"
-#include "Graphics/ISpriteBatcher.h"
-
+#include <Utils/Clock.h>
+#include <Core/Mutex.h>
+#include <Graphics/AndroidRenderer.h>
+#include <Graphics/ITexture.h>
+#include <ContentManager/AndroidContentManager.h>
 #include "AudioSystem.h"
 
 
-#include "Box2D/Box2D.h"
+//#include "Box2D/Box2D.h"
 
 
 
@@ -57,6 +56,7 @@ public:
 
     void Run();
 
+    void SingleFrame();
     void ProcessTouchInput(const TouchEvent& event);
     void ProcessKeyInput(const KeyEvent& event);
     void ProcessAccelerometerInput(float x, float y, float z);
@@ -92,6 +92,7 @@ private:
 
     ITexture* texture;
     ISpriteBatcher* spriteBatcher;
+    IContentManager* contentManager;
 
 
     EGLDisplay display;

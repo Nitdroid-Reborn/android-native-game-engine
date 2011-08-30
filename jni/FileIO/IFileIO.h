@@ -1,7 +1,6 @@
 #ifndef FILEIO_H
 #define FILEIO_H
-#include "EngineTypes.h"
-#include "Utils.h"
+#include <Utils/Utils.h>
 
 
 class AndroidFileIO;

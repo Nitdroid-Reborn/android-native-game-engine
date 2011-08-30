@@ -15,7 +15,7 @@ public:
     void Bind();
     void Dispose();
 
-private:
+//private:
     U32 textureId;
 };
 

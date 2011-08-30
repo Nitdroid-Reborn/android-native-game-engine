@@ -24,6 +24,8 @@ public:
     virtual void OnFrameStart()=0;
     virtual void OnFrameEnd()=0;
 
+    virtual void SingleFrame()=0;
+
     virtual void ProcessTouchInput(const TouchEvent&)=0;
     virtual void ProcessKeyInput(const KeyEvent&)=0;
     virtual void ProcessAccelerometerInput(float x, float y, float z)=0;

@@ -1,7 +1,7 @@
 #include "PNGLoader.h"
 #include <android/log.h>
 #include "FileIO/IFileIO.h"
-#include "Utils.h"
+#include <Utils/Utils.h>
 
 PNGLoader::PNGLoader()
 {
