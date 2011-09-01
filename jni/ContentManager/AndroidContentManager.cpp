@@ -1,5 +1,4 @@
 #include "AndroidContentManager.h"
-#include "../Graphics/Texture.h"
 #include <Utils/Utils.h>
 
 IContentManager* IContentManager::singleton=NULL;
@@ -16,6 +15,9 @@ AndroidContentManager::~AndroidContentManager() {
 bool AndroidContentManager::Initialize() {
     ASSERT(!singleton, "ContentManager already initialized");
     singleton = this;
+
+
+    textureManager = new TextureManager();
 
 
 
@@ -55,6 +57,10 @@ bool AndroidContentManager::Initialize() {
 }
 
 bool AndroidContentManager::Release() {
+
+    delete textureManager;
+
+
     if(display != EGL_NO_DISPLAY) {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if(context != EGL_NO_CONTEXT) {
@@ -68,16 +74,12 @@ bool AndroidContentManager::Release() {
     display = EGL_NO_DISPLAY;
     context = EGL_NO_CONTEXT;
     surface = EGL_NO_SURFACE;
+
+    singleton = NULL;
     Log(1, "Android Content Manager released");
     return true;
 }
 
 const EGLContext AndroidContentManager::GetEGLContext() const{
     return context;
-}
-
-void AndroidContentManager::LoadTexture(char *filename) {
-    /*tex = Texture(filename);
-    tex.Load();
-    LOGI("Texture id: %d", tex.textureId);*/
 }

@@ -1,8 +1,6 @@
 #include "AndroidEngine.h"
 #include <FileIO/AndroidFileIO.h>
 #include <android/keycodes.h>
-#include <Graphics/Texture.h>
-#include <Graphics/SpriteBatcher.h>
 #include <Utils/Utils.h>
 #include <unistd.h>
 
@@ -68,6 +66,22 @@ void AndroidEngine::Initialize() {
     renderer = new AndroidRenderer(app);
     renderer->Initialize();
 
+
+    TextureHandle handle = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
+
+
+    ITexture* t = handle.Get();
+
+
+    TextureHandle t2 = handle;
+
+
+    IContentManager::get()->GetTextureManager()->ReleaseTexture(t2);
+
+
+
+
+  //  acm->texManager.ReleaseTexture(handle);
 
     //contentManager->LoadTexture("logo.png");
 

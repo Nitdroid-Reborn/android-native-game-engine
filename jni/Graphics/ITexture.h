@@ -1,6 +1,7 @@
 #ifndef ITEXTURE_H
 #define ITEXTURE_H
 #include <Utils/EngineTypes.h>
+#include <Core/Object.h>
 
 
 struct TextureInfo {
@@ -16,11 +17,11 @@ struct TextureInfo {
     TextureFormat format;
 };
 
-class ITexture {
+class ITexture : public Object {
 public:
-    ITexture(const char *filename){this->filename = filename;}
+    ITexture(): Object() {}
     virtual ~ITexture(){}
-    virtual bool Load()=0;
+    virtual bool Load(const char* filename)=0;
     virtual bool Reload()=0;
     virtual void SetFilters(U32 minFilter, U32 magFilter)=0;
     virtual void Bind()=0;

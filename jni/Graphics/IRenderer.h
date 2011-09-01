@@ -20,6 +20,11 @@ public:
     virtual void OnLostFocus()=0;
     virtual void Wait()=0;
     virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f)=0;
+
+    static IRenderer* get(){return singleton;}
+
+protected:
+    static IRenderer* singleton;
 };
 
 #endif // IRENDERER_H

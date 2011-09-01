@@ -2,7 +2,7 @@
 #define ANDROIDCONTENTMANAGER_H
 #include "IContentManager.h"
 #include <EGL/egl.h>
-
+#include "TextureManager.h"
 
 class AndroidContentManager : public IContentManager
 {
@@ -14,11 +14,12 @@ public:
     bool Release();
 
     void OnInitWindow();
-    void LoadTexture(char* filename);
 
     const EGLContext GetEGLContext() const;
 
+    TextureManager texManager;
 private:
+
     EGLContext context;
     EGLDisplay display;
     EGLSurface surface;

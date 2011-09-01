@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <ContentManager/AndroidContentManager.h>
 
+IRenderer* IRenderer::singleton = NULL;
 
 AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
 {
@@ -132,6 +133,10 @@ void AndroidRenderer::TerminateWindow() {
 }
 
 void AndroidRenderer::Initialize() {
+    ASSERT(!singleton, "FileIO system already initialized");
+
+    singleton = this;
+
     batcher = new SpriteBatcher(1000);
     Log(1, "Android Renderer initialized");
 }
@@ -143,7 +148,7 @@ void AndroidRenderer::Release() {
     usleep(500);
     closing = true;
     delete batcher;
-
+    singleton = NULL;
     mutex.Unlock();
 }
 
@@ -184,7 +189,7 @@ void AndroidRenderer::Run() {
                     glClearColor(0,0,0,1);
                     glClear(GL_COLOR_BUFFER_BIT);
 
-                    TextureRegion r(0,0, 1,1, 0);
+                    TextureRegion r(0, 0, 1, 1);
                     batcher->BeginBatch(0);
                     for(int i=0;i<oldSprites.size();i++) {
                         batcher->DrawSprite(oldSprites[i].x, oldSprites[i].y,

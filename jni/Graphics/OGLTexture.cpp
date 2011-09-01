@@ -1,9 +1,9 @@
-#include "Texture.h"
+#include "OGLTexture.h"
 
 #include <GLES/gl.h>
 #include "../ContentManager/PNGLoader.h"
 
-Texture::Texture(const char *filename) : ITexture(filename)
+OGLTexture::OGLTexture() : ITexture()
 {
     textureInfo.format=TextureInfo::RGB8;
     textureInfo.width=0;
@@ -13,13 +13,14 @@ Texture::Texture(const char *filename) : ITexture(filename)
     textureId=0;
 }
 
-Texture::~Texture() {
+OGLTexture::~OGLTexture() {
     if(textureId!=0)
         Dispose();
 }
 
 
-bool Texture::Load() {
+bool OGLTexture::Load(const char *filename) {
+    this->filename = filename;
     U8* imageData;
     U16 w, h;
     U8 depth;
@@ -65,8 +66,8 @@ bool Texture::Load() {
 
 }
 
-bool Texture::Reload() {
-    bool res = Load();
+bool OGLTexture::Reload() {
+    bool res = Load(filename);
     if(!res) return false;
     glBindTexture(GL_TEXTURE_2D, textureId);
     SetFilters(textureInfo.minFilter, textureInfo.magFilter);
@@ -75,18 +76,19 @@ bool Texture::Reload() {
     return true;
 }
 
-void Texture::Dispose() {
+void OGLTexture::Dispose() {
     glBindTexture(GL_TEXTURE_2D, textureId);
     unsigned int textures[] = {textureId};
     glDeleteTextures(1, textures);
+    textureId=0;
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::Bind() {
+void OGLTexture::Bind() {
     glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
-void Texture::SetFilters(U32 minFilter, U32 magFilter) {
+void OGLTexture::SetFilters(U32 minFilter, U32 magFilter) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter );
     textureInfo.minFilter=minFilter;

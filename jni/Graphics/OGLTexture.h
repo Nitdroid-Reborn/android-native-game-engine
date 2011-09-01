@@ -3,13 +3,13 @@
 
 #include "ITexture.h"
 
-class Texture : public ITexture
+class OGLTexture : public ITexture
 {
 public:
-    Texture(const char *filename);
-    ~Texture();
+    OGLTexture();
+    ~OGLTexture();
 
-    bool Load();
+    bool Load(const char *filename);
     bool Reload();
     void SetFilters(U32 minFilter, U32 magFilter);
     void Bind();

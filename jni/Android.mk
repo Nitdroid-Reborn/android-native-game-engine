@@ -52,10 +52,9 @@ LOCAL_SRC_FILES := main.cpp \
                    Math/Vector4.cpp \
                    MyModel.cpp \
                    VirtualInput/VirtualInput.cpp \
-                   VirtualInput/VirtualKey.cpp \
                    VirtualInput/VirtualSingleKey.cpp \
                    VirtualInput/VirtualDPad.cpp \
-                   Graphics/Texture.cpp \
+                   Graphics/OGLTexture.cpp \
                    Graphics/TextureRegion.cpp \
                    Graphics/SpriteBatcher.cpp \
                    MemoryManagement/StackAllocator.cpp \
@@ -65,7 +64,12 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/AndroidRenderer.cpp \
                    ContentManager/AndroidContentManager.cpp \
                    Utils/Log.cpp \
-                   Utils/Assert.cpp
+                   Utils/Assert.cpp \
+                   Core/Object.cpp \
+                   ContentManager/Handle.cpp \
+                   ContentManager/HandleManager.cpp \
+                   ContentManager/TextureManager.cpp \
+                   Graphics/OGLTextureFactory.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

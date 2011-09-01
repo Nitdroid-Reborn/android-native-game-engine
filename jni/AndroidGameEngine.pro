@@ -29,14 +29,12 @@ SOURCES += main.cpp \
     Input/KeysState.cpp \
     VirtualInput.cpp \
     VirtualKey.cpp \
-    VirtualInput/VirtualKey.cpp \
     VirtualInput/VirtualInput.cpp \
     VirtualInput/VirtualSingleKey.cpp \
     VirtualInput/VirtualDPad.cpp \
     Input/TouchState.cpp \
     AndroidEngine.cpp \
     Texture.cpp \
-    Graphics/Texture.cpp \
     Graphics/TextureRegion.cpp \
     Graphics/SpriteBatcher.cpp \
     MemoryManagement/StackAllocator.cpp \
@@ -53,7 +51,15 @@ SOURCES += main.cpp \
     Core/AndroidEngine.cpp \
     Utils/Log.cpp \
     Utils/Assert.cpp \
-    Graphics/AndroidRenderer.cpp
+    Graphics/AndroidRenderer.cpp \
+    Graphics/TextBox.cpp \
+    ContentManager/Handle.cpp \
+    Core/Object.cpp \
+    ContentManager/HandleManager.cpp \
+    ContentManager/TextureManager.cpp \
+    Graphics/OGLTexture.cpp \
+    ContentManager/OGLTextureFactory.cpp \
+    Graphics/OGLTextureFactory.cpp
 
 HEADERS += \
     Utils.h \
@@ -87,7 +93,6 @@ HEADERS += \
     AndroidEngine.h \
     FileIO/IFileIO.h \
     Texture.h \
-    Graphics/Texture.h \
     Graphics/ITexture.h \
     Graphics/TextureRegion.h \
     Graphics/ISpriteBatcher.h \
@@ -111,10 +116,46 @@ HEADERS += \
     Core/AndroidEngine.h \
     Utils/Log.h \
     Graphics/IRenderer.h \
-    Graphics/AndroidRenderer.h
+    Graphics/AndroidRenderer.h \
+    Graphics/TextBox.h \
+    ContentManager/Handle.h \
+    Core/Object.h \
+    ContentManager/HandleManager.h \
+    ContentManager/TextureManager.h \
+    Graphics/OGLTexture.h \
+    ContentManager/ITextureManager.h \
+    ContentManager/ITextureFactory.h \
+    ContentManager/OGLTextureFactory.h \
+    Graphics/OGLTextureFactory.h \
+    Graphics/ITextureFactory.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
