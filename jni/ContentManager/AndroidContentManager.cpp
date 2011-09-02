@@ -1,4 +1,5 @@
 #include "AndroidContentManager.h"
+#include "SoundManager.h"
 #include <Utils/Utils.h>
 
 IContentManager* IContentManager::singleton=NULL;
@@ -18,7 +19,7 @@ bool AndroidContentManager::Initialize() {
 
 
     textureManager = new TextureManager();
-
+    soundManager = new SoundManager();
 
 
     const EGLint attribs[] = {
@@ -59,6 +60,7 @@ bool AndroidContentManager::Initialize() {
 bool AndroidContentManager::Release() {
 
     delete textureManager;
+    delete soundManager;
 
 
     if(display != EGL_NO_DISPLAY) {

@@ -17,7 +17,6 @@ public:
 
     const EGLContext GetEGLContext() const;
 
-    TextureManager texManager;
 private:
 
     EGLContext context;

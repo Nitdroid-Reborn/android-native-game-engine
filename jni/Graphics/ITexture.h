@@ -7,13 +7,15 @@
 struct TextureInfo {
     enum TextureFormat {
         RGB8      = 0,
-        RGBA8     = 0
+        RGBA8     = 1,
+        LUMINANCE_ALPHA =2
     };
 
     U16 width;
     U16 height;
     U32 minFilter;
     U32 magFilter;
+    U16 pixelAlignment;
     TextureFormat format;
 };
 
@@ -22,6 +24,7 @@ public:
     ITexture(): Object() {}
     virtual ~ITexture(){}
     virtual bool Load(const char* filename)=0;
+    virtual bool Load(void* rawData, TextureInfo& info)=0;
     virtual bool Reload()=0;
     virtual void SetFilters(U32 minFilter, U32 magFilter)=0;
     virtual void Bind()=0;

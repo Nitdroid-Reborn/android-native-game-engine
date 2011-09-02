@@ -3,9 +3,13 @@
 #include <android/keycodes.h>
 #include <Utils/Utils.h>
 #include <unistd.h>
+#include <Utils/Profiler.h>
+#include <Audio/WaveSound.h>
 
 #define PI 3.1415926535897932f
 
+
+ProfilerManager mainLoopProfileManager;
 static void gluPerspective(GLfloat fovy, GLfloat aspect,
                            GLfloat zNear, GLfloat zFar)
 {
@@ -25,7 +29,7 @@ static void gluPerspective(GLfloat fovy, GLfloat aspect,
 
 AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 {
-    Log("Engine created");
+    Log(1, "Engine created");
     frameCounter = 0;
 
     this->app = app;
@@ -47,13 +51,11 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 }
 
 AndroidEngine::~AndroidEngine() {
-    Log("Engine destroyed");
+    Log(1, "Engine destroyed");
 }
 
 
 void AndroidEngine::Initialize() {
-//    audioSystem.CreateEngine();
-
     fileIOSystem = new AndroidFileIO(app->activity->assetManager);
     fileIOSystem->Initialize();
 
@@ -63,21 +65,37 @@ void AndroidEngine::Initialize() {
     contentManager = new AndroidContentManager();
     contentManager->Initialize();
 
+    audioSystem = new AndroidAudioSystem();
+    audioSystem->Initialize();
+
     renderer = new AndroidRenderer(app);
     renderer->Initialize();
 
 
-    TextureHandle handle = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
+    volume = 1.0f;
+    //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
+
+    sound = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
+
+    //sound.Load("/sdcard/violin.wav");
+
+
+  /*  audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
+    audioSystem.SetAssetPlayerStatus(true);*/
+
+    /*TextureHandle handle = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
 
 
     ITexture* t = handle.Get();
 
 
-    TextureHandle t2 = handle;
+    TextureHandle t2;
+
+    t2 = handle;
 
 
     IContentManager::get()->GetTextureManager()->ReleaseTexture(t2);
-
+*/
 
 
 
@@ -95,8 +113,7 @@ void AndroidEngine::Initialize() {
 
 
 
- //   audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
-  //  audioSystem.SetAssetPlayerStatus(true);
+
 
 }
 
@@ -104,24 +121,35 @@ void AndroidEngine::Release() {
    // mutex.Lock();
     closeEngine = true;
 
-   // audioSystem.Shutdown();
-    fileIOSystem->Release();
-    delete fileIOSystem;
-    fileIOSystem = NULL;
+    audioSystem->StopMusic();
 
-    inputSystem->Release();
-    delete inputSystem;
-    inputSystem = NULL;
-
-   /* delete virtualInputSystem;
-    virtualInputSystem = NULL;*/
+    renderer->Release();
+    renderer->WaitForStop();
+    delete renderer;
+    renderer = NULL;
 
     contentManager->Release();
     delete contentManager;
     contentManager = NULL;
 
-    renderer->Release();
-    renderer->WaitForStop();
+    inputSystem->Release();
+    delete inputSystem;
+    inputSystem = NULL;
+
+    fileIOSystem->Release();
+    delete fileIOSystem;
+    fileIOSystem = NULL;
+
+    audioSystem->Release();
+    delete audioSystem;
+    audioSystem = NULL;
+
+   /* delete virtualInputSystem;
+    virtualInputSystem = NULL;*/
+
+
+
+
    // mutex.UnlockQuasiFIFO();
 }
 
@@ -195,10 +223,15 @@ void AndroidEngine::OnFrameEnd() {
 void AndroidEngine::Update(float dt) {
     this->dt = dt;
 
+    if(ProfilerManager::profilerEnabled)
+        renderer->DrawString(5, 5, mainLoopProfileManager.outputBuffer.Get());
+    //renderer->DrawString(50, 100, "bardzo tlugi tesks testowy");
     if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_0)) {
+
+
         renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_0),
                              inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_0),
-                             120, 120, 0.0);
+                             180, 180, 0.0);
     }
     if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_1)) {
         renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_1),
@@ -214,10 +247,26 @@ void AndroidEngine::Update(float dt) {
         renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_3),
                              inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_3),
                              120, 120, 0.0);
+
+
     }
 
-//    if(inputSystem->GetTouchState()->IsPointerJustUp(ENGINE_POINTER_0))
-  //      LOGI("up");
+    if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
+        sound.Get()->Play();
+
+    if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_1))
+        sound.Get()->Play(0.5);
+
+    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_Z)) {
+        volume+=0.1f;
+        if(volume>1.0f)volume=1.0f;
+        audioSystem->SetMusicVolume(volume);
+    }
+    else if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_X)) {
+        volume-=0.1f;
+        if(volume<0.0f)volume = 0.0f;
+        audioSystem->SetMusicVolume(volume);
+    }
 }
 
 
@@ -236,16 +285,38 @@ void AndroidEngine::SingleFrame() {
     if(closeEngine) {
         return;
     }
-    currentTime = getCurrentTimeInMsec();
+
+    currentTime = GetCurrentTimeInMsec();
     float dt = (float)(currentTime - lastTime);
     fpsClock.update(dt);
 
 
-    OnFrameStart();
-    Update(dt);
+    {
+        PROFILE("Start frame", &mainLoopProfileManager);
+        OnFrameStart();
+    }
 
-    renderer->Wait();
-    OnFrameEnd();
+    {
+        PROFILE("Update", &mainLoopProfileManager);
+        Update(dt);
+    }
+
+    {
+        PROFILE("Render", &mainLoopProfileManager);
+        renderer->Wait();
+    }
+
+    {
+        PROFILE("End frame", &mainLoopProfileManager);
+        OnFrameEnd();
+    }
+
+    mainLoopProfileManager.DumpProfileDataToBuffer();
+
+    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
+        ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
+    }
+
     frameCounter++;
 
     if(frameCounter>60) {
@@ -266,9 +337,10 @@ void AndroidEngine::Run() {
             return;
         }
 
-        currentTime = getCurrentTimeInMsec();
+        currentTime = GetCurrentTimeInMsec();
         float dt = (float)(currentTime - lastTime);
         fpsClock.update(dt);
+
 
 
         OnFrameStart();

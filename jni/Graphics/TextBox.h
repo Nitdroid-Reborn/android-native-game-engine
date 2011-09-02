@@ -1,13 +1,15 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
+#include <ContentManager/ITextureManager.h>
 
 #define MAX_STRING 4096
 
 class TextBox
 {
 public:
-    TextBox(int boxL, int boxR, int boxT, int boxB);
-    ~TextBox();
+    TextBox();
+    void SetSize(int boxL, int boxR, int boxT, int boxB);
+    ~TextBox(){}
 
 private:
     // Bounding Box
@@ -28,6 +30,10 @@ private:
 
 public:
     void DrawStr(int x, int y, char* string);
+    void Printf(char* fmt, ...);
+    void FormatStrCat(char * str);
+    void Draw();
+    TextureHandle fontTex;
 
 
 private:

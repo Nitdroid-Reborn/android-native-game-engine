@@ -5,10 +5,6 @@ OGLTextureFactory::OGLTextureFactory()
 {
 }
 
-OGLTextureFactory::~OGLTextureFactory() {
-
-}
-
 ITexture* OGLTextureFactory::Create() {
     return new OGLTexture();
 }

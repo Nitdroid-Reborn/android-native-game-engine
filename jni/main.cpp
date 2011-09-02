@@ -350,7 +350,7 @@ void android_main(struct android_app* app) {
     engine.Initialize();
 
 
-    lastTime = getCurrentTimeInMsec();
+    lastTime = GetCurrentTimeInMsec();
     //engine.Start();
     engine.renderer->Start();
     while (1) {

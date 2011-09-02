@@ -16,6 +16,7 @@ public:
     virtual ~ITextureManager(){}
 
     virtual TextureHandle GetTexture(const char* filename)=0;
+    virtual TextureHandle GetTexture(void* rawData, TextureInfo& info)=0;
     virtual void ReleaseTexture(TextureHandle& handle)=0;
 };
 

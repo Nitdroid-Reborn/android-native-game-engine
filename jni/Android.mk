@@ -34,7 +34,6 @@ LOCAL_MODULE    := android-game-engine
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
                    Utils/Utils.cpp \
-                   AudioSystem.cpp \
                    ContentManager/PNGLoader.cpp \
                    FileIO/AndroidFileIO.cpp \
                    FileIO/BufferStream.cpp \
@@ -69,7 +68,16 @@ LOCAL_SRC_FILES := main.cpp \
                    ContentManager/Handle.cpp \
                    ContentManager/HandleManager.cpp \
                    ContentManager/TextureManager.cpp \
-                   Graphics/OGLTextureFactory.cpp
+                   ContentManager/SoundManager.cpp\
+                   Audio/SoundFactory.cpp \
+                   Audio/Sound.cpp \
+                   Graphics/OGLTextureFactory.cpp \
+                   Graphics/TextBox.cpp \
+                   Utils/Profiler.cpp \
+                   Utils/TextBuffer.cpp \
+                   Utils/RelativeClock.cpp \
+                   Audio/AndroidAudioSystem.cpp \
+                   Audio/WaveSound.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

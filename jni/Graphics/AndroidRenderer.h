@@ -9,6 +9,8 @@
 #include <vector>
 #include "SpriteBatcher.h"
 #include <ContentManager/IContentManager.h>
+#include "OGLTexture.h"
+#include "TextBox.h"
 
 using namespace std;
 
@@ -27,7 +29,10 @@ public:
     void OnLostFocus();
     void Wait();
     void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f);
+    void DrawSprite(F32 x, F32 y, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
+    void DrawString(int x, int y, char * str);
 
+    TextureHandle fontTexture;
 private:
     void InitWindow();
     void TerminateWindow();
@@ -46,6 +51,10 @@ private:
     EGLDisplay display;
     EGLSurface surface;
     EGLContext context;
+
+
+
+    TextBox textBox;
 
     int32_t width;
 
@@ -66,6 +75,8 @@ private:
         F32 width;
         F32 height;
         F32 angle;
+        TextureRegion texRegion;
+        ITexture* texture;
     };
 
     vector<Sprite> sprites;

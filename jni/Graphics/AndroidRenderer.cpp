@@ -4,9 +4,13 @@
 #include "SpriteBatcher.h"
 #include <unistd.h>
 #include <ContentManager/AndroidContentManager.h>
+#include "TextBox.h"
+#include "Font.h"
+#include <Utils/Profiler.h>
 
 IRenderer* IRenderer::singleton = NULL;
 
+ProfilerManager rendererProfileManager;
 AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
 {
     contextValid = false;
@@ -112,6 +116,9 @@ void AndroidRenderer::InitWindow() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
+    textBox.SetSize(0, w, 0, h);
+
     contextValid=true;
 }
 
@@ -138,6 +145,17 @@ void AndroidRenderer::Initialize() {
     singleton = this;
 
     batcher = new SpriteBatcher(1000);
+
+    TextureInfo info;
+    info.format = TextureInfo::LUMINANCE_ALPHA;
+    info.width = 64;
+    info.height = 128;
+
+    fontTexture = TextureHandle(IContentManager::get()->GetTextureManager()->GetTexture((void*)fontData, info));
+
+    textBox.fontTex = fontTexture;
+    fontTexture.Get()->Bind();
+
     Log(1, "Android Renderer initialized");
 }
 
@@ -158,6 +176,7 @@ void AndroidRenderer::Run() {
     while(1) {
          mutex.Lock();
          mainLoopCond.Signal();
+
 
             if(closing) {
                 TerminateWindow();
@@ -180,8 +199,9 @@ void AndroidRenderer::Run() {
                // mutex.Unlock();
                // pauseConditionalVariable.Wait();
 
-
-                    currentTime = getCurrentTimeInMsec();
+            {
+                    PROFILE("Render", &rendererProfileManager);
+                    currentTime = GetCurrentTimeInMsec();
                     float dt = (float)(currentTime - lastTime);
                     fpsClock.update(dt);
 
@@ -189,18 +209,36 @@ void AndroidRenderer::Run() {
                     glClearColor(0,0,0,1);
                     glClear(GL_COLOR_BUFFER_BIT);
 
+                    {
+                       PROFILE("Batch", &rendererProfileManager);
                     TextureRegion r(0, 0, 1, 1);
-                    batcher->BeginBatch(0);
+
+                   /* if(oldSprites.size() && oldSprites[0].texture) {
+                        batcher->BeginBatch(oldSprites[0].texture);
+                    }
+                    else*/
+                    batcher->BeginBatch(fontTexture.Get());
                     for(int i=0;i<oldSprites.size();i++) {
+
+                        {
+                   //     PROFILE("Draw Sprite", &rendererProfileManager);
+
                         batcher->DrawSprite(oldSprites[i].x, oldSprites[i].y,
                                             oldSprites[i].width, oldSprites[i].height,
-                                            r, oldSprites[i].angle);
+                                            oldSprites[i].texRegion, oldSprites[i].angle);
+                        }
+
+                    }
+                    batcher->EndBatch();
                     }
 
-                    batcher->EndBatch();
-
+                    {
+                      PROFILE("Swap buffers", &rendererProfileManager);
                     if(contextValid)
                         eglSwapBuffers(display, surface);
+                    }
+
+
 
                      frameCounter++;
 
@@ -213,8 +251,12 @@ void AndroidRenderer::Run() {
                     lastTime = currentTime;
                    // }
             //}
+            }
+            rendererProfileManager.DumpProfileDataToBuffer();
              mutex.Unlock();
       //  }
+
+
     }
 }
 
@@ -224,6 +266,8 @@ void AndroidRenderer::Wait() {
     sprites.clear();
     mutex.Unlock();
     mainLoopCond.Wait();
+    if(ProfilerManager::profilerEnabled)
+        IRenderer::get()->DrawString(5, 200, rendererProfileManager.outputBuffer.Get());
 }
 
 void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle) {
@@ -233,6 +277,26 @@ void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle)
     s.width = width;
     s.height = height;
     s.angle = angle;
+    s.texture = NULL;
 
     sprites.push_back(s);
 }
+
+void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 width, F32 height,
+                                 TextureRegion &region, TextureHandle& handle, F32 angle) {
+    Sprite s;;
+    s.x = x;
+    s.y = y;
+    s.width = width;
+    s.height = height;
+    s.angle = angle;
+    s.texRegion = region;
+    s.texture = handle.Get();
+
+    sprites.push_back(s);
+}
+
+void AndroidRenderer::DrawString(int x, int y, char * str) {
+    textBox.DrawStr(x, y, str);
+}
+

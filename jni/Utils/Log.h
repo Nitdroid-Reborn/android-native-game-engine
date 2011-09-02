@@ -5,6 +5,7 @@
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
 
+
 static U32 verbosityLevel = 1;
 static Mutex logMutex;
 

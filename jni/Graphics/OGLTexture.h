@@ -10,6 +10,7 @@ public:
     ~OGLTexture();
 
     bool Load(const char *filename);
+    bool Load(void* rawData, TextureInfo& info);
     bool Reload();
     void SetFilters(U32 minFilter, U32 magFilter);
     void Bind();

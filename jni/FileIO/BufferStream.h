@@ -13,6 +13,7 @@ public:
     bool read(void* outputBuffer, U32 bytesToRead);
     bool get(U8& byte);
     bool setPosition(U32 position);
+    U32 getPosition();
     void resetPosition();
 
 private:

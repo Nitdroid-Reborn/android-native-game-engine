@@ -37,6 +37,10 @@ bool BufferStream::setPosition(U32 position) {
     return false;
 }
 
+U32 BufferStream::getPosition() {
+    return currentPosition;
+}
+
 void BufferStream::resetPosition() {
     currentPosition = 0;
 }

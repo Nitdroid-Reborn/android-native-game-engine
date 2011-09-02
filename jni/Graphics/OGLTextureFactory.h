@@ -7,7 +7,6 @@ class OGLTextureFactory : public ITextureFactory
 {
 public:
     OGLTextureFactory();
-    ~OGLTextureFactory();
 
     ITexture* Create();
 };

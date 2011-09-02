@@ -59,7 +59,16 @@ SOURCES += main.cpp \
     ContentManager/TextureManager.cpp \
     Graphics/OGLTexture.cpp \
     ContentManager/OGLTextureFactory.cpp \
-    Graphics/OGLTextureFactory.cpp
+    Graphics/OGLTextureFactory.cpp \
+    Utils/Profiler.cpp \
+    Utils/TextBuffer.cpp \
+    Utils/RelativeClock.cpp \
+    Audio/AndroidAudioSystem.cpp \
+    ContentManager/WaveSound.cpp \
+    Audio/WaveSound.cpp \
+    Audio/Sound.cpp \
+    ContentManager/SoundManager.cpp \
+    Audio/SoundFactory.cpp
 
 HEADERS += \
     Utils.h \
@@ -127,10 +136,47 @@ HEADERS += \
     ContentManager/ITextureFactory.h \
     ContentManager/OGLTextureFactory.h \
     Graphics/OGLTextureFactory.h \
-    Graphics/ITextureFactory.h
+    Graphics/ITextureFactory.h \
+    Graphics/Font.h \
+    Utils/Profiler.h \
+    Utils/TextBuffer.h \
+    Utils/RelativeClock.h \
+    Audio/IAudioSystem.h \
+    Audio/AndroidAudioSystem.h \
+    ContentManager/WaveSound.h \
+    Audio/WaveSound.h \
+    Audio/ISound.h \
+    Audio/Sound.h \
+    ContentManager/SoundManager.h \
+    ContentManager/ISoundManager.h \
+    Audio/ISoundFactory.h \
+    Audio/SoundFactory.h
 
 OTHER_FILES += \
     Android.mk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

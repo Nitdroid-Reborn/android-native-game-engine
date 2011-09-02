@@ -5,8 +5,6 @@
 class ITextureFactory {
 public:
     ITextureFactory(){}
-    virtual ~ITextureFactory(){}
-
     virtual ITexture* Create()=0;
 };
 

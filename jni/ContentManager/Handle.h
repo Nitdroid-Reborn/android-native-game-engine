@@ -35,6 +35,7 @@ public:
             manager->IncrementHandleRefCount(*this);
         }
     }
+
     ~Handle();
 
     void Init(U16 index);
@@ -48,7 +49,8 @@ public:
 
     operator U32() const {return handle;}
 
-    Handle<BASEDATA, FACTORY, TAG>& operator = (Handle<BASEDATA, FACTORY, TAG>& pOther);
+    Handle<BASEDATA, FACTORY, TAG>& operator = (const Handle<BASEDATA, FACTORY, TAG>& pOther);
+   // Handle<BASEDATA, FACTORY, TAG>& operator = (Handle<BASEDATA, FACTORY, TAG> pOther);
     bool operator == (const Handle<BASEDATA, FACTORY, TAG>& pOther) const;
     bool operator != (const Handle<BASEDATA, FACTORY, TAG>& pOther) const;
 
@@ -75,11 +77,10 @@ void Handle<BASEDATA, FACTORY, TAG>::Init(U16 index) {
 }
 
 template <typename BASEDATA, typename FACTORY, typename TAG>
-inline Handle<BASEDATA, FACTORY, TAG>& Handle<BASEDATA, FACTORY, TAG>::operator = (Handle<BASEDATA, FACTORY, TAG>& pOther) {
-    Log("assigning handle");
+inline Handle<BASEDATA, FACTORY, TAG>& Handle<BASEDATA, FACTORY, TAG>::operator = (const Handle<BASEDATA, FACTORY, TAG>& pOther) {
+    Log(0, "assigning handle");
 
-    manager->DecrementReferenceCount(*this);
-
+    manager->DecrementHandleRefCount(*this);
 
     handle = pOther.handle;
 
@@ -87,6 +88,19 @@ inline Handle<BASEDATA, FACTORY, TAG>& Handle<BASEDATA, FACTORY, TAG>::operator 
 
     return *this;
 }
+
+/*template <typename BASEDATA, typename FACTORY, typename TAG>
+inline Handle<BASEDATA, FACTORY, TAG>& Handle<BASEDATA, FACTORY, TAG>::operator = (Handle<BASEDATA, FACTORY, TAG> pOther) {
+    Log("assigning handle");
+
+    manager->DecrementHandleRefCount(*this);
+
+    handle = pOther.handle;
+
+    manager->IncrementHandleRefCount(*this);
+
+    return *this;
+}*/
 
 
 template <typename BASEDATA, typename FACTORY, typename TAG>
@@ -107,7 +121,7 @@ Handle<BASEDATA, FACTORY, TAG>::~Handle() {
     if(!IsNull()) {
         manager->Release(*this);
     }
-    Log("Handle destructed, left references: %d", GetReferenceCount());
+    Log(0, "Handle destructed, left references: %d", GetReferenceCount());
 }
 
 template <typename BASEDATA, typename FACTORY, typename TAG>

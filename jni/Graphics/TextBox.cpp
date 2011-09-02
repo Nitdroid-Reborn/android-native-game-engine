@@ -1,16 +1,21 @@
 #include "TextBox.h"
 #include "SpriteBatcher.h"
 #include <Graphics/IRenderer.h>
+#include <ContentManager/IContentManager.h>
 
 #define FONT_W 8
 #define FONT_H 8
-#define FONT_DRAW_W 8
-#define FONT_DRAW_H 9
+#define FONT_DRAW_W 12
+#define FONT_DRAW_H 14
 #define FONT_TEX_W 64
 #define FONT_TEX_H 128
 static unsigned int fontID = 0;
 
-TextBox::TextBox(int boxL, int boxR, int boxT, int boxB) {
+TextBox::TextBox() {
+
+}
+
+void TextBox::SetSize(int boxL, int boxR, int boxT, int boxB) {
     this->boxL = boxL;
 
     this->boxL = boxL;
@@ -26,27 +31,6 @@ TextBox::TextBox(int boxL, int boxR, int boxT, int boxB) {
   //  pageLineCnt = (this->boxB - this->boxT) / FONT_DRAW_H;
    //z scrollCnt = 0;
     currX = this->boxL;
-
-   /* if (!fontID) {
-            // Create Texture
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glGenTextures(1, &fontID);
-            glBindTexture(GL_TEXTURE_2D, fontID);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    GL_LUMINANCE_ALPHA,
-                    FONT_TEX_W,
-                    FONT_TEX_H,
-                    0,
-                    GL_LUMINANCE_ALPHA,
-                    GL_UNSIGNED_BYTE,
-                    (void *)fontData);
-    }*/
 }
 
 
@@ -62,6 +46,7 @@ void TextBox::DrawStr(int x, int y, int maxFlag, int maxY, char* string) {
 
     IRenderer*renderer= IRenderer::get();
 
+
     // Parse the String
     while (*cP != '\0') {
         // Visible characters
@@ -73,30 +58,17 @@ void TextBox::DrawStr(int x, int y, int maxFlag, int maxY, char* string) {
             s = ( index % 8 ) * FONT_W;
             t = ( index / 8 ) * FONT_H;
 
-            TextureRegion region(s, t,
+
+
+            TextureRegion region((float)(s)/FONT_TEX_W,
+                                 (float)(t+FONT_H + 1)/FONT_TEX_H,
                                  (float)(s+FONT_W)/FONT_TEX_W,
-                                 (float)(t+FONT_H + 1)/FONT_TEX_H, 0);
+                                 (float)(t)/FONT_TEX_H);
 
             renderer->DrawSprite((F32)(cursorX + FONT_DRAW_W/2), (F32)(cursorY + FONT_DRAW_H),
-                                 (F32)(FONT_DRAW_W), (F32)(FONT_DRAW_H), region);
+                                 (F32)(FONT_DRAW_W), (F32)(FONT_DRAW_H), region, fontTex);
 
-
-         /*   glTexCoord2f((float)(s       )/FONT_TEX_W, (float)(t           )/FONT_TEX_H);
-            glVertex3s(cursorX            , cursorY            , 0);
-
-
-            glTexCoord2f((float)(s       )/FONT_TEX_W, (float)(t+FONT_H + 1)/FONT_TEX_H);
-            glVertex3s(cursorX            , cursorY+FONT_DRAW_H, 0);
-
-
-            glTexCoord2f((float)(s+FONT_W)/FONT_TEX_W, (float)(t+FONT_H + 1)/FONT_TEX_H);
-            glVertex3s(cursorX+FONT_DRAW_W, cursorY+FONT_DRAW_H, 0);
-
-
-            glTexCoord2f((float)(s+FONT_W)/FONT_TEX_W, (float)(t           )/FONT_TEX_H);
-            glVertex3s(cursorX+FONT_DRAW_W, cursorY            , 0);*/
-
-            cursorX += FONT_DRAW_W;
+           cursorX += FONT_DRAW_W;
         }
         if ( *cP == '\n' ) {
                 cursorX = x;
@@ -112,3 +84,79 @@ void TextBox::DrawStr(int x, int y, int maxFlag, int maxY, char* string) {
 void TextBox::DrawStr(int x, int y, char * str) {
     DrawStr(x, y, 0, 0, str);
 }
+
+void TextBox::FormatStrCat(char * str) {
+        char buff[MAX_STRING];
+        char buff2[MAX_STRING];
+        char * cP;
+        char * cP2;
+
+        strcpy(buff, str);
+        cP = buff;
+
+        // Format String for caption
+        // Parse the String
+        while (*cP != '\0') {
+                // Visible characters
+                if ( ' ' <= *cP && *cP <= '~' ) {
+                        currX += FONT_DRAW_W;
+                }
+                else if ( *cP == '\n' ) {
+                        currX = boxL;
+                }
+
+                // Wrap
+                if (currX >= boxR) {
+                        cP++;
+                        // Find the last space
+                        while(cP > buff && *cP != ' ') cP--;
+                        strcpy(buff2, cP);
+                        *cP++ = '\n';
+                        *cP = '\0';
+                        // Eliminate Space
+                        if (buff2[0] == ' ') cP2 = &buff2[1];
+                        else cP2 = buff2;
+                        strcat(cP, cP2);
+                        currX = boxL;
+                }
+                else {
+                        cP++;
+                }
+        }
+
+        // Make sure it fits in the text buffer by removing
+        // strings at the top of the buffer.
+        cP = &buffer[0];
+        while (strlen(cP) + strlen(buff) > MAX_STRING) {
+                cP = strchr(cP, '\n');
+                if( !cP ) {
+                        break;
+                }
+                cP++;
+        }
+        // If there are strings that need to be removed. Do so.
+        if (cP != &buffer[0]) {
+                strcpy(buff2, cP);
+                strcpy(buffer, buff2);
+        }
+        // Now there is space. So, concatinate.
+        strcat(buffer, buff);
+}
+
+void TextBox::Printf(char* fmt, ... ) {
+        va_list  vlist;
+        char buff[MAX_STRING];
+
+        // Get output string
+        va_start(vlist, fmt);
+        vsprintf(buff, fmt, vlist);
+
+        FormatStrCat(buff);
+
+        va_end(vlist);
+}
+
+void TextBox::Draw() {
+        DrawStr(boxL, boxT, 1, boxB, buffer);
+}
+

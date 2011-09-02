@@ -98,7 +98,6 @@ BASEDATA* HandleManager<BASEDATA, FACTORY, TAG>::Acquire(Handle<BASEDATA, FACTOR
         magicNumbers[index] = handle.GetMagic();
     }
 
-    Log("texture index %d", index);
     return *(data.begin() + index);
 }
 
@@ -115,7 +114,7 @@ void HandleManager<BASEDATA, FACTORY, TAG>::Release(Handle<BASEDATA, FACTORY, TA
     handle.Invalidate();
 
     if(handlesRefCount[index]==0) {
-        Log("Releasing asset");
+        Log(0, "Releasing asset");
         magicNumbers[index]=0;
         delete data[index];
         data[index]=NULL;
@@ -130,6 +129,7 @@ inline BASEDATA* HandleManager<BASEDATA, FACTORY, TAG>::Dereference(const Handle
 
     U16 index = handle.GetIndex();
     if(index >= data.size() || magicNumbers[index]!=handle.GetMagic()) {
+        Log(0, "handle index: %d, magic: %d", handle.GetIndex(), handle.GetMagic());
         ASSERT(0, "Invalid handle used");
         return 0;
     }

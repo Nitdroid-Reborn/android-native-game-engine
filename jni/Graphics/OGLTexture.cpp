@@ -29,8 +29,6 @@ bool OGLTexture::Load(const char *filename) {
     PNGLoader loader;
 
     if(loader.Load(filename, imageData, w, h, depth, alpha)) {
-
-
         GLenum format;
         if(depth == 8) {
             glGenTextures(1, &textureId);
@@ -64,6 +62,27 @@ bool OGLTexture::Load(const char *filename) {
 
     return false;
 
+}
+
+
+bool OGLTexture::Load(void* rawData, TextureInfo& info) {
+    glPixelStorei(GL_UNPACK_ALIGNMENT, info.pixelAlignment);
+
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    if(info.format == TextureInfo::LUMINANCE_ALPHA) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, info.width, info.height, 0,
+                     GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, rawData);
+    }
+    return false;
+
+    return true;
 }
 
 bool OGLTexture::Reload() {

@@ -20,9 +20,7 @@
 #include <Graphics/AndroidRenderer.h>
 #include <Graphics/ITexture.h>
 #include <ContentManager/AndroidContentManager.h>
-#include "AudioSystem.h"
-
-
+#include <Audio/AndroidAudioSystem.h>
 //#include "Box2D/Box2D.h"
 
 
@@ -76,7 +74,7 @@ private:
     bool closeEngine;
 
 
-   // AudioSystem audioSystem;
+    AndroidAudioSystem* audioSystem;
     IFileIO* fileIOSystem;
     Input* inputSystem;
 
@@ -101,6 +99,9 @@ private:
     int32_t width;
     int32_t height;
 
+
+    SoundHandle sound;
+
     int InitDisplay();
     void TerminateDisplay();
 
@@ -115,6 +116,8 @@ private:
 
     Mutex mutex;
     Mutex windowMutex;
+
+    float volume;
 
 };
 

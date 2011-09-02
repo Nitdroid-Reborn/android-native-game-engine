@@ -1,6 +1,7 @@
 #include "AudioSystem.h"
 #include <assert.h>
 
+#include <Utils/Utils.h>
 
 AudioSystem::AudioSystem()
 {
@@ -78,7 +79,7 @@ void AudioSystem::Shutdown() {
 void AudioSystem::CreateAssetPlayer(AAssetManager *mgr, char *filename) {
     SLresult result;
 
-    assert(NULL != mgr);
+    /* assert(NULL != mgr);
     AAsset* asset = AAssetManager_open(mgr, (const char *) filename, AASSET_MODE_UNKNOWN);
 
 
@@ -95,8 +96,10 @@ void AudioSystem::CreateAssetPlayer(AAssetManager *mgr, char *filename) {
 
     // configure audio source
     SLDataLocator_AndroidFD loc_fd = {SL_DATALOCATOR_ANDROIDFD, fd, start, length};
+*/
+    SLDataLocator_URI loc_uri = {SL_DATALOCATOR_URI, (SLchar*)"file:///sdcard/music.mp3"};
     SLDataFormat_MIME format_mime = {SL_DATAFORMAT_MIME, NULL, SL_CONTAINERTYPE_UNSPECIFIED};
-    SLDataSource audioSrc = {&loc_fd, &format_mime};
+    SLDataSource audioSrc = {&loc_uri, &format_mime};
 
     // configure audio sink
     SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
@@ -107,23 +110,23 @@ void AudioSystem::CreateAssetPlayer(AAssetManager *mgr, char *filename) {
     const SLboolean req[1] = {SL_BOOLEAN_TRUE};
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &fdPlayerObject, &audioSrc, &audioSnk,
             1, ids, req);
-    assert(SL_RESULT_SUCCESS == result);
+    ASSERT(SL_RESULT_SUCCESS == result, "cannot create audio player");
 
     // realize the player
     result = (*fdPlayerObject)->Realize(fdPlayerObject, SL_BOOLEAN_FALSE);
-    assert(SL_RESULT_SUCCESS == result);
+    ASSERT(SL_RESULT_SUCCESS == result, "cannot realize audio player");
 
     // get the play interface
     result = (*fdPlayerObject)->GetInterface(fdPlayerObject, SL_IID_PLAY, &fdPlayerPlay);
-    assert(SL_RESULT_SUCCESS == result);
+    ASSERT(SL_RESULT_SUCCESS == result, "cannot get interface of player play");
 
     // get the seek interface
     result = (*fdPlayerObject)->GetInterface(fdPlayerObject, SL_IID_SEEK, &fdPlayerSeek);
-    assert(SL_RESULT_SUCCESS == result);
+    ASSERT(SL_RESULT_SUCCESS == result, "cannot get interface of player seek");
 
     // enable whole file looping
     result = (*fdPlayerSeek)->SetLoop(fdPlayerSeek, SL_BOOLEAN_TRUE, 0, SL_TIME_UNKNOWN);
-    assert(SL_RESULT_SUCCESS == result);
+    ASSERT(SL_RESULT_SUCCESS == result, "canno set loop");
 }
 
 void AudioSystem::SetAssetPlayerStatus(bool isPlaying) {
@@ -132,10 +135,11 @@ void AudioSystem::SetAssetPlayerStatus(bool isPlaying) {
     // make sure the asset audio player was created
     if (NULL != fdPlayerPlay) {
 
+        Log("play");
         // set the player's state
         result = (*fdPlayerPlay)->SetPlayState(fdPlayerPlay, isPlaying ?
             SL_PLAYSTATE_PLAYING : SL_PLAYSTATE_PAUSED);
-        assert(SL_RESULT_SUCCESS == result);
+        ASSERT(SL_RESULT_SUCCESS == result, "cannot play");
 
     }
 }
@@ -188,4 +192,5 @@ void AudioSystem::CreateBufferPlayer(BufferQueuePlayer& player) {
 void AudioSystem::Play(BufferQueuePlayer& player, const char *data, int len) {
     SLresult result;
     result = (*player.bqPlayerBufferQueue)->Enqueue(player.bqPlayerBufferQueue, data, len);
+
 }

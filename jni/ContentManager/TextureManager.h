@@ -13,6 +13,7 @@ public:
     ~TextureManager(){}
 
     TextureHandle GetTexture(const char* fileName);
+    TextureHandle GetTexture(void* rawData, TextureInfo& info);
     void ReleaseTexture(TextureHandle&);
 };
 
