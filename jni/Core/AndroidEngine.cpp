@@ -75,7 +75,8 @@ void AndroidEngine::Initialize() {
     volume = 1.0f;
     //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 
-    sound = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
+    sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
+    sound2 = contentManager->GetSoundManager()->GetSound("/sdcard/flet.wav");
 
     //sound.Load("/sdcard/violin.wav");
 
@@ -252,10 +253,12 @@ void AndroidEngine::Update(float dt) {
     }
 
     if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
-        sound.Get()->Play();
+        sound1.Get()->Play();
 
     if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_1))
-        sound.Get()->Play(0.5);
+        sound2.Get()->Play();
+
+
 
     if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_Z)) {
         volume+=0.1f;

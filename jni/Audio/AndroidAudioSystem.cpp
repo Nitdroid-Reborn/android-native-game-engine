@@ -4,6 +4,8 @@
 
 IAudioSystem* IAudioSystem::singleton = NULL;
 
+BufferQueuePlayer AndroidAudioSystem::bufferPlayers[20];
+vector<int> AndroidAudioSystem::freeBufferPlayers;
 
 AndroidAudioSystem::AndroidAudioSystem() {
     engineObject=NULL;
@@ -44,56 +46,14 @@ bool AndroidAudioSystem::Initialize() {
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     ASSERT(SL_RESULT_SUCCESS == result, "Cannot realize output mix");
 
-
-
-
-    // configure audio source
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
-    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 1, SL_SAMPLINGRATE_44_1,
-        SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
-        SL_SPEAKER_FRONT_CENTER, SL_BYTEORDER_LITTLEENDIAN};
-    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
-
-    // configure audio sink
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
-
-    // create audio player
-    const SLInterfaceID ids2[3] = {SL_IID_BUFFERQUEUE, SL_IID_EFFECTSEND, SL_IID_VOLUME};
-    const SLboolean req2[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
-    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &bufferPlayer.bqPlayerObject,
-                                                &audioSrc, &audioSnk, 3, ids2, req2);
-    //assert(SL_RESULT_SUCCESS == result);
-
-    // realize the player
-    result = (*bufferPlayer.bqPlayerObject)->Realize(bufferPlayer.bqPlayerObject, SL_BOOLEAN_FALSE);
-   // assert(SL_RESULT_SUCCESS == result);
-
-    // get the play interface
-    result = (*bufferPlayer.bqPlayerObject)->GetInterface(bufferPlayer.bqPlayerObject, SL_IID_PLAY, &bufferPlayer.bqPlayerPlay);
-   // assert(SL_RESULT_SUCCESS == result);
-
-    // get the buffer queue interface
-    result = (*bufferPlayer.bqPlayerObject)->GetInterface(bufferPlayer.bqPlayerObject, SL_IID_BUFFERQUEUE,
-            &bufferPlayer.bqPlayerBufferQueue);
-
-    result = (*bufferPlayer.bqPlayerObject)->GetInterface(bufferPlayer.bqPlayerObject, SL_IID_VOLUME,
-            &bufferPlayer.bqPlayerVolume);
-    //assert(SL_RESULT_SUCCESS == result);
-
-    // register callback on the buffer queue
-   // result = (*bqPlayerBufferQueue)->RegisterCallback(bqPlayerBufferQueue, bqPlayerCallback, NULL);
-   // assert(SL_RESULT_SUCCESS == result);
-
-
-    // set the player's state to playing
-    result = (*bufferPlayer.bqPlayerPlay)->SetPlayState(bufferPlayer.bqPlayerPlay, SL_PLAYSTATE_PLAYING);
-   // assert(SL_RESULT_SUCCESS == result);
-/*
     for(int i=0;i<20;i++) {
-        CreateBufferPlayer(bufferPlayers[i]);
+        CreateBufferQueuePlayer(bufferPlayers[i]);
     }
-*/
+
+    freeBufferPlayers.resize(20);
+    for(int i=0;i<20;i++) {
+        freeBufferPlayers[i]=i;
+    }
 
     Log(1, "Android Audio System system initialized");
     return true;
@@ -123,12 +83,14 @@ bool AndroidAudioSystem::Release() {
         engineEngine = NULL;
     }
 
-    if(bufferPlayer.bqPlayerObject != NULL) {
-        (*bufferPlayer.bqPlayerObject)->Destroy(bufferPlayer.bqPlayerObject);
-        bufferPlayer.bqPlayerBufferQueue = NULL;
-        bufferPlayer.bqPlayerObject = NULL;
-        bufferPlayer.bqPlayerPlay = NULL;
-        bufferPlayer.bqPlayerVolume = NULL;
+    for(int i=0;i<20;i++) {
+        if(bufferPlayers[i].bqPlayerObject != NULL) {
+            (*bufferPlayers[i].bqPlayerObject)->Destroy(bufferPlayers[i].bqPlayerObject);
+            bufferPlayers[i].bqPlayerBufferQueue = NULL;
+            bufferPlayers[i].bqPlayerObject = NULL;
+            bufferPlayers[i].bqPlayerPlay = NULL;
+            bufferPlayers[i].bqPlayerVolume = NULL;
+        }
     }
 
     singleton = NULL;
@@ -139,13 +101,74 @@ bool AndroidAudioSystem::Release() {
 }
 
 
+void AndroidAudioSystem::CreateBufferQueuePlayer(BufferQueuePlayer &player) {
+    SLresult result;
+    // configure audio source
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, 1, SL_SAMPLINGRATE_44_1,
+        SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
+        SL_SPEAKER_FRONT_CENTER, SL_BYTEORDER_LITTLEENDIAN};
+    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
+
+    // configure audio sink
+    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+    SLDataSink audioSnk = {&loc_outmix, NULL};
+
+    // create audio player
+    const SLInterfaceID ids2[3] = {SL_IID_BUFFERQUEUE, SL_IID_EFFECTSEND, SL_IID_VOLUME};
+    const SLboolean req2[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    result = (*engineEngine)->CreateAudioPlayer(engineEngine, &player.bqPlayerObject,
+                                                &audioSrc, &audioSnk, 3, ids2, req2);
+    //assert(SL_RESULT_SUCCESS == result);
+
+    // realize the player
+    result = (*player.bqPlayerObject)->Realize(player.bqPlayerObject, SL_BOOLEAN_FALSE);
+   // assert(SL_RESULT_SUCCESS == result);
+
+    // get the play interface
+    result = (*player.bqPlayerObject)->GetInterface(player.bqPlayerObject, SL_IID_PLAY, &player.bqPlayerPlay);
+   // assert(SL_RESULT_SUCCESS == result);
+
+    // get the buffer queue interface
+    result = (*player.bqPlayerObject)->GetInterface(player.bqPlayerObject, SL_IID_BUFFERQUEUE,
+            &player.bqPlayerBufferQueue);
+
+    result = (*player.bqPlayerObject)->GetInterface(player.bqPlayerObject, SL_IID_VOLUME,
+            &player.bqPlayerVolume);
+    //assert(SL_RESULT_SUCCESS == result);
+
+    // register callback on the buffer queue
+   result = (*player.bqPlayerBufferQueue)->RegisterCallback(player.bqPlayerBufferQueue, BufferPlayerCallback, NULL);
+   // assert(SL_RESULT_SUCCESS == result);
+
+    result = (*player.bqPlayerPlay)->SetPlayState(player.bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+}
+
+
+void AndroidAudioSystem::BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, void *context) {
+    int i=-1;
+    for(i=0;i<20;i++) {
+        if(fb == bufferPlayers[i].bqPlayerBufferQueue)
+            break;
+    }
+
+    if(i<20) {
+        freeBufferPlayers.push_back(i);
+    }
+}
+
 void AndroidAudioSystem::PlaySound(const ISound *s, F32 volume) {
+    if(freeBufferPlayers.size()==0)return;
+
+    int freePlayer = freeBufferPlayers.back();
+    freeBufferPlayers.pop_back();
+
     volume = 1.0f - volume;
     volume = pow(volume, 5);
 
-    (*bufferPlayer.bqPlayerVolume)->SetVolumeLevel(bufferPlayer.bqPlayerVolume, (I16)(volume*(SL_MILLIBEL_MIN)));
+    (*bufferPlayers[freePlayer].bqPlayerVolume)->SetVolumeLevel(bufferPlayers[freePlayer].bqPlayerVolume, (I16)(volume*(SL_MILLIBEL_MIN)));
 
-    (*bufferPlayer.bqPlayerBufferQueue)->Enqueue(bufferPlayer.bqPlayerBufferQueue, s->GetData(), s->GetDataLength());
+    (*bufferPlayers[freePlayer].bqPlayerBufferQueue)->Enqueue(bufferPlayers[freePlayer].bqPlayerBufferQueue, s->GetData(), s->GetDataLength());
 }
 
 void AndroidAudioSystem::PlaySound(const SoundHandle& handle, F32 volume) {

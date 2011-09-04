@@ -100,7 +100,8 @@ private:
     int32_t height;
 
 
-    SoundHandle sound;
+    SoundHandle sound1;
+    SoundHandle sound2;
 
     int InitDisplay();
     void TerminateDisplay();

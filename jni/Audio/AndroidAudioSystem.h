@@ -4,7 +4,9 @@
 #include "IAudioSystem.h"
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+#include <vector>
 
+using namespace std;
 
 struct BufferQueuePlayer {
     SLObjectItf bqPlayerObject;
@@ -31,6 +33,9 @@ public:
     void PlaySound(const SoundHandle& handle, F32 volume);
 
 private:
+    static void BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, void* context);
+    void CreateBufferQueuePlayer(BufferQueuePlayer& player);
+
     SLObjectItf engineObject;
     SLEngineItf engineEngine;
 
@@ -43,7 +48,8 @@ private:
     SLSeekItf fdPlayerSeek;
     SLVolumeItf fdPlayerVolume;
 
-    BufferQueuePlayer bufferPlayer;
+    static BufferQueuePlayer bufferPlayers[20];
+    static vector<int> freeBufferPlayers;
 
 
     U16 maxVolumeLevel;
