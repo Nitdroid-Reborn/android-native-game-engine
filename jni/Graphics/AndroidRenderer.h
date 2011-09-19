@@ -77,10 +77,14 @@ private:
         F32 angle;
         TextureRegion texRegion;
         ITexture* texture;
+
+        bool operator<(const Sprite& rhs) const{
+            return texture>rhs.texture;
+        }
     };
 
     vector<Sprite> sprites;
-    vector<Sprite> oldSprites;
+    vector<Sprite> oldSprites;    
 };
 
 #endif // ANDROIDRENDERER_H

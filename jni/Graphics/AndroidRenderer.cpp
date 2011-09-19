@@ -7,6 +7,7 @@
 #include "TextBox.h"
 #include "Font.h"
 #include <Utils/Profiler.h>
+#include <algorithm>
 
 IRenderer* IRenderer::singleton = NULL;
 
@@ -49,7 +50,7 @@ void AndroidRenderer::OnLostFocus() {
 }
 
 void AndroidRenderer::InitWindow() {
-    Log(1, "Renderer window initialized");
+    Logger::Log(1, "Renderer window initialized");
     const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
             EGL_BLUE_SIZE, 8,
@@ -86,7 +87,7 @@ void AndroidRenderer::InitWindow() {
     context = eglCreateContext(display, config, manager->GetEGLContext(), NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        Log("Unable to eglMakeCurrent");
+        Logger::Log("Unable to eglMakeCurrent");
         return;
     }
 
@@ -116,6 +117,10 @@ void AndroidRenderer::InitWindow() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glDisable(GL_DITHER);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     textBox.SetSize(0, w, 0, h);
 
@@ -123,7 +128,7 @@ void AndroidRenderer::InitWindow() {
 }
 
 void AndroidRenderer::TerminateWindow() {
-    Log(1, "Renderer window destroyed");
+    Logger::Log(1, "Renderer window destroyed");
     if (display != EGL_NO_DISPLAY) {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (context != EGL_NO_CONTEXT) {
@@ -140,7 +145,7 @@ void AndroidRenderer::TerminateWindow() {
 }
 
 void AndroidRenderer::Initialize() {
-    ASSERT(!singleton, "FileIO system already initialized");
+    ASSERT(!singleton, "Render system already initialized");
 
     singleton = this;
 
@@ -156,7 +161,14 @@ void AndroidRenderer::Initialize() {
     textBox.fontTex = fontTexture;
     fontTexture.Get()->Bind();
 
-    Log(1, "Android Renderer initialized");
+
+    ScriptManager* manager = ScriptManager::Get();
+    manager->RegisterClass<IRenderer>();
+    manager->RegisterStaticClassFunction<IRenderer>("Get", IRendererGet);
+    manager->RegisterClass<TextureRegion>();
+    manager->RegisterClass<ITexture>();
+
+    Logger::Log(1, "Android Renderer initialized");
 }
 
 void AndroidRenderer::Release() {
@@ -181,7 +193,7 @@ void AndroidRenderer::Run() {
             if(closing) {
                 TerminateWindow();
                 mutex.Unlock();
-                Log(1, "Android Renderer released");
+                Logger::Log(1, "Android Renderer released");
                 return;
             }
 
@@ -209,27 +221,39 @@ void AndroidRenderer::Run() {
                     glClearColor(0,0,0,1);
                     glClear(GL_COLOR_BUFFER_BIT);
 
+                    vector<int> textureChanges;
+                    {
+                        PROFILE("Sprites sorting", &rendererProfileManager);
+
+                        if(oldSprites.size() > 0) {
+                            std::sort(oldSprites.begin(), oldSprites.end());
+                            ITexture* current = oldSprites[0].texture;
+                            textureChanges.push_back(0);
+                            for(int i=1;i<oldSprites.size();i++) {
+                                if(current!=oldSprites[i].texture) {
+                                    current = oldSprites[i].texture;
+                                    textureChanges.push_back(i);
+                                }
+                            }
+                            textureChanges.push_back(oldSprites.size());
+                        }
+                    }
+
                     {
                        PROFILE("Batch", &rendererProfileManager);
-                    TextureRegion r(0, 0, 1, 1);
 
-                   /* if(oldSprites.size() && oldSprites[0].texture) {
-                        batcher->BeginBatch(oldSprites[0].texture);
-                    }
-                    else*/
-                    batcher->BeginBatch(fontTexture.Get());
-                    for(int i=0;i<oldSprites.size();i++) {
-
-                        {
-                   //     PROFILE("Draw Sprite", &rendererProfileManager);
-
-                        batcher->DrawSprite(oldSprites[i].x, oldSprites[i].y,
-                                            oldSprites[i].width, oldSprites[i].height,
-                                            oldSprites[i].texRegion, oldSprites[i].angle);
+                        if(oldSprites.size()>0) {
+                            for(int i=1;i<textureChanges.size();i++) {
+                                batcher->BeginBatch(oldSprites[textureChanges[i-1]].texture);
+                                for(int j=textureChanges[i-1];j<textureChanges[i];j++) {
+                                    batcher->DrawSprite(oldSprites[j].x, oldSprites[j].y,
+                                                    oldSprites[j].width, oldSprites[j].height,
+                                                    oldSprites[j].texRegion, oldSprites[j].angle);
+                                }
+                                batcher->EndBatch();
+                            }
                         }
 
-                    }
-                    batcher->EndBatch();
                     }
 
                     {
@@ -244,7 +268,7 @@ void AndroidRenderer::Run() {
 
                      if(frameCounter>60) {
                          frameCounter=0;
-                         Log(0, "FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+                         Logger::Log(0, "FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
                          fpsClock.reset();
                     }
 
@@ -300,3 +324,9 @@ void AndroidRenderer::DrawString(int x, int y, char * str) {
     textBox.DrawStr(x, y, str);
 }
 
+int IRendererGet(lua_State *l) {
+    OOLUA_C_FUNCTION(IRenderer*, IRenderer::get)
+}
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(IRenderer, DrawString, DrawSprite, DrawTexturedSprite)
+EXPORT_OOLUA_FUNCTIONS_CONST(IRenderer)

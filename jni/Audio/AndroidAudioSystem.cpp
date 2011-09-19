@@ -1,6 +1,8 @@
 #include "AndroidAudioSystem.h"
 #include <Utils/Utils.h>
 #include <math.h>
+#include <Scripts/ScriptManager.h>
+#include <Audio/Sound.h>
 
 IAudioSystem* IAudioSystem::singleton = NULL;
 
@@ -55,7 +57,16 @@ bool AndroidAudioSystem::Initialize() {
         freeBufferPlayers[i]=i;
     }
 
-    Log(1, "Android Audio System system initialized");
+    ScriptManager* manager = ScriptManager::Get();
+
+    manager->RegisterClass<ISound>();
+   // manager->RegisterClass<Sound>();
+    manager->RegisterClass<IAudioSystem>();
+    manager->RegisterStaticClassFunction<IAudioSystem>("Get", IAudioSystemGet);
+   // manager->RegisterClass<AndroidAudioSystem>();
+
+
+    Logger::Log(1, "Android Audio System system initialized");
     return true;
 }
 
@@ -68,6 +79,19 @@ bool AndroidAudioSystem::Release() {
         fdPlayerObject = NULL;
         fdPlayerPlay = NULL;
         fdPlayerSeek = NULL;
+    }
+
+
+
+    for(int i=0;i<20;i++) {
+        if(bufferPlayers[i].bqPlayerObject != NULL) {
+
+            (*(bufferPlayers[i].bqPlayerObject))->Destroy(bufferPlayers[i].bqPlayerObject);
+            bufferPlayers[i].bqPlayerBufferQueue = NULL;
+            bufferPlayers[i].bqPlayerObject = NULL;
+            bufferPlayers[i].bqPlayerPlay = NULL;
+            bufferPlayers[i].bqPlayerVolume = NULL;
+        }
     }
 
     // destroy output mix object, and invalidate all associated interfaces
@@ -83,20 +107,10 @@ bool AndroidAudioSystem::Release() {
         engineEngine = NULL;
     }
 
-    for(int i=0;i<20;i++) {
-        if(bufferPlayers[i].bqPlayerObject != NULL) {
-            (*bufferPlayers[i].bqPlayerObject)->Destroy(bufferPlayers[i].bqPlayerObject);
-            bufferPlayers[i].bqPlayerBufferQueue = NULL;
-            bufferPlayers[i].bqPlayerObject = NULL;
-            bufferPlayers[i].bqPlayerPlay = NULL;
-            bufferPlayers[i].bqPlayerVolume = NULL;
-        }
-    }
-
     singleton = NULL;
 
 
-    Log(1, "Android Audio System system released");
+    Logger::Log(1, "Android Audio System system released");
     return true;
 }
 
@@ -173,6 +187,7 @@ void AndroidAudioSystem::PlaySound(const ISound *s, F32 volume) {
 
 void AndroidAudioSystem::PlaySound(const SoundHandle& handle, F32 volume) {
     const ISound* s = handle.Get();
+
     if(s!=NULL)
         PlaySound(s, volume);
 }
@@ -191,7 +206,7 @@ void AndroidAudioSystem::PlayMusic(const char *filename, F32 volume) {
     char fileURI[255];
     sprintf(&fileURI[0], "file://%s", filename);
 
-    Log("filename %s", fileURI);
+    Logger::Log("filename %s", fileURI);
     SLDataLocator_URI loc_uri = {SL_DATALOCATOR_URI, (SLchar*)fileURI};
     SLDataFormat_MIME format_mime = {SL_DATAFORMAT_MIME, NULL, SL_CONTAINERTYPE_UNSPECIFIED};
     SLDataSource audioSrc = {&loc_uri, &format_mime};
@@ -252,3 +267,12 @@ void AndroidAudioSystem::StopMusic() {
         (*fdPlayerPlay)->SetPlayState(fdPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
+
+
+
+int IAudioSystemGet(lua_State *l) {
+    OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
+}
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
+EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)

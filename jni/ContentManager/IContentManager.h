@@ -22,4 +22,12 @@ protected:
     ISoundManager* soundManager;
 };
 
+int IContentManagerGet(lua_State* l);
+
+
+OOLUA_PROXY_CLASS(IContentManager)
+    OOLUA_MEM_FUNC(ISoundManager*, GetSoundManager)
+    OOLUA_MEM_FUNC(ITextureManager*, GetTextureManager)
+    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
+OOLUA_CLASS_END
 #endif // ICONTENTMANAGER_H

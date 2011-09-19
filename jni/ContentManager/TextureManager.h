@@ -3,6 +3,8 @@
 #include "HandleManager.h"
 #include "Handle.h"
 #include "ITextureManager.h"
+#include <map>
+#include <string>
 
 class TextureManager : public ITextureManager
 {
@@ -10,11 +12,14 @@ class TextureManager : public ITextureManager
 
 public:
     TextureManager();
-    ~TextureManager(){}
+    ~TextureManager();
 
     TextureHandle GetTexture(const char* fileName);
     TextureHandle GetTexture(void* rawData, TextureInfo& info);
     void ReleaseTexture(TextureHandle&);
+
+private:
+    std::map<std::string, TextureHandle> loadedTextures;
 };
 
 #endif // TEXTUREMANAGER_H

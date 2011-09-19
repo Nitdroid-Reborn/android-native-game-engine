@@ -384,7 +384,6 @@ void android_main(struct android_app* app) {
             // Check if we are exiting.
             if (app->destroyRequested != 0) {
                 engine.Release();
-                engine.WaitForStop();
                 return;
             }
         }

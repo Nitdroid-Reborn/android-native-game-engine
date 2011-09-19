@@ -28,6 +28,7 @@ LOCAL_MODULE            := libbox2d
 LOCAL_SRC_FILES         := Box2D/libbox2d.so
 include $(PREBUILT_SHARED_LIBRARY)
 
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := android-game-engine
@@ -77,7 +78,49 @@ LOCAL_SRC_FILES := main.cpp \
                    Utils/TextBuffer.cpp \
                    Utils/RelativeClock.cpp \
                    Audio/AndroidAudioSystem.cpp \
-                   Audio/WaveSound.cpp
+                   Audio/WaveSound.cpp \
+                   Scripts/lua/print.c \
+                   Scripts/lua/lzio.c \
+                   Scripts/lua/lvm.c \
+                   Scripts/lua/lundump.c \
+                   Scripts/lua/ltm.c \
+                   Scripts/lua/ltablib.c \
+                   Scripts/lua/ltable.c \
+                   Scripts/lua/lstrlib.c \
+                   Scripts/lua/lstring.c \
+                   Scripts/lua/lstate.c \
+                   Scripts/lua/lparser.c \
+                   Scripts/lua/loslib.c \
+                   Scripts/lua/lopcodes.c \
+                   Scripts/lua/lobject.c \
+                   Scripts/lua/loadlib.c \
+                   Scripts/lua/lmem.c \
+                   Scripts/lua/lmathlib.c \
+                   Scripts/lua/llex.c \
+                   Scripts/lua/liolib.c \
+                   Scripts/lua/linit.c \
+                   Scripts/lua/lgc.c \
+                   Scripts/lua/lfunc.c \
+                   Scripts/lua/ldump.c \
+                   Scripts/lua/ldo.c \
+                   Scripts/lua/ldebug.c \
+                   Scripts/lua/ldblib.c \
+                   Scripts/lua/lcode.c \
+                   Scripts/lua/lbaselib.c \
+                   Scripts/lua/lauxlib.c \
+                   Scripts/lua/lapi.c \
+                   Scripts/oolua/push_pointer_internal.cpp \
+                   Scripts/oolua/oolua_storage.cpp \
+                   Scripts/oolua/oolua_push_pull.cpp \
+                   Scripts/oolua/oolua_error.cpp \
+                   Scripts/oolua/oolua_check_result.cpp \
+                   Scripts/oolua/oolua.cpp \
+                   Scripts/oolua/lua_table.cpp \
+                   Scripts/oolua/lua_stack_dump.cpp \
+                   Scripts/oolua/lua_function.cpp \
+                   Scripts/oolua/class_from_stack.cpp \
+                   Scripts/ScriptManager.cpp \
+                   Scripts/Script.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

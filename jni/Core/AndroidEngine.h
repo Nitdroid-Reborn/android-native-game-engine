@@ -21,6 +21,8 @@
 #include <Graphics/ITexture.h>
 #include <ContentManager/AndroidContentManager.h>
 #include <Audio/AndroidAudioSystem.h>
+#include <Scripts/ScriptManager.h>
+#include <Scripts/Script.h>
 //#include "Box2D/Box2D.h"
 
 
@@ -31,10 +33,11 @@ struct saved_state {
     int32_t y;
 };
 
-
+/** Implementation of IEngine interface with android ndk*/
 class AndroidEngine : public IEngine
 {
 public:
+    /** Constructor takes application pointer*/
     AndroidEngine(android_app* app);
     ~AndroidEngine();
 
@@ -52,8 +55,6 @@ public:
 
     void Render();
 
-    void Run();
-
     void SingleFrame();
     void ProcessTouchInput(const TouchEvent& event);
     void ProcessKeyInput(const KeyEvent& event);
@@ -64,47 +65,46 @@ public:
     bool IsRunning();
     bool IsQuiting();
 
-    bool buffersSwapped;
-
+    /** Render component of engine*/
     IRenderer* renderer;
 
 private:
+    /// Pointer to app
     android_app * app;
     struct saved_state state;
-    bool closeEngine;
 
 
+    /// Audio component of engine
     AndroidAudioSystem* audioSystem;
+    /// File IO component of engine
     IFileIO* fileIOSystem;
+
+    /// Input component of engine
     Input* inputSystem;
 
-    VirtualInput* virtualInputSystem;
+    /// Content manager component of engine
+    IContentManager* contentManager;
 
+    ScriptManager* scriptManager;
+
+    //VirtualInput* virtualInputSystem;
+
+
+    float angle;
 
     /*VirtualSingleKey* centerKey;
     VirtualDPad* dpad;
     PNGLoader pngLoader;*/
 
+    /// Flags indicating if engine is running or is quitting
     bool isRunning;
     bool isQuitting;
 
-    ITexture* texture;
-    ISpriteBatcher* spriteBatcher;
-    IContentManager* contentManager;
+    Script* script;
+    //SoundHandle* sound1;
+   // SoundHandle* sound2;
 
-
-    EGLDisplay display;
-    EGLSurface surface;
-    EGLContext context;
-    int32_t width;
-    int32_t height;
-
-
-    SoundHandle sound1;
-    SoundHandle sound2;
-
-    int InitDisplay();
-    void TerminateDisplay();
+    TextureHandle texture;
 
     int frameCounter;
     float dt;
@@ -112,14 +112,7 @@ private:
     U64 currentTime;
     U64 lastTime;
 
-    bool initDisp;
-    bool termDisp;
-
-    Mutex mutex;
-    Mutex windowMutex;
-
     float volume;
-
 };
 
 #endif // ENGINE_H

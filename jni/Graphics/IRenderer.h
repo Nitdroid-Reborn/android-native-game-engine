@@ -5,6 +5,7 @@
 #include <Utils/Utils.h>
 #include "TextureRegion.h"
 #include <ContentManager/ITextureManager.h>
+#include <Scripts/ScriptManager.h>
 
 class IRenderer : public Thread
 {
@@ -30,5 +31,14 @@ public:
 protected:
     static IRenderer* singleton;
 };
+
+int IRendererGet(lua_State* l);
+
+OOLUA_PROXY_CLASS(IRenderer)
+    OOLUA_MEM_FUNC_3(void, DrawString, int, int, char*)
+    OOLUA_MEM_FUNC_5_RENAME(DrawSprite, void, DrawSprite, F32, F32, F32, F32, F32)
+    OOLUA_MEM_FUNC_7_RENAME(DrawTexturedSprite, void, DrawSprite, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32)
+    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
+OOLUA_CLASS_END
 
 #endif // IRENDERER_H

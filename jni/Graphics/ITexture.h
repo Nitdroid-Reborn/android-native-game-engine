@@ -2,7 +2,7 @@
 #define ITEXTURE_H
 #include <Utils/EngineTypes.h>
 #include <Core/Object.h>
-
+#include <Scripts/oolua/oolua.h>
 
 struct TextureInfo {
     enum TextureFormat {
@@ -35,5 +35,9 @@ protected:
     const char *filename;
     TextureInfo textureInfo;
 };
+
+OOLUA_PROXY_CLASS(ITexture)
+    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
+OOLUA_CLASS_END
 
 #endif // ITEXTURE_H

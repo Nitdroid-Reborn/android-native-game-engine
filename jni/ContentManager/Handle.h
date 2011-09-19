@@ -43,7 +43,7 @@ public:
     U16 GetIndex() const {return index;}
     U16 GetMagic() const {return magic;}
     U32 GetHandle() const {return handle;}
-    bool IsNull() const {return !handle;}
+    bool IsNull() const {return !magic;}
     U16 GetReferenceCount() const {return manager->GetHandleRefCount(*this);}
 
 
@@ -78,7 +78,7 @@ void Handle<BASEDATA, FACTORY, TAG>::Init(U16 index) {
 
 template <typename BASEDATA, typename FACTORY, typename TAG>
 inline Handle<BASEDATA, FACTORY, TAG>& Handle<BASEDATA, FACTORY, TAG>::operator = (const Handle<BASEDATA, FACTORY, TAG>& pOther) {
-    Log(0, "assigning handle");
+    Logger::Log(0, "assigning handle");
 
     manager->DecrementHandleRefCount(*this);
 
@@ -119,9 +119,9 @@ HandleManager<BASEDATA, FACTORY, TAG>* Handle<BASEDATA, FACTORY, TAG>::manager;
 template <typename BASEDATA, typename FACTORY, typename TAG>
 Handle<BASEDATA, FACTORY, TAG>::~Handle() {
     if(!IsNull()) {
+        Logger::Log(0, "Handle destructed, left references: %d", GetReferenceCount()-1);
         manager->Release(*this);
     }
-    Log(0, "Handle destructed, left references: %d", GetReferenceCount());
 }
 
 template <typename BASEDATA, typename FACTORY, typename TAG>

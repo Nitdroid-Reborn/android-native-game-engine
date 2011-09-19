@@ -181,9 +181,11 @@ void ProfilerManager::DumpProfileDataToBuffer() {
             i++;
         }
         outputBuffer.Print("-----------------------------------------------------\n");
-        sprintf(line,"%11s: %11s: %11s:", ave, min, max);
-        outputBuffer.Print(line);
+        sprintf(line,"%11s: %11s: %11s:\n", ave, min, max);
 
+        outputBuffer.Print(line);
+        sprintf(line,"FPS: %d:", (int)(1000.0f/totalTime));
+        outputBuffer.Print(line);
 
         for( i=0; i<MAX_PROFILE_SAMPLES; i++ ) {
             samples[i].valid = false;

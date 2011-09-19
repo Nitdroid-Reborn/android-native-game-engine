@@ -29,7 +29,7 @@ bool WaveSound::Load(const char *filename, U16*& data, U32& sampleCount) {
     readText(stream, 4, textBuffer);
 
     if(strcmp(textBuffer, "RIFF") != 0) {
-        Log(1, "Not a riff file");
+        Logger::Log(1, "Not a riff file");
         return false;
     }
 
@@ -37,13 +37,13 @@ bool WaveSound::Load(const char *filename, U16*& data, U32& sampleCount) {
 
     readText(stream, 4, textBuffer);
     if(strcmp(textBuffer, "WAVE") != 0) {
-        Log(1, "Not a wave file");
+        Logger::Log(1, "Not a wave file");
         return false;
     }
 
     readText(stream, 4, textBuffer);
     if(strcmp(textBuffer, "fmt ") != 0) {
-        Log(1, "No format chunk");
+        Logger::Log(1, "No format chunk");
         return false;
     }
 
@@ -51,14 +51,14 @@ bool WaveSound::Load(const char *filename, U16*& data, U32& sampleCount) {
     stream.read(&tmp, sizeof(U32));
 
     if(tmp != 16) {
-        Log(1, "Invalid format chunk");
+        Logger::Log(1, "Invalid format chunk");
         return false;
     }
 
     stream.read(&compressionCode, sizeof(U16));
 
     if(compressionCode != 1) {
-        Log(1, "Invalid compression");
+        Logger::Log(1, "Invalid compression");
         return false;
     }
 

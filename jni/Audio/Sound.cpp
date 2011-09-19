@@ -19,7 +19,7 @@ bool Sound::Load(const char *filename) {
 }
 
 void Sound::Dispose() {
-    Log(0, "Sound disposed");
+    Logger::Log(0, "Sound disposed");
     delete[] data;
     data = NULL;
     sampleCount = 0;
@@ -36,3 +36,7 @@ const U16* Sound::GetData() const {
 const U32 Sound::GetDataLength() const {
     return sampleCount*2;
 }
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISound,Play, Load, Dispose)
+EXPORT_OOLUA_FUNCTIONS_CONST(ISound)
+

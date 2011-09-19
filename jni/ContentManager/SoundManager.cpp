@@ -8,9 +8,15 @@ SoundManager::SoundManager() : ISoundManager()
 }
 
 SoundHandle SoundManager::GetSound(const char *filename) {
+
+    if(loadedSounds.count(filename)!=0) {
+        return loadedSounds[filename];
+    }
     SoundHandle handle;
     ISound* sound = handleManager.Acquire(handle);
     sound->Load(filename);
+
+    loadedSounds[filename]=handle;
 
     return handle;
 }
@@ -18,3 +24,10 @@ SoundHandle SoundManager::GetSound(const char *filename) {
 void SoundManager::ReleaseSound(SoundHandle &handle) {
     handleManager.Release(handle);
 }
+
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(SoundHandle, Get)
+EXPORT_OOLUA_FUNCTIONS_CONST(SoundHandle)
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISoundManager, GetSound, ReleaseSound)
+EXPORT_OOLUA_FUNCTIONS_CONST(ISoundManager)

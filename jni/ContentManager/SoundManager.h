@@ -3,6 +3,8 @@
 #include "Handle.h"
 #include "HandleManager.h"
 #include "ISoundManager.h"
+#include <map>
+#include <string>
 
 class SoundManager : public ISoundManager
 {
@@ -10,10 +12,19 @@ class SoundManager : public ISoundManager
 
 public:
     SoundManager();
-    ~SoundManager(){}
+    ~SoundManager() {
+
+    }
 
     SoundHandle GetSound(const char *filename);
     void ReleaseSound(SoundHandle&);
+
+private:
+    std::map<std::string, SoundHandle> loadedSounds;
 };
 
+OOLUA_PROXY_CLASS(SoundManager,ISoundManager)
+    OOLUA_NO_TYPEDEFS
+    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
+OOLUA_CLASS_END
 #endif // SOUNDMANAGER_H

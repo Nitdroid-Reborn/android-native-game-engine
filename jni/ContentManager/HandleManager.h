@@ -29,6 +29,7 @@ public:
                 data[i] = NULL;
             }
         }
+        data.clear();
     }
 
     void SetDataFactory(FACTORY* f) {
@@ -105,7 +106,6 @@ template <typename BASEDATA, typename FACTORY, typename TAG>
 void HandleManager<BASEDATA, FACTORY, TAG>::Release(Handle<BASEDATA, FACTORY, TAG> &handle) {
     U16 index = handle.GetIndex();
 
-
     ASSERT(index < data.size(), "Invalid handle");
     ASSERT(magicNumbers[index] == handle.GetMagic(), "Invalid handle");
 
@@ -114,7 +114,7 @@ void HandleManager<BASEDATA, FACTORY, TAG>::Release(Handle<BASEDATA, FACTORY, TA
     handle.Invalidate();
 
     if(handlesRefCount[index]==0) {
-        Log(0, "Releasing asset");
+        Logger::Log(0, "Releasing asset");
         magicNumbers[index]=0;
         delete data[index];
         data[index]=NULL;
@@ -129,7 +129,7 @@ inline BASEDATA* HandleManager<BASEDATA, FACTORY, TAG>::Dereference(const Handle
 
     U16 index = handle.GetIndex();
     if(index >= data.size() || magicNumbers[index]!=handle.GetMagic()) {
-        Log(0, "handle index: %d, magic: %d", handle.GetIndex(), handle.GetMagic());
+        Logger::Log(0, "handle index: %d, magic: %d", handle.GetIndex(), handle.GetMagic());
         ASSERT(0, "Invalid handle used");
         return 0;
     }

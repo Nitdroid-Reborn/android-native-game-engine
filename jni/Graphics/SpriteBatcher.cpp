@@ -40,16 +40,16 @@ void SpriteBatcher::BeginBatch(ITexture *texture) {
 }
 
 void SpriteBatcher::EndBatch() {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 
     glVertexPointer(2, GL_FLOAT, sizeof(F32)*4, vertices);
     glTexCoordPointer(2, GL_FLOAT, sizeof(F32)*4, &vertices[2]);
 
+
     glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    //glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void SpriteBatcher::DrawSprite(F32 x, F32 y, F32 width, F32 height,

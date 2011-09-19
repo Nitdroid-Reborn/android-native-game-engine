@@ -24,4 +24,10 @@ private:
     EGLSurface surface;
 };
 
+
+OOLUA_PROXY_CLASS(AndroidContentManager, IContentManager)
+    OOLUA_NO_TYPEDEFS
+    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
+OOLUA_CLASS_END
+
 #endif // ANDROIDCONTENTMANAGER_H

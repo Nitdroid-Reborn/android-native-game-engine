@@ -68,7 +68,49 @@ SOURCES += main.cpp \
     Audio/WaveSound.cpp \
     Audio/Sound.cpp \
     ContentManager/SoundManager.cpp \
-    Audio/SoundFactory.cpp
+    Audio/SoundFactory.cpp \
+    Scripts/lua/print.c \
+    Scripts/lua/lzio.c \
+    Scripts/lua/lvm.c \
+    Scripts/lua/lundump.c \
+    Scripts/lua/ltm.c \
+    Scripts/lua/ltablib.c \
+    Scripts/lua/ltable.c \
+    Scripts/lua/lstrlib.c \
+    Scripts/lua/lstring.c \
+    Scripts/lua/lstate.c \
+    Scripts/lua/lparser.c \
+    Scripts/lua/loslib.c \
+    Scripts/lua/lopcodes.c \
+    Scripts/lua/lobject.c \
+    Scripts/lua/loadlib.c \
+    Scripts/lua/lmem.c \
+    Scripts/lua/lmathlib.c \
+    Scripts/lua/llex.c \
+    Scripts/lua/liolib.c \
+    Scripts/lua/linit.c \
+    Scripts/lua/lgc.c \
+    Scripts/lua/lfunc.c \
+    Scripts/lua/ldump.c \
+    Scripts/lua/ldo.c \
+    Scripts/lua/ldebug.c \
+    Scripts/lua/ldblib.c \
+    Scripts/lua/lcode.c \
+    Scripts/lua/lbaselib.c \
+    Scripts/lua/lauxlib.c \
+    Scripts/lua/lapi.c \
+    Scripts/oolua/push_pointer_internal.cpp \
+    Scripts/oolua/oolua_storage.cpp \
+    Scripts/oolua/oolua_push_pull.cpp \
+    Scripts/oolua/oolua_error.cpp \
+    Scripts/oolua/oolua_check_result.cpp \
+    Scripts/oolua/oolua.cpp \
+    Scripts/oolua/lua_table.cpp \
+    Scripts/oolua/lua_stack_dump.cpp \
+    Scripts/oolua/lua_function.cpp \
+    Scripts/oolua/class_from_stack.cpp \
+    Scripts/Script.cpp \
+    Scripts/ScriptManager.cpp
 
 HEADERS += \
     Utils.h \
@@ -150,10 +192,103 @@ HEADERS += \
     ContentManager/SoundManager.h \
     ContentManager/ISoundManager.h \
     Audio/ISoundFactory.h \
-    Audio/SoundFactory.h
+    Audio/SoundFactory.h \
+    Scripts/oolua/typelist_structs.h \
+    Scripts/oolua/type_list.h \
+    Scripts/oolua/push_pointer_internal.h \
+    Scripts/oolua/proxy_class.h \
+    Scripts/oolua/proxy_caller.h \
+    Scripts/oolua/platform_check.h \
+    Scripts/oolua/param_traits.h \
+    Scripts/oolua/oolua_version.h \
+    Scripts/oolua/oolua_va_args.h \
+    Scripts/oolua/oolua_userdata.h \
+    Scripts/oolua/oolua_typedefs.h \
+    Scripts/oolua/oolua_storage.h \
+    Scripts/oolua/oolua_registration.h \
+    Scripts/oolua/oolua_push_pull.h \
+    Scripts/oolua/oolua_parameter_helper.h \
+    Scripts/oolua/oolua_paramater_macros.h \
+    Scripts/oolua/oolua_member_function.h \
+    Scripts/oolua/oolua_exception.h \
+    Scripts/oolua/oolua_error.h \
+    Scripts/oolua/oolua_config.h \
+    Scripts/oolua/oolua_check_result.h \
+    Scripts/oolua/oolua_char_arrays.h \
+    Scripts/oolua/oolua_c_func.h \
+    Scripts/oolua/oolua.h \
+    Scripts/oolua/member_func_helper.h \
+    Scripts/oolua/lvd_types.h \
+    Scripts/oolua/lua_table.h \
+    Scripts/oolua/lua_stack_dump.h \
+    Scripts/oolua/lua_ref.h \
+    Scripts/oolua/lua_operator.h \
+    Scripts/oolua/lualib.h \
+    Scripts/oolua/lua_includes.h \
+    Scripts/oolua/lua_function.h \
+    Scripts/oolua/luaconf.h \
+    Scripts/oolua/lua.hpp \
+    Scripts/oolua/lua.h \
+    Scripts/oolua/lauxlib.h \
+    Scripts/oolua/fwd_push_pull.h \
+    Scripts/oolua/export_func_to_lua.h \
+    Scripts/oolua/determin_qualifier.h \
+    Scripts/oolua/cpp_member_func.h \
+    Scripts/oolua/cpp_constructor.h \
+    Scripts/oolua/class_public_member.h \
+    Scripts/oolua/class_from_stack.h \
+    Scripts/oolua/base_checker.h \
+    Scripts/lua/lzio.h \
+    Scripts/lua/lvm.h \
+    Scripts/lua/lundump.h \
+    Scripts/lua/lualib.h \
+    Scripts/lua/luaconf.h \
+    Scripts/lua/lua.hpp \
+    Scripts/lua/lua.h \
+    Scripts/lua/ltm.h \
+    Scripts/lua/ltable.h \
+    Scripts/lua/lstring.h \
+    Scripts/lua/lstate.h \
+    Scripts/lua/lparser.h \
+    Scripts/lua/lopcodes.h \
+    Scripts/lua/lobject.h \
+    Scripts/lua/lmem.h \
+    Scripts/lua/llimits.h \
+    Scripts/lua/llex.h \
+    Scripts/lua/lgc.h \
+    Scripts/lua/lfunc.h \
+    Scripts/lua/ldo.h \
+    Scripts/lua/ldebug.h \
+    Scripts/lua/lcode.h \
+    Scripts/lua/lauxlib.h \
+    Scripts/lua/lapi.h \
+    Scripts/Script.h \
+    Scripts/ScriptManager.h
 
 OTHER_FILES += \
-    Android.mk
+    Android.mk \
+    Scripts/oolua/liboolua.so \
+    Scripts/oolua/test.lua \
+    ../assets/script.lua
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

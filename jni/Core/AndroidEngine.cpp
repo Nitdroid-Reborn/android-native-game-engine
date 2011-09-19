@@ -1,15 +1,22 @@
+#include <Utils/Utils.h>
 #include "AndroidEngine.h"
 #include <FileIO/AndroidFileIO.h>
 #include <android/keycodes.h>
-#include <Utils/Utils.h>
+
 #include <unistd.h>
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
+#include "Scripts/oolua/oolua.h"
+#include <Scripts/Script.h>
 
+
+#include <Audio/Sound.h>
 #define PI 3.1415926535897932f
 
 
 ProfilerManager mainLoopProfileManager;
+
+
 static void gluPerspective(GLfloat fovy, GLfloat aspect,
                            GLfloat zNear, GLfloat zFar)
 {
@@ -26,10 +33,9 @@ static void gluPerspective(GLfloat fovy, GLfloat aspect,
 }
 
 
-
 AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 {
-    Log(1, "Engine created");
+    Logger::Log(1, "Engine created");
     frameCounter = 0;
 
     this->app = app;
@@ -41,21 +47,20 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
         state = *(struct saved_state*)app->savedState;
     }
 
-    closeEngine = false;
-    initDisp=false;
-    termDisp=false;
-
 
     //centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
     //dpad = new VirtualDPad(125, 355, 100, 25);
 }
 
 AndroidEngine::~AndroidEngine() {
-    Log(1, "Engine destroyed");
+    Logger::Log(1, "Engine destroyed");
 }
 
 
 void AndroidEngine::Initialize() {
+    scriptManager = new ScriptManager();
+    scriptManager->Initialize();
+
     fileIOSystem = new AndroidFileIO(app->activity->assetManager);
     fileIOSystem->Initialize();
 
@@ -73,29 +78,65 @@ void AndroidEngine::Initialize() {
 
 
     volume = 1.0f;
+    angle = 0.0f;
     //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 
-    sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
-    sound2 = contentManager->GetSoundManager()->GetSound("/sdcard/flet.wav");
-
-    //sound.Load("/sdcard/violin.wav");
+ //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
 
 
-  /*  audioSystem.CreateAssetPlayer(app->activity->assetManager, "sound.mp3");
-    audioSystem.SetAssetPlayerStatus(true);*/
+    texture = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
 
-    /*TextureHandle handle = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
-
-
-    ITexture* t = handle.Get();
+    lastTime = GetCurrentTimeInMsec();
 
 
-    TextureHandle t2;
 
-    t2 = handle;
+    lua_State* mainState = scriptManager->getState();
+
+   /* OOLUA::register_class<IContentManager>(mainState);
+    OOLUA::register_class<AndroidContentManager>(mainState);
+    OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
+*/
+    OOLUA::register_class<Logger>(mainState);
+    OOLUA::register_class_static<Logger>(mainState, "Log", Log);
+
+  //  OOLUA::register_class<SoundHandle>(mainState);
+ //   OOLUA::register_class<ISound>(mainState);
+   // OOLUA::register_class<Sound>(mainState);
+   // OOLUA::register_class<ISoundManager>(mainState);
+   // OOLUA::register_class<SoundManager>(mainState);
 
 
-    IContentManager::get()->GetTextureManager()->ReleaseTexture(t2);
+
+    U32 size = fileIOSystem->GetAssetSize("script.lua");
+
+    char * scriptText = new char[size];
+    std::string scriptTextStd;
+    fileIOSystem->ReadAsset("script.lua", scriptText, size);
+
+    for(int i=0;i<size;i++) {
+        scriptTextStd+=scriptText[i];
+    }
+    delete [] scriptText;
+
+
+    script = new Script();
+    script->runString(scriptTextStd);
+    //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
+
+    //script2.callFunction("doSth");
+
+    //SoundHandle sound = contentManager->GetSoundManager()->GetSound("/sdcard/flet.wav");
+
+
+   // Logger::Log("%d",sound.GetReferenceCount());
+   // script.callFunction("doSth");*/
+
+
+    //Logger::Log("Ref count %d", sound2.GetReferenceCount());
+
+    //Run a script
+   /*  if(mainState.run_chunk("IContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav'):Get():Play(0.5);"))Logger::Log("\n-Script run successfully");///sdcard/test.lua"))
+    else Logger::Log("Script error: %s", OOLUA::get_last_error(mainState.get_ptr()).c_str());
 */
 
 
@@ -111,39 +152,43 @@ void AndroidEngine::Initialize() {
 /*    virtualInputSystem = new VirtualInput();
     virtualInputSystem->AddKey(centerKey);
     virtualInputSystem->AddKey(dpad);*/
-
-
-
-
-
 }
 
 void AndroidEngine::Release() {
    // mutex.Lock();
-    closeEngine = true;
+
+    delete script;
+
+    contentManager->GetTextureManager()->ReleaseTexture(texture);
 
     audioSystem->StopMusic();
+
+    scriptManager->Release();
+    delete scriptManager;
+    scriptManager = NULL;
 
     renderer->Release();
     renderer->WaitForStop();
     delete renderer;
-    renderer = NULL;
+    renderer = NULL;    
 
-    contentManager->Release();
-    delete contentManager;
-    contentManager = NULL;
+    audioSystem->Release();
+    delete audioSystem;
 
     inputSystem->Release();
     delete inputSystem;
     inputSystem = NULL;
 
+    contentManager->Release();
+    delete contentManager;
+    contentManager = NULL;
+    audioSystem = NULL;
+
     fileIOSystem->Release();
     delete fileIOSystem;
     fileIOSystem = NULL;
 
-    audioSystem->Release();
-    delete audioSystem;
-    audioSystem = NULL;
+
 
    /* delete virtualInputSystem;
     virtualInputSystem = NULL;*/
@@ -169,7 +214,6 @@ void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
 }
 
 void AndroidEngine::OnGainedFocus() {
-    isRunning = 1;
     renderer->OnGainedFocus();
 }
 
@@ -187,7 +231,9 @@ void AndroidEngine::OnSaveState() {
 void AndroidEngine::OnInitWindow() {
     if (app->window != NULL) {
         renderer->OnInitWindow();
+
     }
+    isRunning = true;
 }
 
 void AndroidEngine::OnTerminateWindow() {
@@ -226,7 +272,7 @@ void AndroidEngine::Update(float dt) {
 
     if(ProfilerManager::profilerEnabled)
         renderer->DrawString(5, 5, mainLoopProfileManager.outputBuffer.Get());
-    //renderer->DrawString(50, 100, "bardzo tlugi tesks testowy");
+
     if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_0)) {
 
 
@@ -252,13 +298,27 @@ void AndroidEngine::Update(float dt) {
 
     }
 
-    if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
+    script->callFunction("update", dt);
+
+    /*if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
         sound1.Get()->Play();
 
     if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_1))
-        sound2.Get()->Play();
+        sound2.Get()->Play();*/
 
 
+    TextureRegion tr;
+    int counter=0;
+
+   // TextureHandle h2 = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
+  /*  for(int x=20;x<780;x+=40) {
+        for( int y= 20; y<460;y+=40) {
+            counter++;
+            renderer->DrawSprite(x, y, 30, 30, tr, texture, angle);
+        }
+    }*/
+
+    angle += dt;
 
     if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_Z)) {
         volume+=0.1f;
@@ -270,6 +330,9 @@ void AndroidEngine::Update(float dt) {
         if(volume<0.0f)volume = 0.0f;
         audioSystem->SetMusicVolume(volume);
     }
+
+    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_P))
+        audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 }
 
 
@@ -285,9 +348,6 @@ bool AndroidEngine::IsRunning() {
 }
 
 void AndroidEngine::SingleFrame() {
-    if(closeEngine) {
-        return;
-    }
 
     currentTime = GetCurrentTimeInMsec();
     float dt = (float)(currentTime - lastTime);
@@ -324,55 +384,9 @@ void AndroidEngine::SingleFrame() {
 
     if(frameCounter>60) {
         frameCounter=0;
-        Log(0, "MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
+        Logger::Log(0, "MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
         fpsClock.reset();
     }
 
     lastTime = currentTime;
 }
-
-void AndroidEngine::Run() {
-    renderer->Start();
-    while(1) {
-        mutex.Lock();
-        if(closeEngine) {
-            mutex.Unlock();
-            return;
-        }
-
-        currentTime = GetCurrentTimeInMsec();
-        float dt = (float)(currentTime - lastTime);
-        fpsClock.update(dt);
-
-
-
-        OnFrameStart();
-        Update(dt);
-
-
-
-
-     //  mutex.Unlock();
-       renderer->Wait();
-     //  mutex.Lock();
-       OnFrameEnd();
-       frameCounter++;
-
-       if(frameCounter>60) {
-           frameCounter=0;
-      //     LOGI("MAIN LOOP FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
-           fpsClock.reset();
-       }
-
-       lastTime = currentTime;
-       mutex.UnlockQuasiFIFO(100);
-
-      //  LOGI("Stop time: %f", (float)(t2-t1)/1000.0f);
-
-
-     //  usleep(15000);
-     //  mutex.UnlockQuasiFIFO(100);
-//       usleep(2000);
-    }
-}
-

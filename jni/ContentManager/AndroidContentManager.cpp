@@ -1,6 +1,7 @@
 #include "AndroidContentManager.h"
 #include "SoundManager.h"
 #include <Utils/Utils.h>
+#include <Scripts/ScriptManager.h>
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -50,10 +51,27 @@ bool AndroidContentManager::Initialize() {
     context = eglCreateContext(display, config, NULL, NULL);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        Log(3, "Unable to eglMakeCurrent in context manager %d", eglGetError());
+        Logger::Log(3, "Unable to eglMakeCurrent in context manager %d", eglGetError());
         return false;
     }
-    Log(1, "Android Content Manager initialized");
+
+
+
+    //Register to lua
+    ScriptManager* manager = ScriptManager::Get();
+
+    manager->RegisterClass<IContentManager>();
+    manager->RegisterStaticClassFunction<IContentManager>("Get", IContentManagerGet);
+
+    manager->RegisterClass<SoundHandle>();
+    manager->RegisterClass<TextureHandle>();
+
+    manager->RegisterClass<ISoundManager>();
+    manager->RegisterClass<ITextureManager>();
+
+
+
+    Logger::Log(1, "Android Content Manager initialized");
     return true;
 }
 
@@ -78,10 +96,18 @@ bool AndroidContentManager::Release() {
     surface = EGL_NO_SURFACE;
 
     singleton = NULL;
-    Log(1, "Android Content Manager released");
+    Logger::Log(1, "Android Content Manager released");
     return true;
 }
 
 const EGLContext AndroidContentManager::GetEGLContext() const{
     return context;
 }
+
+
+int IContentManagerGet(lua_State *l) {
+    OOLUA_C_FUNCTION(IContentManager*, IContentManager::get)
+}
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(IContentManager, GetSoundManager, GetTextureManager)
+EXPORT_OOLUA_FUNCTIONS_CONST(IContentManager)

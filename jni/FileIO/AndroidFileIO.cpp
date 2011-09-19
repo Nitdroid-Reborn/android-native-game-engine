@@ -24,7 +24,7 @@ bool AndroidFileIO::Initialize() {
 
     numHandles=0;
 
-    Log(1, "Android FileIO system initialized");
+    Logger::Log(1, "Android FileIO system initialized");
     return true;
 }
 
@@ -37,7 +37,7 @@ bool AndroidFileIO::Release() {
         }
     }
     singleton = NULL;
-    Log(1, "Android FileIO system released");
+    Logger::Log(1, "Android FileIO system released");
     return true;
 }
 

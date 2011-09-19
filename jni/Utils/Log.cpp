@@ -1,18 +1,26 @@
 #include "Log.h"
 #include <android/log.h>
 
-void Log(const char *format...) {
-    logMutex.Lock();
+
+void Logger::Log(const char *format...) {
     va_list argList;
     va_start(argList, format);
 
     Log(format, argList);
 
     va_end(argList);
-    logMutex.Unlock();
 }
 
-void Log(const char *format, va_list argList) {
+void Logger::LuaLog(const char *message) {
+    __android_log_print(ANDROID_LOG_INFO, "native-activity", message);
+}
+
+int Log(lua_State *l) {
+    OOLUA_C_FUNCTION(void, Logger::LuaLog, const char*)
+}
+
+
+void Logger::Log(const char *format, va_list argList) {
 
     const U32 MAX_CHARS=1023;
 
@@ -25,8 +33,7 @@ void Log(const char *format, va_list argList) {
 
 }
 
-void Log(U32 verbosity, const char *format...) {
-    logMutex.Lock();
+void Logger::Log(U32 verbosity, const char *format...) {
     if(verbosity>=verbosityLevel) {
         va_list argList;
         va_start(argList, format);
@@ -35,5 +42,10 @@ void Log(U32 verbosity, const char *format...) {
 
         va_end(argList);
     }
-    logMutex.Unlock();
 }
+
+EXPORT_OOLUA_NO_FUNCTIONS(Logger)
+
+//Export class to lua
+//
+

@@ -13,23 +13,27 @@ void KeysState::DetectKeyUpDownEvents() {
 }
 
 bool KeysState::IsKeyPressed(EngineKeyCode key) const {
-    return (keyStates & key);
+    U64 k = 1LL << key;
+    return (keyStates & k);
 }
 
 bool KeysState::IsKeyJustPressed(EngineKeyCode key) const {
-    return (keyDowns & key);
+    U64 k = 1LL << key;
+    return (keyDowns & k);
 }
 
 bool KeysState::IsKeyJustReleased(EngineKeyCode key) const {
-    return (keyUps & key);
+    U64 k = 1LL << key;
+    return (keyUps & k);
 }
 
 
 void KeysState::NewEvent(const KeyEvent &event) {
+    U64 k = 1LL << event.keyCode;
     if(event.action == ENGINE_KEYACTION_DOWN)
-        keyStates |= event.keyCode;
+        keyStates |= k;
     else
-        keyStates = keyStates & (~event.keyCode);
+        keyStates = keyStates & (~k);
 }
 
 void KeysState::StartFrame() {
@@ -39,3 +43,6 @@ void KeysState::StartFrame() {
 void KeysState::EndFrame() {
     previousKeyStates = keyStates;
 }
+
+EXPORT_OOLUA_FUNCTIONS_NON_CONST(KeysState)
+EXPORT_OOLUA_FUNCTIONS_CONST(KeysState, IsKeyPressed, IsKeyJustPressed, IsKeyJustReleased)
