@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
-//#include "Scripts/oolua/oolua.h"
-#include <Scripts/Script.h>
+
+
 #include <boost/thread.hpp>
 
 #include <Audio/Sound.h>
@@ -96,16 +96,13 @@ void AndroidEngine::Initialize() {
 
 
 
-    lua_State* mainState = scriptManager->getState();
-
+    lua_State* L;
+    lua_pushstring(L, "adasd");
    /* OOLUA::register_class<IContentManager>(mainState);
     OOLUA::register_class<AndroidContentManager>(mainState);
     OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
 */
-    /*OOLUA::register_class<Logger>(mainState);
-    OOLUA::register_class_static<Logger>(mainState, "Log", Log);
-    OOLUA::register_class<Vector2>(mainState);
-*/
+
   //  OOLUA::register_class<SoundHandle>(mainState);
  //   OOLUA::register_class<ISound>(mainState);
    // OOLUA::register_class<Sound>(mainState);
@@ -126,20 +123,8 @@ void AndroidEngine::Initialize() {
     delete [] scriptText;
 
 
-    lua_State* L;
-
-    lua_pushstring(L, "asdasd");
-    //using namespace luabind;
-
-      // open(L);
-
-       //module(L)
-       //[
-         //  def("greet", &func)
-       //];
-
-    script = new Script();
-    script->runString(scriptTextStd);
+    //script = new Script();
+    //script->runString(scriptTextStd);
 
     //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
 
@@ -318,7 +303,7 @@ void AndroidEngine::Update(float dt) {
 
     }
 
-    //script->callFunction("update", dt);
+   // script->callFunction("update", dt);
 
     /*if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
         sound1.Get()->Play();
