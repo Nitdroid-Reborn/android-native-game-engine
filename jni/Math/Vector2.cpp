@@ -36,8 +36,8 @@ bool Vector2::operator==(const Vector2 &vec) const
 	return false;
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(Vector2, Set, SetX, SetY, Zero, One, Normalize)
-EXPORT_OOLUA_FUNCTIONS_CONST(Vector2, GetX, GetY, GetNormalized, GetLength)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(Vector2, Set, SetX, SetY, Zero, One, Normalize)
+//EXPORT_OOLUA_FUNCTIONS_CONST(Vector2, GetX, GetY, GetNormalized, GetLength)
 
 
 

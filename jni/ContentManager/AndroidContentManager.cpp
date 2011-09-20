@@ -106,8 +106,8 @@ const EGLContext AndroidContentManager::GetEGLContext() const{
 
 
 int IContentManagerGet(lua_State *l) {
-    OOLUA_C_FUNCTION(IContentManager*, IContentManager::get)
+    //OOLUA_C_FUNCTION(IContentManager*, IContentManager::get)
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(IContentManager, GetSoundManager, GetTextureManager)
-EXPORT_OOLUA_FUNCTIONS_CONST(IContentManager)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IContentManager, GetSoundManager, GetTextureManager)
+//EXPORT_OOLUA_FUNCTIONS_CONST(IContentManager)

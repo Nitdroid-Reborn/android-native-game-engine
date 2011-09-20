@@ -59,5 +59,5 @@ void TouchState::EndFrame() {
     previousPointerStates = pointerStates;
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(TouchState)
-EXPORT_OOLUA_FUNCTIONS_CONST(TouchState, IsPointerDown, IsPointerJustDown, IsPointerJustUp, GetPointerX, GetPointerY)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(TouchState)
+//EXPORT_OOLUA_FUNCTIONS_CONST(TouchState, IsPointerDown, IsPointerJustDown, IsPointerJustUp, GetPointerX, GetPointerY)

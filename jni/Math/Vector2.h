@@ -2,7 +2,7 @@
 #define __VECTOR2_H__
 
 #include <cmath>
-#include <Scripts/oolua/oolua.h>
+//#include <Scripts/oolua/oolua.h>
 
 
 class Vector2
@@ -128,7 +128,7 @@ public:
 
 };
 
-OOLUA_PROXY_CLASS(Vector2)
+/*OOLUA_PROXY_CLASS(Vector2)
     OOLUA_TYPEDEFS
         OOLUA::Equal_op,
         OOLUA::Not_equal_op,
@@ -152,5 +152,5 @@ OOLUA_CONSTRUCTORS_END
     OOLUA_MEM_FUNC_0_CONST(Vector2, GetNormalized)
     OOLUA_MEM_FUNC_0_CONST(float, GetLength)
 OOLUA_CLASS_END
-
+*/
 #endif

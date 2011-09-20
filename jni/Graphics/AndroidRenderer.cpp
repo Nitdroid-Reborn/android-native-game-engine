@@ -325,8 +325,8 @@ void AndroidRenderer::DrawString(int x, int y, char * str) {
 }
 
 int IRendererGet(lua_State *l) {
-    OOLUA_C_FUNCTION(IRenderer*, IRenderer::get)
+    //OOLUA_C_FUNCTION(IRenderer*, IRenderer::get)
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(IRenderer, DrawString, DrawSprite, DrawTexturedSprite)
-EXPORT_OOLUA_FUNCTIONS_CONST(IRenderer)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IRenderer, DrawString, DrawSprite, DrawTexturedSprite)
+//EXPORT_OOLUA_FUNCTIONS_CONST(IRenderer)

@@ -1,8 +1,8 @@
 #include "Script.h"
 #include "ScriptManager.h"
-#include <Scripts/oolua/oolua_storage.h>
-#include <Scripts/oolua/oolua_check_result.h>
-#include <Scripts/oolua/oolua_error.h>
+//#include <Scripts/oolua/oolua_storage.h>
+//#include <Scripts/oolua/oolua_check_result.h>
+//#include <Scripts/oolua/oolua_error.h>
 #include <Utils/Log.h>
 
 #define AUTO_ERROR_LOGGING
@@ -38,12 +38,12 @@ static void stackDump (lua_State *L) {
 
 
 static int ScriptErrorCallback(lua_State* l) {
-    Logger::Log(1, "Script error: %s", OOLUA::get_last_error(l).c_str());
+   // Logger::Log(1, "Script error: %s", OOLUA::get_last_error(l).c_str());
     return 0;
 }
 
 void PrintLastError(lua_State* s) {
-    Logger::Log(1, "Script error: %s", OOLUA::get_last_error(s).c_str());
+    //Logger::Log(1, "Script error: %s", OOLUA::get_last_error(s).c_str());
 }
 
 Script::Script() {
@@ -60,9 +60,9 @@ Script::Script() {
 
     lua_pop(masterState, 1);
 
-    callFunction.state = threadState;
-    callFunction.function.bind_script(threadState);
-    OOLUA::setup_user_lua_state(threadState);
+    //callFunction.state = threadState;
+    //callFunction.function.bind_script(threadState);
+    //OOLUA::setup_user_lua_state(threadState);
 
 
     lua_pushthread(threadState);
@@ -103,7 +103,7 @@ Script::~Script() {
 }
 
 bool Script::runFile(char *fileName) {
-    int result = luaL_loadfile(threadState, fileName);
+    /*int result = luaL_loadfile(threadState, fileName);
     bool status = OOLUA::INTERNAL::load_buffer_check_result(threadState, result);
     if(!status)
         return false;
@@ -115,12 +115,12 @@ bool Script::runFile(char *fileName) {
     if(!status)
         Logger::Log(1, "Script error: %s", OOLUA::get_last_error(threadState).c_str());
 #endif
-    return status;
+    return status;*/
 }
 
 
 bool Script::runString(const std::string& command) {
-    int res = luaL_loadbuffer(threadState, command.c_str(), command.size(), "userChunk");
+    /*int res = luaL_loadbuffer(threadState, command.c_str(), command.size(), "userChunk");
     if(!OOLUA::INTERNAL::load_buffer_check_result(threadState,res))
         return false;
 
@@ -131,5 +131,5 @@ bool Script::runString(const std::string& command) {
     if(!status)
         Logger::Log(1, "Script error: %s", OOLUA::get_last_error(threadState).c_str());
 #endif
-    return status;
+    return status;*/
 }

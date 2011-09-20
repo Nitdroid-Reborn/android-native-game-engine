@@ -16,7 +16,7 @@ void Logger::LuaLog(const char *message) {
 }
 
 int Log(lua_State *l) {
-    OOLUA_C_FUNCTION(void, Logger::LuaLog, const char*)
+    //OOLUA_C_FUNCTION(void, Logger::LuaLog, const char*)
 }
 
 
@@ -44,7 +44,7 @@ void Logger::Log(U32 verbosity, const char *format...) {
     }
 }
 
-EXPORT_OOLUA_NO_FUNCTIONS(Logger)
+//EXPORT_OOLUA_NO_FUNCTIONS(Logger)
 
 //Export class to lua
 //

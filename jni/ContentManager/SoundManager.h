@@ -23,8 +23,8 @@ private:
     std::map<std::string, SoundHandle> loadedSounds;
 };
 
-OOLUA_PROXY_CLASS(SoundManager,ISoundManager)
+/*OOLUA_PROXY_CLASS(SoundManager,ISoundManager)
     OOLUA_NO_TYPEDEFS
     OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-OOLUA_CLASS_END
+OOLUA_CLASS_END*/
 #endif // SOUNDMANAGER_H

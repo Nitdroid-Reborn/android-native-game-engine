@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
-#include "Scripts/oolua/oolua.h"
+//#include "Scripts/oolua/oolua.h"
 #include <Scripts/Script.h>
 #include <boost/thread.hpp>
 
@@ -84,9 +84,7 @@ void AndroidEngine::Initialize() {
     volume = 1.0f;
     angle = 0.0f;
 
-    boost::thread bgThread(func);
 
-    bgThread.join();
     //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 
  //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
@@ -104,10 +102,10 @@ void AndroidEngine::Initialize() {
     OOLUA::register_class<AndroidContentManager>(mainState);
     OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
 */
-    OOLUA::register_class<Logger>(mainState);
+    /*OOLUA::register_class<Logger>(mainState);
     OOLUA::register_class_static<Logger>(mainState, "Log", Log);
     OOLUA::register_class<Vector2>(mainState);
-
+*/
   //  OOLUA::register_class<SoundHandle>(mainState);
  //   OOLUA::register_class<ISound>(mainState);
    // OOLUA::register_class<Sound>(mainState);
@@ -127,6 +125,18 @@ void AndroidEngine::Initialize() {
     }
     delete [] scriptText;
 
+
+    lua_State* L;
+
+    lua_pushstring(L, "asdasd");
+    //using namespace luabind;
+
+      // open(L);
+
+       //module(L)
+       //[
+         //  def("greet", &func)
+       //];
 
     script = new Script();
     script->runString(scriptTextStd);
@@ -308,7 +318,7 @@ void AndroidEngine::Update(float dt) {
 
     }
 
-    script->callFunction("update", dt);
+    //script->callFunction("update", dt);
 
     /*if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
         sound1.Get()->Play();

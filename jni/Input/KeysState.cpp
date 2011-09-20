@@ -44,5 +44,5 @@ void KeysState::EndFrame() {
     previousKeyStates = keyStates;
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(KeysState)
-EXPORT_OOLUA_FUNCTIONS_CONST(KeysState, IsKeyPressed, IsKeyJustPressed, IsKeyJustReleased)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(KeysState)
+//EXPORT_OOLUA_FUNCTIONS_CONST(KeysState, IsKeyPressed, IsKeyJustPressed, IsKeyJustReleased)

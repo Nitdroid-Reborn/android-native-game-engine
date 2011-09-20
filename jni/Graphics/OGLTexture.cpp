@@ -114,4 +114,4 @@ void OGLTexture::SetFilters(U32 minFilter, U32 magFilter) {
     textureInfo.magFilter=magFilter;
 }
 
-EXPORT_OOLUA_NO_FUNCTIONS(ITexture)
+//EXPORT_OOLUA_NO_FUNCTIONS(ITexture)

@@ -21,7 +21,7 @@ public:
 };
 
 
-OOLUA_PROXY_CLASS(TextureHandle)
+/*OOLUA_PROXY_CLASS(TextureHandle)
         OOLUA_TYPEDEFS
                 OOLUA::Equal_op,
                 OOLUA::Not_equal_op
@@ -35,5 +35,5 @@ OOLUA_PROXY_CLASS(ITextureManager)
     OOLUA_MEM_FUNC(TextureHandle, GetTexture, const char*)
     OOLUA_MEM_FUNC(void, ReleaseTexture, TextureHandle&)
     OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
-OOLUA_CLASS_END
+OOLUA_CLASS_END*/
 #endif // ITEXTUREMANAGER_H

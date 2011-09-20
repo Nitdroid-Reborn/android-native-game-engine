@@ -271,8 +271,8 @@ void AndroidAudioSystem::StopMusic() {
 
 
 int IAudioSystemGet(lua_State *l) {
-    OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
+    //OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
-EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
+//EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)

@@ -4,17 +4,17 @@ extern "C" {
     #include <Scripts/lua/lua.h>
 }
 
-#include <Scripts/oolua/oolua.h>
-#include <Scripts/oolua/lua_function.h>
+//#include <Scripts/oolua/oolua.h>
+//#include <Scripts/oolua/lua_function.h>
 #include <string>
 #include <Utils/Log.h>
 
 void PrintLastError(lua_State* s);
 
 struct Lua_function_checking_errors {
-    OOLUA::Lua_function function;
+    //OOLUA::Lua_function function;
 
-    template<typename FUNC>
+   /* template<typename FUNC>
     bool operator()(FUNC const&  func_name)
     {
         if(!function(func_name))
@@ -80,7 +80,7 @@ struct Lua_function_checking_errors {
         if(!function(func_name, p1, p2, p3, p4, p5, p6, p7, p8, p9))
             PrintLastError(state);
     }
-
+*/
     lua_State* state;
 };
 

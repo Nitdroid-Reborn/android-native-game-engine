@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
-#include <Scripts/oolua/oolua.h>
+//#include <Scripts/oolua/oolua.h>
+#include <Scripts/lua/lua.h>
 
 static U32 verbosityLevel = 1;
 
@@ -18,9 +19,6 @@ public:
 
 int Log(lua_State* l);
 
-OOLUA_CLASS_NO_BASES(Logger)
-    OOLUA_NO_TYPEDEFS
-    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-OOLUA_CLASS_END
+
 
 #endif // LOG_H

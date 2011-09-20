@@ -24,7 +24,7 @@ bool Input::Initialize() {
 
 {
     lua_State* s = manager->getState();
-    OOLUA::push2lua(s, 0);
+    /*OOLUA::push2lua(s, 0);
     lua_setglobal(s, "ENGINE_POINTER_0");
     OOLUA::push2lua(s, 1);
     lua_setglobal(s, "ENGINE_POINTER_1");
@@ -64,7 +64,7 @@ bool Input::Initialize() {
     OOLUA::push2lua(s, ENGINE_KEYCODE_M);
     lua_setglobal(s, "ENGINE_KEYCODE_M");
     OOLUA::push2lua(s, ENGINE_KEYCODE_N);
-    lua_setglobal(s, "ENGINE_KEYCODE_N");
+    lua_setglobal(s, "ENGINE_KEYCODE_N");*/
 
 
     }
@@ -124,8 +124,8 @@ void Input::StartFrame() {
 }
 
 int InputGet(lua_State *l) {
-    OOLUA_C_FUNCTION(Input*, Input::get)
+    //OOLUA_C_FUNCTION(Input*, Input::get)
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(Input)
-EXPORT_OOLUA_FUNCTIONS_CONST(Input, GetKeyState, GetTouchState)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(Input)
+//EXPORT_OOLUA_FUNCTIONS_CONST(Input, GetKeyState, GetTouchState)
