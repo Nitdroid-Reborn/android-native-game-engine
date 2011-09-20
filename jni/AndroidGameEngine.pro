@@ -6,7 +6,8 @@ TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += "/home/mateusz/Workspace/SDKs/android-ndk-r6/platforms/android-9/arch-arm/usr/include" \
-                "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/android/native_app_glue"
+               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/android/native_app_glue" \
+               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/boost/"
 
 # Input
 SOURCES += main.cpp \
@@ -269,7 +270,9 @@ OTHER_FILES += \
     Android.mk \
     Scripts/oolua/liboolua.so \
     Scripts/oolua/test.lua \
-    ../assets/script.lua
+    ../assets/script.lua \
+    Application.mk
+
 
 
 

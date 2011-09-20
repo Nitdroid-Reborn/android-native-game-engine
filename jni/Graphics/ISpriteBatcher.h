@@ -13,7 +13,7 @@ public:
     virtual void BeginBatch(ITexture* texture)=0;
     virtual void EndBatch()=0;
     virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height,
-                            TextureRegion texRegion, F32 angle=0.0f);
+                            TextureRegion texRegion, F32 angle=0.0f)=0;
 
 protected:
     U16 maxSprites;

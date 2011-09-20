@@ -2,6 +2,8 @@
 #define __VECTOR2_H__
 
 #include <cmath>
+#include <Scripts/oolua/oolua.h>
+
 
 class Vector2
 {
@@ -125,5 +127,30 @@ public:
 	operator const float* () const {return (const float*) this;}
 
 };
+
+OOLUA_PROXY_CLASS(Vector2)
+    OOLUA_TYPEDEFS
+        OOLUA::Equal_op,
+        OOLUA::Not_equal_op,
+        OOLUA::Add_op,
+        OOLUA::Sub_op
+    OOLUA_END_TYPES
+
+OOLUA_CONSTRUCTORS_BEGIN
+    OOLUA_CONSTRUCTOR_2(float, float)
+    OOLUA_CONSTRUCTOR_1(const Vector2&)
+OOLUA_CONSTRUCTORS_END
+
+    OOLUA_MEM_FUNC_2(void, Set, float, float)
+    OOLUA_MEM_FUNC_1(void, SetX, float)
+    OOLUA_MEM_FUNC_1(void, SetY, float)
+    OOLUA_MEM_FUNC_0_CONST(float, GetX)
+    OOLUA_MEM_FUNC_0_CONST(float, GetY)
+    OOLUA_MEM_FUNC_0(void, Zero)
+    OOLUA_MEM_FUNC_0(void, One)
+    OOLUA_MEM_FUNC_0(void, Normalize)
+    OOLUA_MEM_FUNC_0_CONST(Vector2, GetNormalized)
+    OOLUA_MEM_FUNC_0_CONST(float, GetLength)
+OOLUA_CLASS_END
 
 #endif

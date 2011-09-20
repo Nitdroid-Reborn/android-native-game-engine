@@ -9,6 +9,8 @@ angle = 0.0;
 texture = contentManager:GetTextureManager():GetTexture("logo.png");
 textureRegion = TextureRegion:new()
 sound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
+
+
 update = function(dt)
     if touchState:IsPointerJustDown(ENGINE_POINTER_0) then
         Logger.Log("ok down");
@@ -29,6 +31,5 @@ update = function(dt)
         end
     end
 
-
-    angle= angle + dt
+    angle= angle + dt;
 end

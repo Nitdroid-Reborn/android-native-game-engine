@@ -8,9 +8,10 @@
 #include <Audio/WaveSound.h>
 #include "Scripts/oolua/oolua.h"
 #include <Scripts/Script.h>
-
+#include <boost/thread.hpp>
 
 #include <Audio/Sound.h>
+
 #define PI 3.1415926535897932f
 
 
@@ -56,6 +57,9 @@ AndroidEngine::~AndroidEngine() {
     Logger::Log(1, "Engine destroyed");
 }
 
+void func() {
+    Logger::Log("boost thread");
+}
 
 void AndroidEngine::Initialize() {
     scriptManager = new ScriptManager();
@@ -79,6 +83,10 @@ void AndroidEngine::Initialize() {
 
     volume = 1.0f;
     angle = 0.0f;
+
+    boost::thread bgThread(func);
+
+    bgThread.join();
     //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 
  //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
@@ -98,6 +106,7 @@ void AndroidEngine::Initialize() {
 */
     OOLUA::register_class<Logger>(mainState);
     OOLUA::register_class_static<Logger>(mainState, "Log", Log);
+    OOLUA::register_class<Vector2>(mainState);
 
   //  OOLUA::register_class<SoundHandle>(mainState);
  //   OOLUA::register_class<ISound>(mainState);
@@ -121,6 +130,7 @@ void AndroidEngine::Initialize() {
 
     script = new Script();
     script->runString(scriptTextStd);
+
     //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
 
     //script2.callFunction("doSth");

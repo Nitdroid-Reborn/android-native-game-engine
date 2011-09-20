@@ -29,6 +29,7 @@ LOCAL_SRC_FILES         := Box2D/libbox2d.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := android-game-engine
@@ -125,8 +126,11 @@ LOCAL_SRC_FILES := main.cpp \
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
 LOCAL_SHARED_LIBRARIES :=  libpng libbox2d
-LOCAL_STATIC_LIBRARIES := android_native_app_glue
+LOCAL_STATIC_LIBRARIES := android_native_app_glue boost_thread
 
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-module,android/native_app_glue)
+$(call import-module, boost)
+$(call import-module, android/native_app_glue)
+
+

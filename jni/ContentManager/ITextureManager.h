@@ -21,7 +21,7 @@ public:
 };
 
 
-OOLUA_CLASS_NO_BASES(TextureHandle)
+OOLUA_PROXY_CLASS(TextureHandle)
         OOLUA_TYPEDEFS
                 OOLUA::Equal_op,
                 OOLUA::Not_equal_op
