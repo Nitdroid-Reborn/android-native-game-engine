@@ -111,7 +111,10 @@ SOURCES += main.cpp \
     Scripts/oolua/lua_function.cpp \
     Scripts/oolua/class_from_stack.cpp \
     Scripts/Script.cpp \
-    Scripts/ScriptManager.cpp
+    Scripts/ScriptManager.cpp \
+    Scripts/oolua/ScriptManager.cpp \
+    Scripts/oolua/Script.cpp \
+    Scripts/oolua/oolua_test.cpp
 
 HEADERS += \
     Utils.h \
@@ -264,14 +267,22 @@ HEADERS += \
     Scripts/lua/lauxlib.h \
     Scripts/lua/lapi.h \
     Scripts/Script.h \
-    Scripts/ScriptManager.h
+    Scripts/ScriptManager.h \
+    Scripts/oolua/ScriptManager.h \
+    Scripts/oolua/Script.h
 
 OTHER_FILES += \
     Android.mk \
     Scripts/oolua/liboolua.so \
     Scripts/oolua/test.lua \
     ../assets/script.lua \
-    Application.mk
+    Application.mk \
+    Scripts/oolua/test.lua \
+    Scripts/oolua/src.pro.user \
+    Scripts/oolua/script.lua
+
+
+
 
 
 

@@ -31,7 +31,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
-
+LOCAL_C_INCLUDES := Scripts/lua/
 LOCAL_MODULE    := android-game-engine
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
