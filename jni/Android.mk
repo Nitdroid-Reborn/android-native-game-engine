@@ -110,8 +110,6 @@ LOCAL_SRC_FILES := main.cpp \
                    Scripts/lua/lbaselib.c \
                    Scripts/lua/lauxlib.c \
                    Scripts/lua/lapi.c \
-                   Scripts/ScriptManager.cpp \
-                   Scripts/Script.cpp \
                    Scripts/luabind/src/wrapper_base.cpp \
                    Scripts/luabind/src/weak_ref.cpp \
                    Scripts/luabind/src/stack_content_by_name.cpp \

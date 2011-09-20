@@ -9,9 +9,14 @@
 
 
 #include <boost/thread.hpp>
-
+#include <Scripts/luabind/luabind.hpp>
 #include <Audio/Sound.h>
 
+extern "C" {
+    #include <Scripts/lua/lua.h>
+    #include <Scripts/lua/lualib.h>
+    #include <Scripts/lua/lauxlib.h>
+}
 #define PI 3.1415926535897932f
 
 
@@ -62,8 +67,8 @@ void func() {
 }
 
 void AndroidEngine::Initialize() {
-    scriptManager = new ScriptManager();
-    scriptManager->Initialize();
+    //scriptManager = new ScriptManager();
+    //scriptManager->Initialize();
 
     fileIOSystem = new AndroidFileIO(app->activity->assetManager);
     fileIOSystem->Initialize();
@@ -95,9 +100,15 @@ void AndroidEngine::Initialize() {
     lastTime = GetCurrentTimeInMsec();
 
 
-
     lua_State* L;
-    lua_pushstring(L, "adasd");
+    using namespace luabind;
+
+       open(L);
+
+       module(L)
+       [
+           def("greet", &func)
+       ];
    /* OOLUA::register_class<IContentManager>(mainState);
     OOLUA::register_class<AndroidContentManager>(mainState);
     OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
@@ -162,15 +173,15 @@ void AndroidEngine::Initialize() {
 void AndroidEngine::Release() {
    // mutex.Lock();
 
-    delete script;
+    //delete script;
 
     contentManager->GetTextureManager()->ReleaseTexture(texture);
 
     audioSystem->StopMusic();
 
-    scriptManager->Release();
-    delete scriptManager;
-    scriptManager = NULL;
+    //scriptManager->Release();
+    //delete scriptManager;
+    //scriptManager = NULL;
 
     renderer->Release();
     renderer->WaitForStop();

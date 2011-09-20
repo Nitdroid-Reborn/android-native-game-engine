@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
-//#include <Scripts/oolua/oolua.h>
-#include <Scripts/lua/lua.h>
+#include <Scripts/ScriptManager.h>
 
 static U32 verbosityLevel = 1;
 
