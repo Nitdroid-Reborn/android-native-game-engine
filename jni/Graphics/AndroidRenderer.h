@@ -30,7 +30,7 @@ public:
     void Wait();
     void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f);
     void DrawSprite(F32 x, F32 y, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
-    void DrawString(int x, int y, char * str);
+    void DrawString(int x, int y, const char * str);
 
     TextureHandle fontTexture;
 private:

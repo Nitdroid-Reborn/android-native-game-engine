@@ -226,7 +226,87 @@ HEADERS += \
     Scripts/lua/lauxlib.h \
     Scripts/lua/lapi.h \
     Scripts/Script.h \
-    Scripts/ScriptManager.h
+    Scripts/ScriptManager.h \
+    Scripts/luabind/yield_policy.hpp \
+    Scripts/luabind/wrapper_base.hpp \
+    Scripts/luabind/weak_ref.hpp \
+    Scripts/luabind/version.hpp \
+    Scripts/luabind/value_wrapper.hpp \
+    Scripts/luabind/typeid.hpp \
+    Scripts/luabind/tag_function.hpp \
+    Scripts/luabind/shared_ptr_converter.hpp \
+    Scripts/luabind/scope.hpp \
+    Scripts/luabind/return_reference_to_policy.hpp \
+    Scripts/luabind/raw_policy.hpp \
+    Scripts/luabind/prefix.hpp \
+    Scripts/luabind/out_value_policy.hpp \
+    Scripts/luabind/operator.hpp \
+    Scripts/luabind/open.hpp \
+    Scripts/luabind/object.hpp \
+    Scripts/luabind/nil.hpp \
+    Scripts/luabind/make_function.hpp \
+    Scripts/luabind/lua_include.hpp \
+    Scripts/luabind/luabind.hpp \
+    Scripts/luabind/iterator_policy.hpp \
+    Scripts/luabind/handle.hpp \
+    Scripts/luabind/get_pointer.hpp \
+    Scripts/luabind/get_main_thread.hpp \
+    Scripts/luabind/function.hpp \
+    Scripts/luabind/from_stack.hpp \
+    Scripts/luabind/exception_handler.hpp \
+    Scripts/luabind/error.hpp \
+    Scripts/luabind/discard_result_policy.hpp \
+    Scripts/luabind/dependency_policy.hpp \
+    Scripts/luabind/copy_policy.hpp \
+    Scripts/luabind/container_policy.hpp \
+    Scripts/luabind/config.hpp \
+    Scripts/luabind/class_info.hpp \
+    Scripts/luabind/class.hpp \
+    Scripts/luabind/back_reference_fwd.hpp \
+    Scripts/luabind/back_reference.hpp \
+    Scripts/luabind/adopt_policy.hpp \
+    Scripts/luabind/detail/yes_no.hpp \
+    Scripts/luabind/detail/typetraits.hpp \
+    Scripts/luabind/detail/stack_utils.hpp \
+    Scripts/luabind/detail/signature_match.hpp \
+    Scripts/luabind/detail/ref.hpp \
+    Scripts/luabind/detail/property.hpp \
+    Scripts/luabind/detail/primitives.hpp \
+    Scripts/luabind/detail/policy.hpp \
+    Scripts/luabind/detail/pointee_typeid.hpp \
+    Scripts/luabind/detail/pointee_sizeof.hpp \
+    Scripts/luabind/detail/pcall.hpp \
+    Scripts/luabind/detail/other.hpp \
+    Scripts/luabind/detail/operator_id.hpp \
+    Scripts/luabind/detail/open.hpp \
+    Scripts/luabind/detail/object_rep.hpp \
+    Scripts/luabind/detail/object_funs.hpp \
+    Scripts/luabind/detail/object_call.hpp \
+    Scripts/luabind/detail/most_derived.hpp \
+    Scripts/luabind/detail/make_instance.hpp \
+    Scripts/luabind/detail/link_compatibility.hpp \
+    Scripts/luabind/detail/is_indirect_const.hpp \
+    Scripts/luabind/detail/instance_holder.hpp \
+    Scripts/luabind/detail/inheritance.hpp \
+    Scripts/luabind/detail/has_get_pointer.hpp \
+    Scripts/luabind/detail/garbage_collector.hpp \
+    Scripts/luabind/detail/format_signature.hpp \
+    Scripts/luabind/detail/enum_maker.hpp \
+    Scripts/luabind/detail/deduce_signature.hpp \
+    Scripts/luabind/detail/decorate_type.hpp \
+    Scripts/luabind/detail/debug.hpp \
+    Scripts/luabind/detail/convert_to_lua.hpp \
+    Scripts/luabind/detail/conversion_storage.hpp \
+    Scripts/luabind/detail/constructor.hpp \
+    Scripts/luabind/detail/compute_score.hpp \
+    Scripts/luabind/detail/class_rep.hpp \
+    Scripts/luabind/detail/class_registry.hpp \
+    Scripts/luabind/detail/class_cache.hpp \
+    Scripts/luabind/detail/call_operator_iterate.hpp \
+    Scripts/luabind/detail/call_member.hpp \
+    Scripts/luabind/detail/call_function.hpp \
+    Scripts/luabind/detail/call.hpp \
+    Scripts/luabind/detail/calc_arity.hpp
 
 OTHER_FILES += \
     Android.mk \
@@ -236,6 +316,8 @@ OTHER_FILES += \
     Application.mk \
     Scripts/luabind/src/src.pro.user \
     Scripts/luabind/src/Makefile
+
+
 
 
 

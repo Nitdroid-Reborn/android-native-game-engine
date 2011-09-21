@@ -38,6 +38,8 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
+#include <android/log.h>
+
 #include <luabind/error.hpp>
 #include <luabind/detail/convert_to_lua.hpp>
 #include <luabind/detail/pcall.hpp>
@@ -261,7 +263,7 @@ namespace luabind
 					push_args_from_tuple<1>::apply(L, m_args);
 					if (m_fun(L, boost::tuples::length<Tuple>::value, 0))
 					{
-						assert(lua_gettop(L) == top - m_params + 1);
+                                                assert(lua_gettop(L) == top - m_params + 1);
 #ifndef LUABIND_NO_EXCEPTIONS
 						throw luabind::error(L);
 #else
@@ -270,7 +272,7 @@ namespace luabind
 	
 						assert(0 && "the lua function threw an error and exceptions are disabled."
 								" If you want to handle the error you can use luabind::set_error_callback()");
-						std::terminate();
+                                                std::terminate();
 #endif
 					}
 					// pops the return values from the function call
@@ -349,7 +351,8 @@ namespace luabind
 		lua_pushstring(L, name);
 		lua_gettable(L, LUA_GLOBALSINDEX);
 
-		return proxy_type(L, 1, &detail::pcall, args);
+
+                return proxy_type(L, 1, &detail::pcall, args);
 	}
 
 	template<class Ret BOOST_PP_COMMA_IF(BOOST_PP_ITERATION()) BOOST_PP_ENUM_PARAMS(BOOST_PP_ITERATION(), class A)>

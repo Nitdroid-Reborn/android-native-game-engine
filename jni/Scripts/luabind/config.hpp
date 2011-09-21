@@ -99,7 +99,7 @@ namespace std
 // Luabind requires that no function called directly or indirectly
 // by luabind throws an exception (throwing exceptions through
 // C code has undefined behavior, lua is written in C).
-
+//#define LUABIND_NO_EXCEPTIONS 1
 
 
 #ifndef LUABIND_API

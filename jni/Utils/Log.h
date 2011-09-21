@@ -13,7 +13,7 @@ public:
     static void Log(const char* format, __va_list argList);
     static void Log(const char* format, ...);
     static void Log(U32 verbosity, const char* format, ...);
-    static void LuaLog(const char* msg);
+    static void LuaLog(const char* msg=0);
 };
 
 int Log(lua_State* l);

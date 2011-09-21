@@ -12,6 +12,7 @@ void Logger::Log(const char *format...) {
 }
 
 void Logger::LuaLog(const char *message) {
+    if(message)
     __android_log_print(ANDROID_LOG_INFO, "native-activity", message);
 }
 

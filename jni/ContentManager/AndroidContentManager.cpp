@@ -59,15 +59,48 @@ bool AndroidContentManager::Initialize() {
 
     //Register to lua
     ScriptManager* manager = ScriptManager::Get();
+    lua_State* L = manager->getState();
+    luabind::module(L)
+    [
+        luabind::class_<IContentManager>("IContentManager")
+            .def("GetSoundManager", &IContentManager::GetSoundManager)
+            .def("GetTextureManager", &IContentManager::GetTextureManager)
+            .scope
+            [
+                luabind::def("Get", &IContentManager::get)
+            ]
+    ];
 
-    manager->RegisterClass<IContentManager>();
-    manager->RegisterStaticClassFunction<IContentManager>("Get", IContentManagerGet);
+    luabind::module(L)
+    [
+        luabind::class_<ISoundManager>("ISoundManager")
+            .def("GetSound", &ISoundManager::GetSound)
+            .def("ReleaseSound", &ISoundManager::ReleaseSound)
+    ];
 
-    manager->RegisterClass<SoundHandle>();
-    manager->RegisterClass<TextureHandle>();
 
-    manager->RegisterClass<ISoundManager>();
-    manager->RegisterClass<ITextureManager>();
+
+    luabind::module(L)
+    [
+        luabind::class_<SoundHandle>("SoundHandle")
+            .def("Get", (ISound* (SoundHandle::*) (void))&SoundHandle::Get)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ITextureManager>("ITextureManager")
+            .def("GetTexture", (TextureHandle (ITextureManager::*) (const char*))&ITextureManager::GetTexture)
+            .def("ReleaseTexture", &ITextureManager::ReleaseTexture)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<TextureHandle>("TextureHandle")
+            .def("Get", (ITexture* (TextureHandle::*) (void))&TextureHandle::Get)
+    ];
+
+
+
 
 
 
@@ -103,11 +136,3 @@ bool AndroidContentManager::Release() {
 const EGLContext AndroidContentManager::GetEGLContext() const{
     return context;
 }
-
-
-int IContentManagerGet(lua_State *l) {
-    //OOLUA_C_FUNCTION(IContentManager*, IContentManager::get)
-}
-
-//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IContentManager, GetSoundManager, GetTextureManager)
-//EXPORT_OOLUA_FUNCTIONS_CONST(IContentManager)

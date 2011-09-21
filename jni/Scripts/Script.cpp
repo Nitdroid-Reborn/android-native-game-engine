@@ -37,14 +37,7 @@ static void stackDump (lua_State *L) {
     }
 
 
-static int ScriptErrorCallback(lua_State* l) {
-   // Logger::Log(1, "Script error: %s", OOLUA::get_last_error(l).c_str());
-    return 0;
-}
 
-void PrintLastError(lua_State* s) {
-    //Logger::Log(1, "Script error: %s", OOLUA::get_last_error(s).c_str());
-}
 
 Script::Script() {
     strcpy(lastErrorString, "No error.\n");
@@ -60,7 +53,7 @@ Script::Script() {
 
     lua_pop(masterState, 1);
 
-    //callFunction.state = threadState;
+    callFunction.state = threadState;
     //callFunction.function.bind_script(threadState);
     //OOLUA::setup_user_lua_state(threadState);
 
@@ -91,6 +84,30 @@ Script::Script() {
 
     lua_pop(threadState, 1);
     //remove thread from stack
+
+  //  luabind::set_pcall_callback(add_file_and_line);
+}
+
+int PrintLastError(lua_State* L)
+{
+  // lua_Debug d;
+
+  /* if(lua_getstack(L, 1, &d)) {
+        lua_getinfo(L, "Sln", &d);
+
+       /* Logger::Log("Scipt error: %s line %d", d.short_src, d.currentline);
+        if (d.name != 0)
+        {
+            Logger::Log("(%s %s)", d.namewhat, d.name);
+        }
+   }*/
+
+   std::string err = lua_tostring(L, -1);
+   lua_pop(L, 1);
+
+   Logger::Log(" %s", err.c_str());
+
+   return 0;
 }
 
 Script::~Script() {
@@ -120,6 +137,13 @@ bool Script::runFile(char *fileName) {
 
 
 bool Script::runString(const std::string& command) {
+    int res = luaL_dostring(threadState, command.c_str());
+    if(res!=0) {
+        PrintLastError(threadState);
+        return false;
+    }
+    return true;
+
     /*int res = luaL_loadbuffer(threadState, command.c_str(), command.size(), "userChunk");
     if(!OOLUA::INTERNAL::load_buffer_check_result(threadState,res))
         return false;

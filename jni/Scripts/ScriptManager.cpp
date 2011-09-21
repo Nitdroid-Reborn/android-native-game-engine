@@ -2,6 +2,7 @@
 #include <Utils/Utils.h>
 #include <Utils/Log.h>
 
+
 ScriptManager* ScriptManager::singleton;
 
 ScriptManager::ScriptManager()
@@ -14,6 +15,8 @@ void ScriptManager::Initialize() {
     singleton = this;
 
     mainState = lua_open();
+
+    luabind::open(mainState);
 
     if(mainState) {
         luaL_openlibs(mainState);

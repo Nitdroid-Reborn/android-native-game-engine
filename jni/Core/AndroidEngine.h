@@ -21,6 +21,7 @@
 #include <Graphics/ITexture.h>
 #include <ContentManager/AndroidContentManager.h>
 #include <Audio/AndroidAudioSystem.h>
+#include <Scripts/Script.h>
 
 //#include "Box2D/Box2D.h"
 
@@ -84,7 +85,7 @@ private:
     /// Content manager component of engine
     IContentManager* contentManager;
 
-   // ScriptManager* scriptManager;
+    ScriptManager* scriptManager;
 
     //VirtualInput* virtualInputSystem;
 
@@ -99,7 +100,7 @@ private:
     bool isRunning;
     bool isQuitting;
 
-    //Script* script;
+    Script* script;
     //SoundHandle* sound1;
    // SoundHandle* sound2;
 

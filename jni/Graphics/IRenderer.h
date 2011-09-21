@@ -24,7 +24,7 @@ public:
     virtual void Wait()=0;
     virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f)=0;
     virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
-    virtual void DrawString(int x, int y, char * str)=0;
+    virtual void DrawString(int x, int y, const char * str)=0;
 
     static IRenderer* get(){return singleton;}
 

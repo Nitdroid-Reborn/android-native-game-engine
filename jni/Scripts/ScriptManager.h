@@ -8,7 +8,7 @@ extern "C" {
     #include <Scripts/lua/lauxlib.h>
 }
 
-
+#include <Scripts/luabind/luabind.hpp>
 
 class ScriptManager
 {
@@ -20,16 +20,6 @@ public:
     inline lua_State* getState() const {return mainState;}
 
     static ScriptManager* Get() { return singleton;}
-
-    template<typename T>
-    void RegisterClass() {
-      //  OOLUA::register_class<T>(mainState);
-    }
-
-    template<typename T, typename K, typename V>
-    void RegisterStaticClassFunction(K const& k, V const& v) {
-      //  OOLUA::register_class_static<T, K, V>(mainState, k, v);
-    }
 
 private:
     static ScriptManager* singleton;

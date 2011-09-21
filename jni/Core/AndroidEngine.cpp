@@ -6,11 +6,9 @@
 #include <unistd.h>
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
-
-
-#include <boost/thread.hpp>
-#include <Scripts/luabind/luabind.hpp>
 #include <Audio/Sound.h>
+
+
 
 extern "C" {
     #include <Scripts/lua/lua.h>
@@ -67,8 +65,8 @@ void func() {
 }
 
 void AndroidEngine::Initialize() {
-    //scriptManager = new ScriptManager();
-    //scriptManager->Initialize();
+    scriptManager = new ScriptManager();
+    scriptManager->Initialize();
 
     fileIOSystem = new AndroidFileIO(app->activity->assetManager);
     fileIOSystem->Initialize();
@@ -100,27 +98,15 @@ void AndroidEngine::Initialize() {
     lastTime = GetCurrentTimeInMsec();
 
 
-    lua_State* L;
-    using namespace luabind;
+    ScriptManager* manager = ScriptManager::Get();
 
-       open(L);
+    luabind::module(manager->getState()) [
 
-       module(L)
-       [
-           def("greet", &func)
-       ];
-   /* OOLUA::register_class<IContentManager>(mainState);
-    OOLUA::register_class<AndroidContentManager>(mainState);
-    OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
-*/
-
-  //  OOLUA::register_class<SoundHandle>(mainState);
- //   OOLUA::register_class<ISound>(mainState);
-   // OOLUA::register_class<Sound>(mainState);
-   // OOLUA::register_class<ISoundManager>(mainState);
-   // OOLUA::register_class<SoundManager>(mainState);
+            luabind::def("Log", &Logger::LuaLog)
+    ];
 
 
+   // delete script;
 
     U32 size = fileIOSystem->GetAssetSize("script.lua");
 
@@ -134,8 +120,9 @@ void AndroidEngine::Initialize() {
     delete [] scriptText;
 
 
-    //script = new Script();
-    //script->runString(scriptTextStd);
+
+    script = new Script();
+    script->runString(scriptTextStd);
 
     //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
 
@@ -173,15 +160,15 @@ void AndroidEngine::Initialize() {
 void AndroidEngine::Release() {
    // mutex.Lock();
 
-    //delete script;
+    delete script;
 
     contentManager->GetTextureManager()->ReleaseTexture(texture);
 
     audioSystem->StopMusic();
 
-    //scriptManager->Release();
-    //delete scriptManager;
-    //scriptManager = NULL;
+    scriptManager->Release();
+    delete scriptManager;
+    scriptManager = NULL;
 
     renderer->Release();
     renderer->WaitForStop();
@@ -314,7 +301,7 @@ void AndroidEngine::Update(float dt) {
 
     }
 
-   // script->callFunction("update", dt);
+    script->callFunction("update", dt);
 
     /*if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
         sound1.Get()->Play();

@@ -33,6 +33,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_C_INCLUDES := Scripts/lua/ Scripts/
 LOCAL_MODULE    := android-game-engine
+LOCAL_CPPFLAGS += -fexceptions
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
                    Utils/Utils.cpp \
@@ -126,7 +127,9 @@ LOCAL_SRC_FILES := main.cpp \
                    Scripts/luabind/src/class_rep.cpp \
                    Scripts/luabind/src/class_registry.cpp \
                    Scripts/luabind/src/class_info.cpp \
-                   Scripts/luabind/src/class.cpp
+                   Scripts/luabind/src/class.cpp \
+                   Scripts/ScriptManager.cpp \
+                   Scripts/Script.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

@@ -161,12 +161,32 @@ void AndroidRenderer::Initialize() {
     textBox.fontTex = fontTexture;
     fontTexture.Get()->Bind();
 
+    lua_State* L =  ScriptManager::Get()->getState();
 
-    ScriptManager* manager = ScriptManager::Get();
-    manager->RegisterClass<IRenderer>();
-    manager->RegisterStaticClassFunction<IRenderer>("Get", IRendererGet);
-    manager->RegisterClass<TextureRegion>();
-    manager->RegisterClass<ITexture>();
+    luabind::module(L)
+    [
+        luabind::class_<ITexture>("ITexture")
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<TextureRegion>("TextureRegion")
+            .def(luabind::constructor<>())
+            .def(luabind::constructor<F32, F32, F32, F32>())
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<IRenderer>("IRenderer")
+            .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
+            .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
+            .def("DrawString", &IRenderer::DrawString)
+            .scope
+            [
+                luabind::def("Get", IRenderer::get)
+            ]
+    ];
+
 
     Logger::Log(1, "Android Renderer initialized");
 }
@@ -320,8 +340,8 @@ void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 width, F32 height,
     sprites.push_back(s);
 }
 
-void AndroidRenderer::DrawString(int x, int y, char * str) {
-    textBox.DrawStr(x, y, str);
+void AndroidRenderer::DrawString(int x, int y, const char * str) {
+    textBox.DrawStr(x, y, (char*)str);
 }
 
 int IRendererGet(lua_State *l) {
