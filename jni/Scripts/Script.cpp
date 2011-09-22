@@ -111,18 +111,20 @@ int PrintLastError(lua_State* L)
 }
 
 Script::~Script() {
-    //lua_gc(threadState, LUA_GCCOLLECT, 0);
+    lua_gc(threadState, LUA_GCCOLLECT, 0);
 
     lua_State* masterState = ScriptManager::Get()->getState();
     lua_pushlightuserdata(masterState, threadState);
     lua_pushlightuserdata(masterState, NULL );
     lua_settable(masterState, LUA_GLOBALSINDEX );
+    threadState = NULL;
 }
 
 bool Script::Run(const ScriptSource* src) {
     int res = luaL_loadbuffer(threadState, src->GetSource(), src->GetSourceLength(), src->GetFileName());
-    if(res!=0)
+    if(res!=0) {
         return false;
+    }
 
     res = luabind::detail::pcall(threadState, 0, LUA_MULTRET);
     if(res != 0)

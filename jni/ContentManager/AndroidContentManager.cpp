@@ -116,6 +116,10 @@ bool AndroidContentManager::Release() {
     delete soundManager;
     delete scriptSourceManager;
 
+    textureManager = NULL;
+    soundManager = NULL;
+    scriptSourceManager = NULL;
+
 
     if(display != EGL_NO_DISPLAY) {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

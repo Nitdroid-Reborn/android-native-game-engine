@@ -158,6 +158,7 @@ void AndroidEngine::Release() {
    // mutex.Lock();
 
     delete script;
+    script = NULL;
 
     contentManager->GetTextureManager()->ReleaseTexture(texture);
 

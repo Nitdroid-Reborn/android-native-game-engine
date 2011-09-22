@@ -17,10 +17,11 @@ bool ScriptSource::Load(const char *fileName) {
     IFileIO* fileIO = IFileIO::get();
     U32 size = fileIO->GetSize(fileName);
 
-    char * buffer = new char[size];
+    char * buffer = new char[size+1];
 
-    Logger::Log("loading script");
+    Logger::Log("loading script %s %d", fileName, size);
     bool result = fileIO->Read(fileName, buffer, size);
+    buffer[size] = '\0';
 
 
 
@@ -29,10 +30,12 @@ bool ScriptSource::Load(const char *fileName) {
         this->fileName = std::string(fileName);
         sourceLenght = source.size();
         delete[] buffer;
+        buffer = NULL;
         return true;
     }
     else {
         delete[] buffer;
+        buffer = NULL;
         return false;
     }
 }
