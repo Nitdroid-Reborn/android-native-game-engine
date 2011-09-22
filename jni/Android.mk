@@ -129,7 +129,10 @@ LOCAL_SRC_FILES := main.cpp \
                    Scripts/luabind/src/class_info.cpp \
                    Scripts/luabind/src/class.cpp \
                    Scripts/ScriptManager.cpp \
-                   Scripts/Script.cpp
+                   Scripts/Script.cpp \
+                   Scripts/ScriptSource.cpp \
+                   Scripts/ScriptSourceFactory.cpp \
+                   ContentManager/ScriptSourceManager.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

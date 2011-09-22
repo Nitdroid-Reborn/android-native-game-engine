@@ -1,6 +1,6 @@
 #ifndef __MATRIX4X4_H__
 #define __MATRIX4X4_H__
-
+#include <Scripts/ScriptManager.h>
 
 class Matrix4x4
 {
@@ -97,7 +97,7 @@ public:
 	operator float* () const {return (float*) this;}
 	operator const float* () const {return (const float*) this;}
 	
-
+        static void RegisterInLua();
 };
 
 #endif

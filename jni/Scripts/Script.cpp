@@ -40,7 +40,6 @@ static void stackDump (lua_State *L) {
 
 
 Script::Script() {
-    strcpy(lastErrorString, "No error.\n");
 
     lua_State* masterState = ScriptManager::Get()->getState();
 
@@ -85,27 +84,28 @@ Script::Script() {
     lua_pop(threadState, 1);
     //remove thread from stack
 
-  //  luabind::set_pcall_callback(add_file_and_line);
+    luabind::set_pcall_callback(PrintLastError);
 }
 
 int PrintLastError(lua_State* L)
 {
-  // lua_Debug d;
+   /*lua_Debug d;
 
-  /* if(lua_getstack(L, 1, &d)) {
+   if(lua_getstack(L, 1, &d)) {
         lua_getinfo(L, "Sln", &d);
 
-       /* Logger::Log("Scipt error: %s line %d", d.short_src, d.currentline);
+       // Logger::Log(LOG_ERROR, "Scipt error: %s line %d", d.short_src, d.currentline);
         if (d.name != 0)
         {
-            Logger::Log("(%s %s)", d.namewhat, d.name);
+            //Logger::Log(LOG_ERROR, "(%s %s)", d.namewhat, d.name);
         }
-   }*/
+   }
+*/
 
    std::string err = lua_tostring(L, -1);
    lua_pop(L, 1);
 
-   Logger::Log(" %s", err.c_str());
+   Logger::Log(LOG_ERROR, "%s", err.c_str());
 
    return 0;
 }
@@ -119,41 +119,15 @@ Script::~Script() {
     lua_settable(masterState, LUA_GLOBALSINDEX );
 }
 
-bool Script::runFile(char *fileName) {
-    /*int result = luaL_loadfile(threadState, fileName);
-    bool status = OOLUA::INTERNAL::load_buffer_check_result(threadState, result);
-    if(!status)
+bool Script::Run(const ScriptSource* src) {
+    int res = luaL_loadbuffer(threadState, src->GetSource(), src->GetSourceLength(), src->GetFileName());
+    if(res!=0)
         return false;
 
-    result = lua_pcall(threadState, 0, LUA_MULTRET, 0);
-    status = OOLUA::INTERNAL::protected_call_check_result(threadState, result);
-
-#ifdef AUTO_ERROR_LOGGING
-    if(!status)
-        Logger::Log(1, "Script error: %s", OOLUA::get_last_error(threadState).c_str());
-#endif
-    return status;*/
-}
-
-
-bool Script::runString(const std::string& command) {
-    int res = luaL_dostring(threadState, command.c_str());
-    if(res!=0) {
-        PrintLastError(threadState);
+    res = luabind::detail::pcall(threadState, 0, LUA_MULTRET);
+    if(res != 0)
         return false;
-    }
+
+
     return true;
-
-    /*int res = luaL_loadbuffer(threadState, command.c_str(), command.size(), "userChunk");
-    if(!OOLUA::INTERNAL::load_buffer_check_result(threadState,res))
-        return false;
-
-    int result = lua_pcall(threadState,0,LUA_MULTRET,0);
-    bool status = OOLUA::INTERNAL::protected_call_check_result(threadState,result);
-
-#ifdef AUTO_ERROR_LOGGING
-    if(!status)
-        Logger::Log(1, "Script error: %s", OOLUA::get_last_error(threadState).c_str());
-#endif
-    return status;*/
 }

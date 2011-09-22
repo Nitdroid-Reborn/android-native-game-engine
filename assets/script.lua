@@ -1,14 +1,26 @@
 touchState = Input.Get():GetTouch();
 keysState = Input.Get():GetKeys();
-audioSystem = IAudioSystem.Get();
-renderer = IRenderer.Get();
-contentManager = IContentManager.Get();
+audioSystem = AudioSystem.Get();
+renderer = Renderer.Get();
+contentManager = ContentManager.Get();
 
 angle = 0.0;
 
 texture = contentManager:GetTextureManager():GetTexture("logo.png");
 textureRegion = TextureRegion(0, 0, 0.5, 0.75);
-sound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
+sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
+
+
+vector = Vector3(1, 0, 0);
+vector2 = Vector3(0, 1, 0);
+
+sum = vector + vector2;
+mul = vector*5;
+dot = vector*vector2;
+cross = vector:CrossProduct(vector2)
+
+
+Log(string.format("Sum: %f %f %f, Mul %f %f %f, dot %f %f %f, cross %f %f %f", sum.x, sum.y, sum.z,  mul.x, mul.y, mul.z, dot.x, dot.y, dot.z, cross.x, cross.y, cross.z));
 
 
 update = function(dt)
@@ -29,5 +41,5 @@ update = function(dt)
        end
     end
 
-    angle= angle + dt;
+    angle= angle + dt/3;
 end

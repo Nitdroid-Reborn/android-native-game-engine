@@ -179,6 +179,7 @@ public:
 	operator float* () const {return (float*) this;}
 	operator const float* () const {return (const float*) this;}
 
+        static void RegisterInLua();
 };
 
 #endif

@@ -165,7 +165,7 @@ void AndroidRenderer::Initialize() {
 
     luabind::module(L)
     [
-        luabind::class_<ITexture>("ITexture")
+        luabind::class_<ITexture>("Texture")
     ];
 
     luabind::module(L)
@@ -177,7 +177,7 @@ void AndroidRenderer::Initialize() {
 
     luabind::module(L)
     [
-        luabind::class_<IRenderer>("IRenderer")
+        luabind::class_<IRenderer>("Renderer")
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)

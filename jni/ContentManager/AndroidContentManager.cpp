@@ -2,6 +2,7 @@
 #include "SoundManager.h"
 #include <Utils/Utils.h>
 #include <Scripts/ScriptManager.h>
+#include "ScriptSourceManager.h"
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -21,6 +22,7 @@ bool AndroidContentManager::Initialize() {
 
     textureManager = new TextureManager();
     soundManager = new SoundManager();
+    scriptSourceManager = new ScriptSourceManager();
 
 
     const EGLint attribs[] = {
@@ -62,7 +64,7 @@ bool AndroidContentManager::Initialize() {
     lua_State* L = manager->getState();
     luabind::module(L)
     [
-        luabind::class_<IContentManager>("IContentManager")
+        luabind::class_<IContentManager>("ContentManager")
             .def("GetSoundManager", &IContentManager::GetSoundManager)
             .def("GetTextureManager", &IContentManager::GetTextureManager)
             .scope
@@ -73,7 +75,7 @@ bool AndroidContentManager::Initialize() {
 
     luabind::module(L)
     [
-        luabind::class_<ISoundManager>("ISoundManager")
+        luabind::class_<ISoundManager>("SoundManager")
             .def("GetSound", &ISoundManager::GetSound)
             .def("ReleaseSound", &ISoundManager::ReleaseSound)
     ];
@@ -88,7 +90,7 @@ bool AndroidContentManager::Initialize() {
 
     luabind::module(L)
     [
-        luabind::class_<ITextureManager>("ITextureManager")
+        luabind::class_<ITextureManager>("TextureManager")
             .def("GetTexture", (TextureHandle (ITextureManager::*) (const char*))&ITextureManager::GetTexture)
             .def("ReleaseTexture", &ITextureManager::ReleaseTexture)
     ];
@@ -112,6 +114,7 @@ bool AndroidContentManager::Release() {
 
     delete textureManager;
     delete soundManager;
+    delete scriptSourceManager;
 
 
     if(display != EGL_NO_DISPLAY) {

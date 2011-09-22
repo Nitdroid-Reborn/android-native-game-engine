@@ -12,10 +12,11 @@ extern "C" {
 #include <exception>
 #include <Scripts/luabind/luabind.hpp>
 #include <Scripts/luabind/error.hpp>
+#include "ScriptSource.h"
 
 int PrintLastError(lua_State* L);
 
-#define CATCH_EXCEPTIONS(call) try { call; return true;} catch(const luabind::error& e) {PrintLastError(e.state());return false;}
+#define CATCH_EXCEPTIONS(call) try { call; return true;} catch(const luabind::error& e) {return false;}
 
 struct Lua_function_checking_errors {
 
@@ -87,17 +88,13 @@ public:
     Script();
     ~Script();
 
-    bool runFile(char *fileName);
-    bool runString(const std::string& command);
+    bool Run(const ScriptSource* src);
 
     Lua_function_checking_errors callFunction;
 
-
-
 //private:
     lua_State* threadState;
-    char lastErrorString[256];
-    void formatError();
+    std::string scriptName;
 };
 
 #endif // SCRIPT_H

@@ -118,7 +118,10 @@ SOURCES += main.cpp \
     Scripts/luabind/src/class_rep.cpp \
     Scripts/luabind/src/class_registry.cpp \
     Scripts/luabind/src/class_info.cpp \
-    Scripts/luabind/src/class.cpp
+    Scripts/luabind/src/class.cpp \
+    Scripts/ScriptSource.cpp \
+    Scripts/ScriptSourceFactory.cpp \
+    ContentManager/ScriptSourceManager.cpp
 
 HEADERS += \
     Utils.h \
@@ -306,7 +309,11 @@ HEADERS += \
     Scripts/luabind/detail/call_member.hpp \
     Scripts/luabind/detail/call_function.hpp \
     Scripts/luabind/detail/call.hpp \
-    Scripts/luabind/detail/calc_arity.hpp
+    Scripts/luabind/detail/calc_arity.hpp \
+    Scripts/ScriptSource.h \
+    Scripts/ScriptSourceFactory.h \
+    ContentManager/IScriptSourceManager.h \
+    ContentManager/ScriptSourceManager.h
 
 OTHER_FILES += \
     Android.mk \
@@ -316,6 +323,19 @@ OTHER_FILES += \
     Application.mk \
     Scripts/luabind/src/src.pro.user \
     Scripts/luabind/src/Makefile
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

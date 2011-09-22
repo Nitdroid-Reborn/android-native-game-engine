@@ -1,4 +1,5 @@
 #include <Math/MathLib.h>
+#include <Scripts/ScriptManager.h>
 
 float Vector3::GetLength() const
 {
@@ -155,3 +156,51 @@ bool Vector3::operator==(const Vector3 &vec) const
 	return false;
 }
 
+void Vector3::RegisterInLua() {
+    lua_State*L = ScriptManager::Get()->getState();
+
+    using namespace luabind;
+
+    luabind::module(L)
+    [
+        luabind::class_<Vector3>("Vector3")
+            .def(luabind::constructor<>())
+            .def(luabind::constructor<float, float, float>())
+            .def(luabind::constructor<const float*>())
+            .def(luabind::constructor<const Vector3&>())
+            .def("Set", &Vector3::Set)
+            .def("SetX", &Vector3::SetX)
+            .def("SetY", &Vector3::SetY)
+            .def("SetZ", &Vector3::SetZ)
+            .def("GetX", &Vector3::GetX)
+            .def("GetY", &Vector3::GetY)
+            .def("GetZ", &Vector3::GetZ)
+            .def_readwrite("x", &Vector3::x)
+            .def_readwrite("y", &Vector3::y)
+            .def_readwrite("z", &Vector3::z)
+            .def("Zero", &Vector3::Zero)
+            .def("One", &Vector3::One)
+            .def("DotProduct", &Vector3::DotProduct)
+            .def("CrossProduct", &Vector3::CrossProduct)
+            .def("AngleWith", &Vector3::AngleWith)
+            .def("Normalize", &Vector3::Normalize)
+            .def("GetNormalized", &Vector3::GetNormalized)
+            .def("GetLength", &Vector3::GetLength)
+            .def("GetSquaredLength", &Vector3::GetSquaredLength)
+            .def("RotateX", &Vector3::RotateX)
+            .def("RotateY", &Vector3::RotateY)
+            .def("RotateZ", &Vector3::RotateZ)
+            .def("RotateAxis", &Vector3::RotateAxis)
+            .def("GetRotatedX", &Vector3::GetRotatedX)
+            .def("GetRotatedY", &Vector3::GetRotatedY)
+            .def("GetRotatedZ", &Vector3::GetRotatedZ)
+            .def("GetRotatedAxis", &Vector3::GetRotatedAxis)
+            .def("Lerp", &Vector3::Lerp)
+            .def("QuadricInterpolate", &Vector3::QuadraticInterpolate)
+            .def(luabind::const_self + luabind::other<const Vector3&>())
+            .def(luabind::const_self - luabind::other<const Vector3&>())
+            .def(luabind::const_self * float())
+            .def(luabind::const_self * luabind::other<const Vector3&>())
+            .def(luabind::const_self / float())
+    ];
+}

@@ -97,6 +97,10 @@ void AndroidEngine::Initialize() {
 
     lastTime = GetCurrentTimeInMsec();
 
+    Vector2::RegisterInLua();
+    Vector3::RegisterInLua();
+    Vector4::RegisterInLua();
+    Matrix4x4::RegisterInLua();
 
     ScriptManager* manager = ScriptManager::Get();
 
@@ -108,21 +112,14 @@ void AndroidEngine::Initialize() {
 
    // delete script;
 
-    U32 size = fileIOSystem->GetAssetSize("script.lua");
-
-    char * scriptText = new char[size];
-    std::string scriptTextStd;
-    fileIOSystem->ReadAsset("script.lua", scriptText, size);
-
-    for(int i=0;i<size;i++) {
-        scriptTextStd+=scriptText[i];
-    }
-    delete [] scriptText;
 
 
 
+    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");
     script = new Script();
-    script->runString(scriptTextStd);
+    script->Run(scr.Get());
+
+    contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
 
     //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
 

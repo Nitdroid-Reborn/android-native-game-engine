@@ -62,13 +62,13 @@ bool AndroidAudioSystem::Initialize() {
 
     luabind::module(L)
     [
-        luabind::class_<ISound>("ISound")
+        luabind::class_<ISound>("Sound")
             .def("Play", &ISound::Play)
     ];
 
     luabind::module(L)
     [
-        luabind::class_<IAudioSystem>("IAudioSystem")
+        luabind::class_<IAudioSystem>("AudioSystem")
             .def("PlayMusic", &IAudioSystem::PlayMusic)
             .def("StopMusic", &IAudioSystem::StopMusic)
             .def("SetMusicVolume", &IAudioSystem::SetMusicVolume)

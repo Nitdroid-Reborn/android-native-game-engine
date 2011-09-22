@@ -77,3 +77,49 @@ Vector4::operator Vector3()
 	else
 		return Vector3(x/w, y/w, z/w);
 }
+
+void Vector4::RegisterInLua() {
+    lua_State*L = ScriptManager::Get()->getState();
+
+    using namespace luabind;
+
+    luabind::module(L)
+    [
+        luabind::class_<Vector4>("Vector4")
+            .def(luabind::constructor<>())
+            .def(luabind::constructor<float, float, float, float>())
+            .def(luabind::constructor<const float*>())
+            .def(luabind::constructor<const Vector3&>())
+            .def(luabind::constructor<const Vector4&>())
+            .def("Set", &Vector4::Set)
+            .def("SetX", &Vector4::SetX)
+            .def("SetY", &Vector4::SetY)
+            .def("SetZ", &Vector4::SetZ)
+            .def("SetW", &Vector4::SetW)
+            .def("GetX", &Vector4::GetX)
+            .def("GetY", &Vector4::GetY)
+            .def("GetZ", &Vector4::GetZ)
+            .def("GetW", &Vector4::GetW)
+            .def_readwrite("x", &Vector4::x)
+            .def_readwrite("y", &Vector4::y)
+            .def_readwrite("z", &Vector4::z)
+            .def_readwrite("w", &Vector4::w)
+            .def("Zero", &Vector4::Zero)
+            .def("One", &Vector4::One)
+            .def("DotProduct", &Vector4::DotProduct)
+            .def("RotateX", &Vector4::RotateX)
+            .def("RotateY", &Vector4::RotateY)
+            .def("RotateZ", &Vector4::RotateZ)
+            .def("RotateAxis", &Vector4::RotateAxis)
+            .def("GetRotatedX", &Vector4::GetRotatedX)
+            .def("GetRotatedY", &Vector4::GetRotatedY)
+            .def("GetRotatedZ", &Vector4::GetRotatedZ)
+            .def("GetRotatedAxis", &Vector4::GetRotatedAxis)
+            .def("Lerp", &Vector4::Lerp)
+            .def("QuadricInterpolate", &Vector4::QuadraticInterpolate)
+            .def(luabind::const_self + luabind::other<const Vector4&>())
+            .def(luabind::const_self - luabind::other<const Vector4&>())
+            .def(luabind::const_self * float())
+            .def(luabind::const_self / float())
+    ];
+}

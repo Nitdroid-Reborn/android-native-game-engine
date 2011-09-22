@@ -132,6 +132,8 @@ public:
 	operator const float* () const {return (const float*) this;}
 
 	operator Vector3();
+
+        static void RegisterInLua();
 };
 
 #endif
