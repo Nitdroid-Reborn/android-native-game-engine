@@ -2,8 +2,6 @@
 #define __VECTOR2_H__
 
 #include <cmath>
-#include <Scripts/oolua/oolua.h>
-
 
 class Vector2
 {
@@ -26,20 +24,20 @@ public:
 		x=newX;	y=newY;	
 	}
 	
-	void SetX(float newX) {x = newX;}
-	void SetY(float newY) {y = newY;}
+        inline void SetX(float newX) {x = newX;}
+        inline void SetY(float newY) {y = newY;}
 
-	float GetX() const {return x;}
-	float GetY() const {return y;}
+        inline float GetX() const {return x;}
+        inline float GetY() const {return y;}
 
 	void Zero(void)
 	{
 		x=y=0.0f;
-	};
+        }
 	void One(void)
 	{
 		x=y=1.0f;
-	};
+        }
 	
 	void Normalize();
 
@@ -119,38 +117,13 @@ public:
 		}
 	}
 
-
 	Vector2 operator-(void) const {return Vector2(-x, -y);}
 	Vector2 operator+(void) const {return *this;}
 
 	operator float* () const {return (float*) this;}
 	operator const float* () const {return (const float*) this;}
 
+
+        static void RegisterInLua();
 };
-
-OOLUA_PROXY_CLASS(Vector2)
-    OOLUA_TYPEDEFS
-        OOLUA::Equal_op,
-        OOLUA::Not_equal_op,
-        OOLUA::Add_op,
-        OOLUA::Sub_op
-    OOLUA_END_TYPES
-
-OOLUA_CONSTRUCTORS_BEGIN
-    OOLUA_CONSTRUCTOR_2(float, float)
-    OOLUA_CONSTRUCTOR_1(const Vector2&)
-OOLUA_CONSTRUCTORS_END
-
-    OOLUA_MEM_FUNC_2(void, Set, float, float)
-    OOLUA_MEM_FUNC_1(void, SetX, float)
-    OOLUA_MEM_FUNC_1(void, SetY, float)
-    OOLUA_MEM_FUNC_0_CONST(float, GetX)
-    OOLUA_MEM_FUNC_0_CONST(float, GetY)
-    OOLUA_MEM_FUNC_0(void, Zero)
-    OOLUA_MEM_FUNC_0(void, One)
-    OOLUA_MEM_FUNC_0(void, Normalize)
-    OOLUA_MEM_FUNC_0_CONST(Vector2, GetNormalized)
-    OOLUA_MEM_FUNC_0_CONST(float, GetLength)
-OOLUA_CLASS_END
-
 #endif

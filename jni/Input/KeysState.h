@@ -25,12 +25,12 @@ private:
     U64 keyUps;
 };
 
-OOLUA_PROXY_CLASS(KeysState)
+/*OOLUA_PROXY_CLASS(KeysState)
     OOLUA_NO_TYPEDEFS
     OOLUA_ONLY_DEFAULT_CONSTRUCTOR
     OOLUA_MEM_FUNC_1_CONST(bool, IsKeyPressed, U8)
     OOLUA_MEM_FUNC_1_CONST(bool, IsKeyJustPressed, U8)
     OOLUA_MEM_FUNC_1_CONST(bool, IsKeyJustReleased, U8)
-OOLUA_CLASS_END
+OOLUA_CLASS_END*/
 
 #endif // KEYSSTATE_H

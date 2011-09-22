@@ -21,8 +21,8 @@
 #include <Graphics/ITexture.h>
 #include <ContentManager/AndroidContentManager.h>
 #include <Audio/AndroidAudioSystem.h>
-#include <Scripts/ScriptManager.h>
 #include <Scripts/Script.h>
+
 //#include "Box2D/Box2D.h"
 
 

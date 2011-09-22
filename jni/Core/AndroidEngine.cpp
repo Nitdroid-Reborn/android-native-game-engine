@@ -6,12 +6,15 @@
 #include <unistd.h>
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
-#include "Scripts/oolua/oolua.h"
-#include <Scripts/Script.h>
-#include <boost/thread.hpp>
-
 #include <Audio/Sound.h>
 
+
+
+extern "C" {
+    #include <Scripts/lua/lua.h>
+    #include <Scripts/lua/lualib.h>
+    #include <Scripts/lua/lauxlib.h>
+}
 #define PI 3.1415926535897932f
 
 
@@ -84,9 +87,7 @@ void AndroidEngine::Initialize() {
     volume = 1.0f;
     angle = 0.0f;
 
-    boost::thread bgThread(func);
 
-    bgThread.join();
     //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
 
  //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
@@ -96,40 +97,29 @@ void AndroidEngine::Initialize() {
 
     lastTime = GetCurrentTimeInMsec();
 
+    Vector2::RegisterInLua();
+    Vector3::RegisterInLua();
+    Vector4::RegisterInLua();
+    Matrix4x4::RegisterInLua();
+
+    ScriptManager* manager = ScriptManager::Get();
+
+    luabind::module(manager->getState()) [
+
+            luabind::def("Log", &Logger::LuaLog)
+    ];
 
 
-    lua_State* mainState = scriptManager->getState();
-
-   /* OOLUA::register_class<IContentManager>(mainState);
-    OOLUA::register_class<AndroidContentManager>(mainState);
-    OOLUA::register_class_static<IContentManager>(mainState, "Get", IContentManagerGet);
-*/
-    OOLUA::register_class<Logger>(mainState);
-    OOLUA::register_class_static<Logger>(mainState, "Log", Log);
-    OOLUA::register_class<Vector2>(mainState);
-
-  //  OOLUA::register_class<SoundHandle>(mainState);
- //   OOLUA::register_class<ISound>(mainState);
-   // OOLUA::register_class<Sound>(mainState);
-   // OOLUA::register_class<ISoundManager>(mainState);
-   // OOLUA::register_class<SoundManager>(mainState);
+   // delete script;
 
 
 
-    U32 size = fileIOSystem->GetAssetSize("script.lua");
 
-    char * scriptText = new char[size];
-    std::string scriptTextStd;
-    fileIOSystem->ReadAsset("script.lua", scriptText, size);
-
-    for(int i=0;i<size;i++) {
-        scriptTextStd+=scriptText[i];
-    }
-    delete [] scriptText;
-
-
+    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");
     script = new Script();
-    script->runString(scriptTextStd);
+    script->Run(scr.Get());
+
+    contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
 
     //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
 

@@ -37,6 +37,6 @@ const U32 Sound::GetDataLength() const {
     return sampleCount*2;
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISound,Play, Load, Dispose)
-EXPORT_OOLUA_FUNCTIONS_CONST(ISound)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISound,Play, Load, Dispose)
+//EXPORT_OOLUA_FUNCTIONS_CONST(ISound)
 

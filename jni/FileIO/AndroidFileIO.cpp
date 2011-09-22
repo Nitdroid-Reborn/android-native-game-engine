@@ -245,3 +245,34 @@ bool AndroidFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize, U3
 }
 
 
+
+U32 AndroidFileIO::GetSize(const char *path) {
+    if(path[0] == ':') {
+        const char* assetPath = &path[1];
+        return GetAssetSize(assetPath);
+    }
+    else {
+        return GetFileSize(path);
+    }
+}
+
+bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize) {
+    if(path[0] == ':') {
+        const char* assetPath = &path[1];
+        return ReadAsset(assetPath, buffer, bufferSize);
+    }
+    else {
+        return ReadFile(path, buffer, bufferSize);
+    }
+}
+
+bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize, U32 &bytesRead) {
+    if(path[0] == ':') {
+        const char* assetPath = &path[1];
+        return ReadAsset(assetPath, buffer, bufferSize, bytesRead);
+    }
+    else {
+        return ReadFile(path, buffer, bufferSize, bytesRead);
+    }
+}
+

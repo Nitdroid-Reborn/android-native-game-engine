@@ -31,7 +31,7 @@ private:
     Vector2 fingersPositions[ENGINE_TOUCH_MAX_POINTERS];
 };
 
-OOLUA_PROXY_CLASS(TouchState)
+/*OOLUA_PROXY_CLASS(TouchState)
     OOLUA_NO_TYPEDEFS
     OOLUA_ONLY_DEFAULT_CONSTRUCTOR
     OOLUA_MEM_FUNC_1_CONST(bool, IsPointerDown, U8)
@@ -40,5 +40,5 @@ OOLUA_PROXY_CLASS(TouchState)
     OOLUA_MEM_FUNC_1_CONST(float, GetPointerX, U8)
     OOLUA_MEM_FUNC_1_CONST(float, GetPointerY, U8)
 OOLUA_CLASS_END
-
+*/
 #endif // TOUCHSTATE_H

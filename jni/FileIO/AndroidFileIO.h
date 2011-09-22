@@ -16,22 +16,26 @@ public:
     U32 GetFileSize(const char *path);
     U32 GetAssetSize(const char *path);
 
-    virtual bool OpenFile(const char* path, const char* mode, EngineFileHandle& fileHandle);
-    virtual void CloseFile(EngineFileHandle fileHandle);
+    bool OpenFile(const char* path, const char* mode, EngineFileHandle& fileHandle);
+    void CloseFile(EngineFileHandle fileHandle);
 
-    virtual bool ReadFromFile(EngineFileHandle fileHandle, void* buffer, U32 bufferSize);
-    virtual bool ReadFromFile(EngineFileHandle fileHandle, void* buffer, U32 bufferSize, U32& bytesRead);
-    virtual bool WriteToFile(EngineFileHandle fileHandle, void*buffer, U32 bufferSize);
-    virtual bool WriteToFile(EngineFileHandle fileHandle, void*buffer, U32 bufferSize, U32& bytesWrite);
+    bool ReadFromFile(EngineFileHandle fileHandle, void* buffer, U32 bufferSize);
+    bool ReadFromFile(EngineFileHandle fileHandle, void* buffer, U32 bufferSize, U32& bytesRead);
+    bool WriteToFile(EngineFileHandle fileHandle, void*buffer, U32 bufferSize);
+    bool WriteToFile(EngineFileHandle fileHandle, void*buffer, U32 bufferSize, U32& bytesWrite);
 
-    virtual bool ReadAsset(const char* path, void* buffer, U32 bufferSize);
-    virtual bool ReadAsset(const char* path, void* buffer, U32 bufferSize, U32& bytesRead);
+    bool ReadAsset(const char* path, void* buffer, U32 bufferSize);
+    bool ReadAsset(const char* path, void* buffer, U32 bufferSize, U32& bytesRead);
 
-    virtual bool ReadFile(const char* path, void* buffer, U32 bufferSize);
-    virtual bool ReadFile(const char* path, void* buffer, U32 bufferSize, U32& bytesRead);
+    bool ReadFile(const char* path, void* buffer, U32 bufferSize);
+    bool ReadFile(const char* path, void* buffer, U32 bufferSize, U32& bytesRead);
 
-    virtual bool WriteFile(const char* path, void* buffer, U32 bufferSize);
-    virtual bool WriteFile(const char* path, void* buffer, U32 bufferSize, U32& byteWrite);
+    bool WriteFile(const char* path, void* buffer, U32 bufferSize);
+    bool WriteFile(const char* path, void* buffer, U32 bufferSize, U32& byteWrite);
+
+    bool Read(const char* path, void*buffer, U32 bufferSize);
+    bool Read(const char* path, void* buffer, U32 bufferSize, U32& bytesRead);
+    U32 GetSize(const char* path);
 
 private:
     AAssetManager* assetManager;

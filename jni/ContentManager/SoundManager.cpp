@@ -26,8 +26,8 @@ void SoundManager::ReleaseSound(SoundHandle &handle) {
 }
 
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(SoundHandle, Get)
+/*EXPORT_OOLUA_FUNCTIONS_NON_CONST(SoundHandle, Get)
 EXPORT_OOLUA_FUNCTIONS_CONST(SoundHandle)
 
 EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISoundManager, GetSound, ReleaseSound)
-EXPORT_OOLUA_FUNCTIONS_CONST(ISoundManager)
+EXPORT_OOLUA_FUNCTIONS_CONST(ISoundManager)*/

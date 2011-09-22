@@ -30,12 +30,12 @@ protected:
 
 int IAudioSystemGet(lua_State* l);
 
-OOLUA_PROXY_CLASS(IAudioSystem)
+/*OOLUA_PROXY_CLASS(IAudioSystem)
     OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
     OOLUA_MEM_FUNC_2(void, PlayMusic, const char*, F32)
     OOLUA_MEM_FUNC_0(void, StopMusic)
     OOLUA_MEM_FUNC_1(void, SetMusicVolume, F32)
     OOLUA_MEM_FUNC_2(void, PlaySound, const SoundHandle&, F32)
 
-OOLUA_CLASS_END
+OOLUA_CLASS_END*/
 #endif // IAUDIOSYSTEM_H

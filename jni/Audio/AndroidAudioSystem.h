@@ -56,9 +56,9 @@ private:
 };
 
 
-OOLUA_PROXY_CLASS(AndroidAudioSystem, IAudioSystem)
+/*OOLUA_PROXY_CLASS(AndroidAudioSystem, IAudioSystem)
     OOLUA_NO_TYPEDEFS
     OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-OOLUA_CLASS_END
+OOLUA_CLASS_END*/
 
 #endif // ANDROIDAUDIOSYSTEM_H

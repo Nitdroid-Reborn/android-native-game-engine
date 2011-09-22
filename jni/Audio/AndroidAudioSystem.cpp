@@ -58,12 +58,27 @@ bool AndroidAudioSystem::Initialize() {
     }
 
     ScriptManager* manager = ScriptManager::Get();
+    lua_State* L = manager->getState();
 
-    manager->RegisterClass<ISound>();
-   // manager->RegisterClass<Sound>();
-    manager->RegisterClass<IAudioSystem>();
-    manager->RegisterStaticClassFunction<IAudioSystem>("Get", IAudioSystemGet);
-   // manager->RegisterClass<AndroidAudioSystem>();
+    luabind::module(L)
+    [
+        luabind::class_<ISound>("Sound")
+            .def("Play", &ISound::Play)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<IAudioSystem>("AudioSystem")
+            .def("PlayMusic", &IAudioSystem::PlayMusic)
+            .def("StopMusic", &IAudioSystem::StopMusic)
+            .def("SetMusicVolume", &IAudioSystem::SetMusicVolume)
+            .def("PlaySound", ( void (IAudioSystem::*)(const ISound*, F32))&IAudioSystem::PlaySound)
+            .def("PlaySound", ( void (IAudioSystem::*)(const SoundHandle&, F32))&IAudioSystem::PlaySound)
+            .scope
+            [
+                luabind::def("Get", IAudioSystem::get)
+            ]
+    ];
 
 
     Logger::Log(1, "Android Audio System system initialized");
@@ -271,8 +286,8 @@ void AndroidAudioSystem::StopMusic() {
 
 
 int IAudioSystemGet(lua_State *l) {
-    OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
+    //OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
 }
 
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
-EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)
+//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
+//EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)

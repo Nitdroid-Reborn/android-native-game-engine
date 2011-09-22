@@ -4,23 +4,29 @@
 #include <stdio.h>
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
-#include <Scripts/oolua/oolua.h>
+#include <Scripts/ScriptManager.h>
 
 static U32 verbosityLevel = 1;
 
-class Logger {
-public:
-    static void Log(const char* format, __va_list argList);
-    static void Log(const char* format, ...);
-    static void Log(U32 verbosity, const char* format, ...);
-    static void LuaLog(const char* msg);
+enum LogType {
+    LOG_INFO = 4,
+    LOG_WARNING,
+    LOG_ERROR,
+    LOG_FATAL
 };
 
-int Log(lua_State* l);
+class Logger {
+public:
+    static void Log(LogType logType, const char* format, __va_list argList);
+    static void Log(const char* format, ...);
+    static void Log(LogType logType, const char* format, ...);
 
-OOLUA_CLASS_NO_BASES(Logger)
-    OOLUA_NO_TYPEDEFS
-    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-OOLUA_CLASS_END
+    static void Log(U32 verbosity, const char* format, ...);
+    static void Log(LogType logType, U32 verbosity, const char* format, ...);
+
+    static void LuaLog(const char* msg=0);
+};
+
+
 
 #endif // LOG_H

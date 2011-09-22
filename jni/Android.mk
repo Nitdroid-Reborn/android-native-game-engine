@@ -31,8 +31,9 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 
 include $(CLEAR_VARS)
-LOCAL_C_INCLUDES := Scripts/lua/
+LOCAL_C_INCLUDES := Scripts/lua/ Scripts/
 LOCAL_MODULE    := android-game-engine
+LOCAL_CPPFLAGS += -fexceptions
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
                    Utils/Utils.cpp \
@@ -110,18 +111,28 @@ LOCAL_SRC_FILES := main.cpp \
                    Scripts/lua/lbaselib.c \
                    Scripts/lua/lauxlib.c \
                    Scripts/lua/lapi.c \
-                   Scripts/oolua/push_pointer_internal.cpp \
-                   Scripts/oolua/oolua_storage.cpp \
-                   Scripts/oolua/oolua_push_pull.cpp \
-                   Scripts/oolua/oolua_error.cpp \
-                   Scripts/oolua/oolua_check_result.cpp \
-                   Scripts/oolua/oolua.cpp \
-                   Scripts/oolua/lua_table.cpp \
-                   Scripts/oolua/lua_stack_dump.cpp \
-                   Scripts/oolua/lua_function.cpp \
-                   Scripts/oolua/class_from_stack.cpp \
+                   Scripts/luabind/src/wrapper_base.cpp \
+                   Scripts/luabind/src/weak_ref.cpp \
+                   Scripts/luabind/src/stack_content_by_name.cpp \
+                   Scripts/luabind/src/scope.cpp \
+                   Scripts/luabind/src/pcall.cpp \
+                   Scripts/luabind/src/open.cpp \
+                   Scripts/luabind/src/object_rep.cpp \
+                   Scripts/luabind/src/link_compatibility.cpp \
+                   Scripts/luabind/src/inheritance.cpp \
+                   Scripts/luabind/src/function.cpp \
+                   Scripts/luabind/src/exception_handler.cpp \
+                   Scripts/luabind/src/error.cpp \
+                   Scripts/luabind/src/create_class.cpp \
+                   Scripts/luabind/src/class_rep.cpp \
+                   Scripts/luabind/src/class_registry.cpp \
+                   Scripts/luabind/src/class_info.cpp \
+                   Scripts/luabind/src/class.cpp \
                    Scripts/ScriptManager.cpp \
-                   Scripts/Script.cpp
+                   Scripts/Script.cpp \
+                   Scripts/ScriptSource.cpp \
+                   Scripts/ScriptSourceFactory.cpp \
+                   ContentManager/ScriptSourceManager.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz

@@ -36,6 +36,12 @@ public:
     virtual bool WriteFile(const char* path, void* buffer, U32 bufferSize)=0;
     virtual bool WriteFile(const char* path, void* buffer, U32 bufferSize, U32& byteWrite)=0;
 
+
+    virtual bool Read(const char* path, void*buffer, U32 bufferSize)=0;
+    virtual bool Read(const char* path, void* buffer, U32 bufferSize, U32& bytesRead)=0;
+    virtual U32 GetSize(const char* path)=0;
+
+
     static IFileIO* get(){return singleton;}
 
 protected:

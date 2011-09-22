@@ -6,21 +6,26 @@ void Logger::Log(const char *format...) {
     va_list argList;
     va_start(argList, format);
 
-    Log(format, argList);
+    Log(LOG_INFO, format, argList);
+
+    va_end(argList);
+}
+
+void Logger::Log(LogType logType, const char *format...) {
+    va_list argList;
+    va_start(argList, format);
+
+    Log(logType, format, argList);
 
     va_end(argList);
 }
 
 void Logger::LuaLog(const char *message) {
+    if(message)
     __android_log_print(ANDROID_LOG_INFO, "native-activity", message);
 }
 
-int Log(lua_State *l) {
-    OOLUA_C_FUNCTION(void, Logger::LuaLog, const char*)
-}
-
-
-void Logger::Log(const char *format, va_list argList) {
+void Logger::Log(LogType logType, const char *format, va_list argList) {
 
     const U32 MAX_CHARS=1023;
 
@@ -29,7 +34,7 @@ void Logger::Log(const char *format, va_list argList) {
     vsnprintf(buffer, MAX_CHARS, format, argList);
     buffer[MAX_CHARS] = '\0';
 
-    __android_log_print(ANDROID_LOG_INFO, "native-activity", buffer);
+    __android_log_print(logType, "native-activity", buffer);
 
 }
 
@@ -38,13 +43,24 @@ void Logger::Log(U32 verbosity, const char *format...) {
         va_list argList;
         va_start(argList, format);
 
-        Log(format, argList);
+        Log(LOG_INFO, format, argList);
 
         va_end(argList);
     }
 }
 
-EXPORT_OOLUA_NO_FUNCTIONS(Logger)
+void Logger::Log(LogType logType, U32 verbosity, const char *format...) {
+    if(verbosity>=verbosityLevel) {
+        va_list argList;
+        va_start(argList, format);
+
+        Log(logType, format, argList);
+
+        va_end(argList);
+    }
+}
+
+//EXPORT_OOLUA_NO_FUNCTIONS(Logger)
 
 //Export class to lua
 //

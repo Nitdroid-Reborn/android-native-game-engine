@@ -757,6 +757,61 @@ void Matrix4x4::SetRotationPartEuler(const double angleX, const double angleY, c
 	entries[15] = 1.0f;
 }
 
+void Matrix4x4::RegisterInLua() {
+    lua_State*L = ScriptManager::Get()->getState();
+
+    using namespace luabind;
+
+    luabind::module(L)
+    [
+        luabind::class_<Matrix4x4>("Matrix4x4")
+            .def(luabind::constructor<>())
+            .def(luabind::constructor<const float*>())
+            .def(luabind::constructor<const Matrix4x4&>())
+            .def("SetEntry", &Matrix4x4::SetEntry)
+            .def("GetEntry", &Matrix4x4::GetEntry)
+            .def("GetRow", &Matrix4x4::GetRow)
+            .def("GetColumn", &Matrix4x4::GetColumn)
+            .def("LoadIdentity", &Matrix4x4::LoadIdentity)
+            .def("LoadZero", &Matrix4x4::LoadZero)
+            .def("RotateVector3D", &Matrix4x4::RotateVector3D)
+            .def("InverseRotateVector3D", &Matrix4x4::InverseRotateVector3D)
+            .def("GetRotatedVector3D", &Matrix4x4::GetRotatedVector3D)
+            .def("GetInversedRotatedVector3D", &Matrix4x4::GetInverseRotatedVector3D)
+            .def("TranslateVector3D", &Matrix4x4::TranslateVector3D)
+            .def("InverseTranslateVector3D", &Matrix4x4::InverseTranslateVector3D)
+            .def("GetTranslatedVector3D", &Matrix4x4::GetTranslatedVector3D)
+            .def("GetInverseTranslatedVector3D", &Matrix4x4::GetInverseTranslatedVector3D)
+            .def("Invert", &Matrix4x4::Invert)
+            .def("GetInverse", &Matrix4x4::GetInverse)
+            .def("Transpose", &Matrix4x4::GetTranspose)
+            .def("GetTranspose", &Matrix4x4::GetTranspose)
+            .def("InvertTranspose", &Matrix4x4::InvertTranspose)
+            .def("GetInverseTranspose", &Matrix4x4::GetInverseTranspose)
+            .def("SetTranslation", &Matrix4x4::SetTranslation)
+            .def("SetScale", &Matrix4x4::SetScale)
+            .def("SetUniformScale", &Matrix4x4::SetUniformScale)
+            .def("SetRotationAxis", &Matrix4x4::SetRotationAxis)
+            .def("SetRotationX", &Matrix4x4::SetRotationX)
+            .def("SetRotationY", &Matrix4x4::SetRotationY)
+            .def("SetRotationZ", &Matrix4x4::SetRotationZ)
+            .def("SetRotationEuler", &Matrix4x4::SetRotationEuler)
+            .def("SetPerspective", (void (Matrix4x4::*)(float, float, float, float))&Matrix4x4::SetPerspective)
+            .def("SetPerspective", (void (Matrix4x4::*)(float, float, float, float, float, float))&Matrix4x4::SetPerspective)
+            .def("SetOrtho", &Matrix4x4::SetOrtho)
+            .def("SetTranslationPart", &Matrix4x4::SetTranslationPart)
+            .def("SetRotationPartEuler", (void (Matrix4x4::*)(const Vector3&))&Matrix4x4::SetRotationPartEuler)
+            .def("SetRotationPartEuler", (void (Matrix4x4::*)(const double, const double, const double))&Matrix4x4::SetRotationPartEuler)
+            .def(luabind::const_self + luabind::other<const Matrix4x4&>())
+            .def(luabind::const_self - luabind::other<const Matrix4x4&>())
+            .def(luabind::const_self * float())
+            .def(luabind::const_self * luabind::other<const Matrix4x4&>())
+            .def(luabind::const_self / float())
+            .def(luabind::const_self * luabind::other<const Vector4&>())
+    ];
+}
+
+
 /*QDebug operator<<(QDebug dbg, const Matrix4x4 &m) {
     for(int i=0;i<4;i++) {
         dbg.nospace()<<m.entries[i]<<"\t"<<m.entries[i+4]<<"\t"<<m.entries[i+8]<<"\t"<<m.entries[i+12]<<endl;

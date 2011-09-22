@@ -44,11 +44,11 @@ private:
 
 int InputGet(lua_State*l);
 
-OOLUA_PROXY_CLASS(Input)
+/*OOLUA_PROXY_CLASS(Input)
     OOLUA_NO_TYPEDEFS
     OOLUA_ONLY_DEFAULT_CONSTRUCTOR
     OOLUA_MEM_FUNC_0_CONST(const KeysState*, GetKeyState)
     OOLUA_MEM_FUNC_0_CONST(const TouchState*, GetTouchState)
 OOLUA_CLASS_END
-
+*/
 #endif // INPUT_H
