@@ -19,6 +19,12 @@ bool VirtualInput::NewTouchEvent(const TouchEvent &event) {
     }
 }
 
+void VirtualInput::Draw() {
+    for(int i=0;i<numKeys;i++) {
+        keys[i]->Draw();
+    }
+}
+
 vector<KeyEvent> VirtualInput::GetEvents() {
     vector<KeyEvent> events;
     for(int i=0;i<numKeys;i++) {

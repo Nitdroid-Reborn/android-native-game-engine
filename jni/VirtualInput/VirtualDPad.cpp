@@ -1,6 +1,6 @@
 #include "VirtualDPad.h"
 #include "../Math/Vector2.h"
-#include <GLES/gl.h>
+#include <Graphics/IRenderer.h>
 
 VirtualDPad::VirtualDPad(float posX, float posY, float radius, float deadZone)
 {
@@ -12,8 +12,13 @@ VirtualDPad::VirtualDPad(float posX, float posY, float radius, float deadZone)
     for(int i=0;i<4;i++)pressed[i]=false;
 
     pressedAny = false;
+
+    texture = IContentManager::get()->GetTextureManager()->GetTexture("dpad.png");
 }
 
+VirtualDPad::~VirtualDPad() {
+    IContentManager::get()->GetTextureManager()->ReleaseTexture(texture);
+}
 
 bool VirtualDPad::IsHit(float x, float y) {
     float dx, dy;
@@ -201,32 +206,11 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
 
 void VirtualDPad::Draw() {
 
-    glColor4f(1,1,1,1);
-
-    float ver[8] = {
-        centerX - radius, centerY + radius,
-        centerX + radius, centerY + radius,
-        centerX - radius, centerY - radius,
-        centerX + radius, centerY - radius
-      };
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    glVertexPointer(2, GL_FLOAT, 0, ver);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+    TextureRegion region(0, 0.515625, 0.484375, 1.0);
+    IRenderer::get()->DrawSprite(centerX, centerY, VIRTUAL_INPUT_LAYER, 2*radius, 2*radius, region, texture);
 
     if(pressedAny) {
-        glColor4f(1,0,0,0);
-        float ver[8] = {
-            pressPositionX - radius/2, pressPositionY + radius/2,
-            pressPositionX + radius/2, pressPositionY + radius/2,
-            pressPositionX - radius/2, pressPositionY - radius/2,
-            pressPositionX + radius/2, pressPositionY - radius/2
-          };
-        glVertexPointer(2, GL_FLOAT, 0, ver);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        TextureRegion region2(0.5, 0.505, 0.9479, 0.9583);
+        IRenderer::get()->DrawSprite(pressPositionX, pressPositionY, VIRTUAL_INPUT_LAYER, 2*radius, 2*radius, region2, texture);
     }
-    glDisableClientState(GL_VERTEX_ARRAY);
 }

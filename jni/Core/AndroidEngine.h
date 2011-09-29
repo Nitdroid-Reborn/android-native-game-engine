@@ -26,20 +26,27 @@
 //#include "Box2D/Box2D.h"
 
 
-
+//! Represents game save state.
+/*!
+  This state is saved automatically between game runs.
+  */
 struct saved_state {
     float angle;
     int32_t x;
     int32_t y;
 };
 
-/** Implementation of IEngine interface with android ndk*/
+//! Implementation of IEngine interface with android ndk
 class AndroidEngine : public IEngine
 {
 public:
-    /** Constructor takes application pointer*/
+    //! Constructor
+    /*!
+      \param app android_app pointer with main Android native application
+      */
     AndroidEngine(android_app* app);
     ~AndroidEngine();
+
 
     void Initialize();
     void Release();
@@ -52,9 +59,6 @@ public:
     void OnResume();
     void OnFrameStart();
     void OnFrameEnd();
-
-    void Render();
-
     void SingleFrame();
     void ProcessTouchInput(const TouchEvent& event);
     void ProcessKeyInput(const KeyEvent& event);
@@ -85,21 +89,22 @@ private:
     /// Content manager component of engine
     IContentManager* contentManager;
 
+    /// Script manager component of engine
     ScriptManager* scriptManager;
 
-    //VirtualInput* virtualInputSystem;
+    VirtualInput* virtualInputSystem;
 
 
     float angle;
 
-    /*VirtualSingleKey* centerKey;
+    VirtualSingleKey* centerKey;
     VirtualDPad* dpad;
-    PNGLoader pngLoader;*/
 
     /// Flags indicating if engine is running or is quitting
     bool isRunning;
     bool isQuitting;
 
+    //some test values
     Script* script;
     //SoundHandle* sound1;
    // SoundHandle* sound2;

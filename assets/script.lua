@@ -24,7 +24,7 @@ Log(string.format("Sum: %f %f %f, Mul %f %f %f, dot %f %f %f, cross %f %f %f", s
 
 
 update = function(dt)
-    if touchState:IsPointerJustDown(Input.POINTER_0) then
+    if keysState:IsKeyJustPressed(Input.KEY_CENTER) then
         audioSystem:PlaySound(sound, 1.0);
     end
 
@@ -35,11 +35,28 @@ update = function(dt)
         audioSystem:SetMusicVolume(0.3);
     end
 
-    for x=20,780,40 do
-       for y=20,460,40 do
-           renderer:DrawSprite(x, y, 30, 30, textureRegion, texture, angle);
+    if keysState:IsKeyPressed(Input.KEY_CENTER) then
+        angle = 0;
+    end
+
+    if keysState:IsKeyPressed(Input.KEY_LEFT) then
+        angle = angle + 5;
+    end
+
+    if keysState:IsKeyPressed(Input.KEY_RIGHT) then
+        angle = angle - 5;
+    end
+
+
+    if keysState:IsKeyJustPressed(Input.KEY_P) then
+        audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
+    end
+
+    for x=30,500,40 do
+       for y=30,250,40 do
+           renderer:DrawSprite(x, y, Renderer.NORMAL_LAYER, 30, 30, textureRegion, texture, angle);
        end
     end
 
-    angle= angle + dt/3;
+    --angle= angle + dt/3;
 end

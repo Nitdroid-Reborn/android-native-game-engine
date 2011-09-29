@@ -14,6 +14,7 @@ public:
     bool Reload();
     void SetFilters(U32 minFilter, U32 magFilter);
     void Bind();
+    void Unbind();
     void Dispose();
 
 //private:

@@ -15,6 +15,7 @@ public:
     vector<KeyEvent> GetEvents();
     bool NewTouchEvent(const TouchEvent& event);
     void AddKey(VirtualKey* key);
+    void Draw();
 
 private:
     VirtualKey* keys[6];

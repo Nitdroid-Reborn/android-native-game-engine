@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-
+//! Implementation of script source manager
 class ScriptSourceManager : public ISciptSourceManager
 {
     ScriptSourceHandleManager handleManager;

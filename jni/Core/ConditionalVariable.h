@@ -3,13 +3,16 @@
 
 #include <pthread.h>
 
+//! Conditional variable
 class ConditionalVariable
 {
 public:
     ConditionalVariable();
     ~ConditionalVariable();
 
+    //! Wait for variable
     void Wait();
+    //! Signal variable
     void Signal();
 
 private:

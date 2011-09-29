@@ -28,8 +28,9 @@ public:
     virtual bool Reload()=0;
     virtual void SetFilters(U32 minFilter, U32 magFilter)=0;
     virtual void Bind()=0;
+    virtual void Unbind()=0;
     virtual void Dispose()=0;
-    virtual const TextureInfo GetInfo(){return (const TextureInfo)textureInfo;}
+    inline virtual const TextureInfo GetInfo(){return (const TextureInfo)textureInfo;}
 
 protected:
     const char *filename;

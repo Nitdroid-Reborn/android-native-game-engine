@@ -59,9 +59,3 @@ void Logger::Log(LogType logType, U32 verbosity, const char *format...) {
         va_end(argList);
     }
 }
-
-//EXPORT_OOLUA_NO_FUNCTIONS(Logger)
-
-//Export class to lua
-//
-

@@ -14,6 +14,7 @@ Sound::~Sound() {
 }
 
 bool Sound::Load(const char *filename) {
+    //load using WaveSound object
     WaveSound s;
     return s.Load(filename, data, sampleCount);
 }
@@ -26,6 +27,7 @@ void Sound::Dispose() {
 }
 
 void Sound::Play(float volume) {
+    //get audio system and play sound
     IAudioSystem::get()->PlaySound(this, volume);
 }
 
@@ -36,7 +38,3 @@ const U16* Sound::GetData() const {
 const U32 Sound::GetDataLength() const {
     return sampleCount*2;
 }
-
-//EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISound,Play, Load, Dispose)
-//EXPORT_OOLUA_FUNCTIONS_CONST(ISound)
-

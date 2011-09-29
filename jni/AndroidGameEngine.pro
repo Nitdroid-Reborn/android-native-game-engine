@@ -5,18 +5,16 @@
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += .
-INCLUDEPATH += "/home/mateusz/Workspace/SDKs/android-ndk-r6/platforms/android-9/arch-arm/usr/include" \
-               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/android/native_app_glue" \
-               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/boost/"
+#INCLUDEPATH += "/home/mateusz/Workspace/SDKs/android-ndk-r6/platforms/android-9/arch-arm/usr/include" \
+   #            "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/android/native_app_glue" \
+#               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/boost/"
 
 # Input
 SOURCES += main.cpp \
-    Utils.cpp \
     AudioSystem.cpp \
     FileIO/BufferStream.cpp \
     FileIO/AndroidFileIO.cpp \
     ContentManager/PNGLoader.cpp \
-    Clock.cpp \
     Input/Input.cpp \
     Math/Vector4.cpp \
     Math/Vector3.cpp \
@@ -26,23 +24,14 @@ SOURCES += main.cpp \
     Math/Matrix4x4.cpp \
     Math/Frustum.cpp \
     Math/BoundingBox.cpp \
-    MyModel.cpp \
     Input/KeysState.cpp \
-    VirtualInput.cpp \
-    VirtualKey.cpp \
     VirtualInput/VirtualInput.cpp \
     VirtualInput/VirtualSingleKey.cpp \
     VirtualInput/VirtualDPad.cpp \
     Input/TouchState.cpp \
-    AndroidEngine.cpp \
-    Texture.cpp \
     Graphics/TextureRegion.cpp \
     Graphics/SpriteBatcher.cpp \
     MemoryManagement/StackAllocator.cpp \
-    Thread.cpp \
-    Mutex.cpp \
-    AndroidRenderer.cpp \
-    ConditionalVariable.cpp \
     ContentManager/AndroidContentManager.cpp \
     Utils/Utils.cpp \
     Utils/Clock.cpp \
@@ -59,13 +48,11 @@ SOURCES += main.cpp \
     ContentManager/HandleManager.cpp \
     ContentManager/TextureManager.cpp \
     Graphics/OGLTexture.cpp \
-    ContentManager/OGLTextureFactory.cpp \
     Graphics/OGLTextureFactory.cpp \
     Utils/Profiler.cpp \
     Utils/TextBuffer.cpp \
     Utils/RelativeClock.cpp \
     Audio/AndroidAudioSystem.cpp \
-    ContentManager/WaveSound.cpp \
     Audio/WaveSound.cpp \
     Audio/Sound.cpp \
     ContentManager/SoundManager.cpp \
@@ -121,16 +108,13 @@ SOURCES += main.cpp \
     Scripts/luabind/src/class.cpp \
     Scripts/ScriptSource.cpp \
     Scripts/ScriptSourceFactory.cpp \
-    ContentManager/ScriptSourceManager.cpp
+    ContentManager/ScriptSourceManager.cpp \
+    Graphics/Font.cpp
 
 HEADERS += \
-    Utils.h \
-    AudioSystem.h \
-    EngineTypes.h \
     FileIO/BufferStream.h \
     FileIO/AndroidFileIO.h \
     ContentManager/PNGLoader.h \
-    Clock.h \
     Input/Input.h \
     Math/Vector4.h \
     Math/Vector3.h \
@@ -141,30 +125,18 @@ HEADERS += \
     Math/MathLib.h \
     Math/Frustum.h \
     Math/BoundingBox.h \
-    MyModel.h \
     Input/KeysState.h \
     Input/InputKeys.h \
-    VirtualInput.h \
-    VirtualKey.h \
     VirtualInput/VirtualKey.h \
     VirtualInput/VirtualInput.h \
     VirtualInput/VirtualSingleKey.h \
     VirtualInput/VirtualDPad.h \
-    Input/TouchState.h \
-    IEngine.h \
-    AndroidEngine.h \
     FileIO/IFileIO.h \
-    Texture.h \
     Graphics/ITexture.h \
     Graphics/TextureRegion.h \
     Graphics/ISpriteBatcher.h \
     Graphics/SpriteBatcher.h \
     MemoryManagement/StackAllocator.h \
-    Thread.h \
-    Mutex.h \
-    IRenderer.h \
-    AndroidRenderer.h \
-    ConditionalVariable.h \
     ContentManager/IContentManager.h \
     ContentManager/AndroidContentManager.h \
     Utils/Assert.h \
@@ -186,8 +158,6 @@ HEADERS += \
     ContentManager/TextureManager.h \
     Graphics/OGLTexture.h \
     ContentManager/ITextureManager.h \
-    ContentManager/ITextureFactory.h \
-    ContentManager/OGLTextureFactory.h \
     Graphics/OGLTextureFactory.h \
     Graphics/ITextureFactory.h \
     Graphics/Font.h \
@@ -196,7 +166,6 @@ HEADERS += \
     Utils/RelativeClock.h \
     Audio/IAudioSystem.h \
     Audio/AndroidAudioSystem.h \
-    ContentManager/WaveSound.h \
     Audio/WaveSound.h \
     Audio/ISound.h \
     Audio/Sound.h \
@@ -319,6 +288,7 @@ OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
 
 
 

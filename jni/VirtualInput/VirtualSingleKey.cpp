@@ -1,6 +1,6 @@
 #include "VirtualSingleKey.h"
 #include <Utils/Utils.h>
-#include <GLES/gl.h>
+#include <Graphics/IRenderer.h>
 
 VirtualSingleKey::VirtualSingleKey(EngineKeyCode keyCode, float posX, float posY, float radius)
 {
@@ -11,8 +11,13 @@ VirtualSingleKey::VirtualSingleKey(EngineKeyCode keyCode, float posX, float posY
 
     pressed = false;
     oldPressed = false;
+
+    texture = IContentManager::get()->GetTextureManager()->GetTexture("dpad.png");
 }
 
+VirtualSingleKey::~VirtualSingleKey() {
+    IContentManager::get()->GetTextureManager()->ReleaseTexture(texture);
+}
 
 bool VirtualSingleKey::IsHit(float x, float y) {
     float dx, dy;
@@ -83,22 +88,12 @@ vector<KeyEvent> VirtualSingleKey::GetEvents() {
 }
 
 void VirtualSingleKey::Draw() {
-    if(pressed)
-        glColor4f(1,0,0,1 );
-    else
-        glColor4f(1,1,1,1);
-
-    float ver[8] = {
-        centerX - radius, centerY + radius,
-        centerX + radius, centerY + radius,
-        centerX - radius, centerY - radius,
-        centerX + radius, centerY - radius
-      };
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-
-    glVertexPointer(2, GL_FLOAT, 0, ver);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    if(pressed) {
+        TextureRegion region(63.0/192, 35.0/192, 126.0/192, 97.0/192);
+        IRenderer::get()->DrawSprite(centerX, centerY, VIRTUAL_INPUT_LAYER, 2*radius, 2*radius, region, texture);
+    }
+    else {
+        TextureRegion region(0, 0.177, 0.333, 0.5104);
+        IRenderer::get()->DrawSprite(centerX, centerY, VIRTUAL_INPUT_LAYER, 2*radius, 2*radius, region, texture);
+    }
 }

@@ -8,6 +8,7 @@
 
 using namespace std;
 
+//contains all object/interfaces for one sound player
 struct BufferQueuePlayer {
     SLObjectItf bqPlayerObject;
     SLPlayItf bqPlayerPlay;
@@ -15,7 +16,10 @@ struct BufferQueuePlayer {
     SLAndroidSimpleBufferQueueItf bqPlayerBufferQueue;
 };
 
-
+//! Implementation of IAudioSystem using OpenSL ES
+/*!
+  Can play up to 20 sound in the same time.
+  */
 class AndroidAudioSystem : public IAudioSystem
 {
 public:
@@ -33,9 +37,12 @@ public:
     void PlaySound(const SoundHandle& handle, F32 volume);
 
 private:
+    //callback of buffer playback end, it marks music player as free
     static void BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, void* context);
+    // create single music player
     void CreateBufferQueuePlayer(BufferQueuePlayer& player);
 
+    //main sound engine object and interface
     SLObjectItf engineObject;
     SLEngineItf engineEngine;
 
@@ -48,17 +55,13 @@ private:
     SLSeekItf fdPlayerSeek;
     SLVolumeItf fdPlayerVolume;
 
+    //sound players
     static BufferQueuePlayer bufferPlayers[20];
+    //list of free sound players
     static vector<int> freeBufferPlayers;
 
 
     U16 maxVolumeLevel;
 };
-
-
-/*OOLUA_PROXY_CLASS(AndroidAudioSystem, IAudioSystem)
-    OOLUA_NO_TYPEDEFS
-    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-OOLUA_CLASS_END*/
 
 #endif // ANDROIDAUDIOSYSTEM_H

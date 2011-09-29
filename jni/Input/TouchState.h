@@ -5,40 +5,69 @@
 #include "Math/MathLib.h"
 #include <Scripts/ScriptManager.h>
 
+//! Tracks and updates state of touch
 class TouchState
 {
 public:
     TouchState();
 
+    //! Checks if pointer is down
+    /*!
+      \param pointerId id of pointer in interest
+      */
     bool IsPointerDown(EnginePointerId pointerId) const;
+
+    //! Checks if pointer just went down
+    /*!
+      \param pointerId id of pointer in interest
+      */
     bool IsPointerJustDown(EnginePointerId pointerId) const;
+
+    //! Checks if pointer went up
+    /*!
+      \param pointerId id of pointer in interest
+      */
     bool IsPointerJustUp(EnginePointerId pointerId) const;
+
+    //! Returns x position of pointer
+    /*!
+      Returns current position only if pointer is down, otherwise return last position when pointer was down.
+      \param pointerId id of pointer in interest
+      */
     float GetPointerX(EnginePointerId pointerId) const;
+
+    //! Returns y position of pointer
+    /*!
+      Returns current position only if pointer is down, otherwise return last position when pointer was down.
+      \param pointerId id of pointer in interest
+      */
     float GetPointerY(EnginePointerId pointerId) const;
+
+    //! Returns position of pointer as Vector2
+    /*!
+      Returns current position only if pointer is down, otherwise return last position when pointer was down.
+      \param pointerId id of pointer in interest
+      */
     Vector2 GetPointerPosition(EnginePointerId pointerId) const;
 
+    //! Calculates changes of touch states from last frame
     void StartFrame();
+
+    //! Saves state of touch in this frame
     void EndFrame();
 
+    //! Process touch event and updates touch state
     void NewEvent(const TouchEvent& event);
 
 private:
     void DetectPointerUpDownEvents();
+    //touch state is coded in 16-bit int
+    //when bit is set pointer is pressed
+    //bit of each pointer can be calculated as 1<<pointerId
     U16 pointerStates;
     U16 previousPointerStates;
     U16 pointersDowns;
     U16 pointersUps;
     Vector2 fingersPositions[ENGINE_TOUCH_MAX_POINTERS];
 };
-
-/*OOLUA_PROXY_CLASS(TouchState)
-    OOLUA_NO_TYPEDEFS
-    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-    OOLUA_MEM_FUNC_1_CONST(bool, IsPointerDown, U8)
-    OOLUA_MEM_FUNC_1_CONST(bool, IsPointerJustDown, U8)
-    OOLUA_MEM_FUNC_1_CONST(bool, IsPointerJustUp, U8)
-    OOLUA_MEM_FUNC_1_CONST(float, GetPointerX, U8)
-    OOLUA_MEM_FUNC_1_CONST(float, GetPointerY, U8)
-OOLUA_CLASS_END
-*/
 #endif // TOUCHSTATE_H

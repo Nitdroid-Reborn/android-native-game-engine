@@ -47,6 +47,7 @@ void TouchState::NewEvent(const TouchEvent &event) {
         fingersPositions[event.pointerId] = Vector2(event.posX, event.posY);
     }
     else {
+        //move action
         fingersPositions[event.pointerId] = Vector2(event.posX, event.posY);
     }
 }
@@ -58,6 +59,3 @@ void TouchState::StartFrame() {
 void TouchState::EndFrame() {
     previousPointerStates = pointerStates;
 }
-
-//EXPORT_OOLUA_FUNCTIONS_NON_CONST(TouchState)
-//EXPORT_OOLUA_FUNCTIONS_CONST(TouchState, IsPointerDown, IsPointerJustDown, IsPointerJustUp, GetPointerX, GetPointerY)

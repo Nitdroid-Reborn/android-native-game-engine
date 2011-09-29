@@ -48,15 +48,17 @@ bool AndroidAudioSystem::Initialize() {
     result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     ASSERT(SL_RESULT_SUCCESS == result, "Cannot realize output mix");
 
+    //create 20 sound players
     for(int i=0;i<20;i++) {
         CreateBufferQueuePlayer(bufferPlayers[i]);
     }
-
+    //mark all sound players as free
     freeBufferPlayers.resize(20);
     for(int i=0;i<20;i++) {
         freeBufferPlayers[i]=i;
     }
 
+    //register in lua
     ScriptManager* manager = ScriptManager::Get();
     lua_State* L = manager->getState();
 
@@ -88,6 +90,7 @@ bool AndroidAudioSystem::Initialize() {
 
 
 bool AndroidAudioSystem::Release() {
+    //release all resources
     if (fdPlayerObject != NULL) {
         (*fdPlayerPlay)->SetPlayState(fdPlayerPlay, SL_PLAYSTATE_PAUSED);
         (*fdPlayerObject)->Destroy(fdPlayerObject);
@@ -175,6 +178,7 @@ void AndroidAudioSystem::CreateBufferQueuePlayer(BufferQueuePlayer &player) {
 
 
 void AndroidAudioSystem::BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, void *context) {
+    //find player index
     int i=-1;
     for(i=0;i<20;i++) {
         if(fb == bufferPlayers[i].bqPlayerBufferQueue)
@@ -182,27 +186,34 @@ void AndroidAudioSystem::BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, 
     }
 
     if(i<20) {
+        //mark it as free
         freeBufferPlayers.push_back(i);
     }
 }
 
 void AndroidAudioSystem::PlaySound(const ISound *s, F32 volume) {
+    //if there are no free players do nothing
     if(freeBufferPlayers.size()==0)return;
 
+    //get first free player
     int freePlayer = freeBufferPlayers.back();
     freeBufferPlayers.pop_back();
 
+    //set volume to db scale
     volume = 1.0f - volume;
     volume = pow(volume, 5);
 
+    //play sound
     (*bufferPlayers[freePlayer].bqPlayerVolume)->SetVolumeLevel(bufferPlayers[freePlayer].bqPlayerVolume, (I16)(volume*(SL_MILLIBEL_MIN)));
 
     (*bufferPlayers[freePlayer].bqPlayerBufferQueue)->Enqueue(bufferPlayers[freePlayer].bqPlayerBufferQueue, s->GetData(), s->GetDataLength());
 }
 
 void AndroidAudioSystem::PlaySound(const SoundHandle& handle, F32 volume) {
+    //get sound from handle
     const ISound* s = handle.Get();
 
+    //if handle was correct
     if(s!=NULL)
         PlaySound(s, volume);
 }
@@ -282,12 +293,3 @@ void AndroidAudioSystem::StopMusic() {
         (*fdPlayerPlay)->SetPlayState(fdPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
-
-
-
-int IAudioSystemGet(lua_State *l) {
-    //OOLUA_C_FUNCTION(IAudioSystem*, IAudioSystem::get)
-}
-
-//EXPORT_OOLUA_FUNCTIONS_NON_CONST(IAudioSystem, PlayMusic, StopMusic, SetMusicVolume, PlaySound)
-//EXPORT_OOLUA_FUNCTIONS_CONST(IAudioSystem)

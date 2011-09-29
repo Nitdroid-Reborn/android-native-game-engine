@@ -11,6 +11,8 @@
 #include <ContentManager/IContentManager.h>
 #include "OGLTexture.h"
 #include "TextBox.h"
+#include "Font.h"
+#include <FTGL/ftgles.h>
 
 using namespace std;
 
@@ -28,11 +30,16 @@ public:
     void OnGainedFocus();
     void OnLostFocus();
     void Wait();
-    void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f);
-    void DrawSprite(F32 x, F32 y, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
+    void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, F32 angle=0.0f);
+    void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f);
+    void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
 
     TextureHandle fontTexture;
+
+    FTFont* font;
+
+    Font myFont;
 private:
     void InitWindow();
     void TerminateWindow();
@@ -66,25 +73,7 @@ private:
     float dt;
     Clock fpsClock;
     ConditionalVariable mainLoopCond;
-    SpriteBatcher* batcher;
-
-
-    struct Sprite {
-        F32 x;
-        F32 y;
-        F32 width;
-        F32 height;
-        F32 angle;
-        TextureRegion texRegion;
-        ITexture* texture;
-
-        bool operator<(const Sprite& rhs) const{
-            return texture>rhs.texture;
-        }
-    };
-
-    vector<Sprite> sprites;
-    vector<Sprite> oldSprites;    
+    SpriteBatcher* batcher;   
 };
 
 #endif // ANDROIDRENDERER_H

@@ -4,8 +4,6 @@
 #include "Handle.h"
 #include "HandleManager.h"
 #include <Audio/ISoundFactory.h>
-//#include <Scripts/oolua/oolua.h>
-
 
 struct tagSound {};
 
@@ -13,28 +11,24 @@ struct tagSound {};
 typedef Handle<ISound, ISoundFactory, tagSound> SoundHandle;
 typedef HandleManager<ISound, ISoundFactory, tagSound> SoundHandleManager;
 
+//! Interface for sound manager
 class ISoundManager {
 public:
     ISoundManager(){}
     virtual ~ISoundManager(){}
 
+    //! Gets sound
+    /*!
+      If sound is not loaded, loads it to memory, otherwise returns handle to it.
+      \param filename path to sound file
+    */
     virtual SoundHandle GetSound(const char* filename)=0;
+
+    //! Releases sound
+    /*!
+      Releases reference to sound from handle, if reference count for this sound drops to 0 deletes it
+      \param handle handle to sound
+      */
     virtual void ReleaseSound(SoundHandle& handle)=0;
 };
-
-
-/*OOLUA_PROXY_CLASS(SoundHandle)
-        OOLUA_TYPEDEFS
-                OOLUA::Equal_op,
-                OOLUA::Not_equal_op
-        OOLUA_END_TYPES
-    OOLUA_ONLY_DEFAULT_CONSTRUCTOR
-    OOLUA_MEM_FUNC_0(ISound*, Get)
-OOLUA_CLASS_END
-
-OOLUA_PROXY_CLASS(ISoundManager)
-    OOLUA_MEM_FUNC(SoundHandle, GetSound, const char*)
-    OOLUA_MEM_FUNC(void, ReleaseSound, SoundHandle&)
-    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
-OOLUA_CLASS_END*/
 #endif // ISOUNDMANAGER_H

@@ -44,13 +44,13 @@ bool OGLTexture::Load(const char *filename) {
 
             glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format,
                             GL_UNSIGNED_BYTE, imageData);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
             textureInfo.width=w;
             textureInfo.height=h;
-            textureInfo.minFilter=GL_NEAREST;
-            textureInfo.magFilter=GL_NEAREST;
+            textureInfo.minFilter=GL_LINEAR;
+            textureInfo.magFilter=GL_LINEAR;
 
             glBindTexture(GL_TEXTURE_2D, 0);
             delete[] imageData;
@@ -73,8 +73,8 @@ bool OGLTexture::Load(void* rawData, TextureInfo& info) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     if(info.format == TextureInfo::LUMINANCE_ALPHA) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, info.width, info.height, 0,
@@ -105,6 +105,10 @@ void OGLTexture::Dispose() {
 
 void OGLTexture::Bind() {
     glBindTexture(GL_TEXTURE_2D, textureId);
+}
+
+void OGLTexture::Unbind() {
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void OGLTexture::SetFilters(U32 minFilter, U32 magFilter) {

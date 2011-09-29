@@ -2,6 +2,7 @@
 #define SOUNDFACTORY_H
 #include "ISoundFactory.h"
 
+//! Factory of Sound objects
 class SoundFactory : public ISoundFactory
 {
 public:

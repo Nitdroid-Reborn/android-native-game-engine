@@ -1,26 +1,29 @@
 #ifndef TEXTBOX_H
 #define TEXTBOX_H
 #include <ContentManager/ITextureManager.h>
+#include "Font.h"
 
 #define MAX_STRING 4096
+
+
+
 
 class TextBox
 {
 public:
     TextBox();
-    void SetSize(int boxL, int boxR, int boxT, int boxB);
     ~TextBox(){}
 
 private:
-    // Bounding Box
-    int boxL;
-    int boxR;
-    int boxT;
-    int boxB;
 
-    // Text Buffers
-    char buffer[MAX_STRING];
-    char drawBufferPtr[MAX_STRING];
+    struct TextBatch {
+        std::string text;
+        U16 x;
+        U16 y;
+    };
+
+    vector<TextBatch> texts;
+    vector<TextBatch> oldTexts;
 
     // Info
     int pageLineCnt;
@@ -30,14 +33,9 @@ private:
 
 public:
     void DrawStr(int x, int y, char* string);
-    void Printf(char* fmt, ...);
-    void FormatStrCat(char * str);
     void Draw();
-    TextureHandle fontTex;
-
-
-private:
-    void DrawStr(int x, int y, int maxFlag, int maxY, char* string);
+    void SwapTextBuffer();
+    Font* font;
 };
 
 #endif // TEXTBOX_H

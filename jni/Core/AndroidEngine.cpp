@@ -17,7 +17,7 @@ extern "C" {
 }
 #define PI 3.1415926535897932f
 
-
+static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
 
 
@@ -52,8 +52,7 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
     }
 
 
-    //centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 500, 200, 50);
-    //dpad = new VirtualDPad(125, 355, 100, 25);
+    //
 }
 
 AndroidEngine::~AndroidEngine() {
@@ -82,6 +81,13 @@ void AndroidEngine::Initialize() {
 
     renderer = new AndroidRenderer(app);
     renderer->Initialize();
+
+
+    centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 700, 80, 50);
+    dpad = new VirtualDPad(125, 125, 100, 25);
+    virtualInputSystem = new VirtualInput();
+    virtualInputSystem->AddKey(centerKey);
+    virtualInputSystem->AddKey(dpad);
 
 
     volume = 1.0f;
@@ -149,9 +155,7 @@ void AndroidEngine::Initialize() {
     spriteBatcher = new SpriteBatcher(100);
 
 */
-/*    virtualInputSystem = new VirtualInput();
-    virtualInputSystem->AddKey(centerKey);
-    virtualInputSystem->AddKey(dpad);*/
+
 }
 
 void AndroidEngine::Release() {
@@ -180,6 +184,12 @@ void AndroidEngine::Release() {
     delete inputSystem;
     inputSystem = NULL;
 
+    delete virtualInputSystem;
+    virtualInputSystem = NULL;
+
+    delete dpad;
+    delete centerKey;
+
     contentManager->Release();
     delete contentManager;
     contentManager = NULL;
@@ -191,8 +201,7 @@ void AndroidEngine::Release() {
 
 
 
-   /* delete virtualInputSystem;
-    virtualInputSystem = NULL;*/
+
 
 
 
@@ -202,7 +211,7 @@ void AndroidEngine::Release() {
 
 
 void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
-    //if(!virtualInputSystem->NewTouchEvent(event))
+    if(!virtualInputSystem->NewTouchEvent(event))
     inputSystem->ProcessTouchEvent(event);
 }
 
@@ -256,10 +265,10 @@ void AndroidEngine::ProcessAccelerometerInput(float x, float y, float z) {
 }
 
 void AndroidEngine::OnFrameStart() {
-   /* vector<KeyEvent> events = virtualInputSystem->GetEvents();
+    vector<KeyEvent> events = virtualInputSystem->GetEvents();
     for(int i=0;i<events.size();++i) {
         inputSystem->ProcessKeyEvent(events[i]);
-    }*/
+    }
 
     inputSystem->StartFrame();
 }
@@ -271,69 +280,9 @@ void AndroidEngine::OnFrameEnd() {
 void AndroidEngine::Update(float dt) {
     this->dt = dt;
 
-    if(ProfilerManager::profilerEnabled)
-        renderer->DrawString(5, 5, mainLoopProfileManager.outputBuffer.Get());
-
-    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_0)) {
-
-
-        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_0),
-                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_0),
-                             180, 180, 0.0);
-    }
-    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_1)) {
-        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_1),
-                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_1),
-                             120, 120, 0.0);
-    }
-    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_2)) {
-        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_2),
-                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_2),
-                             120, 120, 0.0);
-    }
-    if(inputSystem->GetTouchState()->IsPointerDown(ENGINE_POINTER_3)) {
-        renderer->DrawSprite(inputSystem->GetTouchState()->GetPointerX(ENGINE_POINTER_3),
-                             inputSystem->GetTouchState()->GetPointerY(ENGINE_POINTER_3),
-                             120, 120, 0.0);
-
-
-    }
-
     script->callFunction("update", dt);
 
-    /*if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_0))
-        sound1.Get()->Play();
-
-    if(inputSystem->GetTouchState()->IsPointerJustDown(ENGINE_POINTER_1))
-        sound2.Get()->Play();*/
-
-
-    TextureRegion tr;
-    int counter=0;
-
-   // TextureHandle h2 = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
-  /*  for(int x=20;x<780;x+=40) {
-        for( int y= 20; y<460;y+=40) {
-            counter++;
-            renderer->DrawSprite(x, y, 30, 30, tr, texture, angle);
-        }
-    }*/
-
-    angle += dt;
-
-    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_Z)) {
-        volume+=0.1f;
-        if(volume>1.0f)volume=1.0f;
-        audioSystem->SetMusicVolume(volume);
-    }
-    else if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_X)) {
-        volume-=0.1f;
-        if(volume<0.0f)volume = 0.0f;
-        audioSystem->SetMusicVolume(volume);
-    }
-
-    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_P))
-        audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
+    virtualInputSystem->Draw();
 }
 
 
@@ -379,6 +328,18 @@ void AndroidEngine::SingleFrame() {
 
     if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
         ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
+    }
+
+    if(ProfilerManager::profilerEnabled) {
+       // if(++profileCounter>120) {
+            renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
+           // Logger::Log("%s", mainLoopProfileManager.outputBuffer.Get());
+            profileCounter = 0;
+       // }
+        renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
+
+
+        //
     }
 
     frameCounter++;

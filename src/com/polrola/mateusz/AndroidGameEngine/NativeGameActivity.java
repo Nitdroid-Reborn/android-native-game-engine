@@ -37,5 +37,6 @@ public class NativeGameActivity extends NativeActivity {
 	static {
 		System.loadLibrary("box2d");
 		System.loadLibrary("png");
+		System.loadLibrary("ftgles");
 	}
 }

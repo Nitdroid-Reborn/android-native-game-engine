@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 
+//! Implementation of texture manager
 class TextureManager : public ITextureManager
 {
     TextureHandleManager handleManager;

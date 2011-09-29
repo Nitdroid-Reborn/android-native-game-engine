@@ -9,13 +9,15 @@ Profiler::Profiler(const char* name, ProfilerManager*manager) {
     this->manager = manager;
 
     if(manager->profilerEnabled) {
-        init = true;
+        //check if sample was already called before in this frame
         while(i<MAX_PROFILE_SAMPLES && manager->samples[i].valid) {
+            //sample founded
             if(strcmp(name, manager->samples[i].name) == 0) {
                 manager->samples[i].openedProfiles++;
                 manager->samples[i].profileInstances++;
                 manager->samples[i].startTime = manager->clock.GetTime();
                 this->name = manager->samples[i].name;
+                //there cannot be recursive calls
                 ASSERT(manager->samples[i].openedProfiles == 1, "Recursive call of profiled block");
                 return;
             }
@@ -27,6 +29,7 @@ Profiler::Profiler(const char* name, ProfilerManager*manager) {
             return;
         }
 
+        //if sample is called first time add it to samples
         strcpy(manager->samples[i].name, name);
         manager->samples[i].valid=true;
         manager->samples[i].openedProfiles = 1;
@@ -36,7 +39,6 @@ Profiler::Profiler(const char* name, ProfilerManager*manager) {
         manager->samples[i].childrenSampleTime = 0.0f;
         this->name = manager->samples[i].name;
     }
-    init = false;
 }
 
 Profiler::~Profiler() {
@@ -44,6 +46,7 @@ Profiler::~Profiler() {
     U16 numParents=0;
 
     if(manager->profilerEnabled) {
+        //find sample
         while(i<MAX_PROFILE_SAMPLES && manager->samples[i].valid) {
             if(strcmp(manager->samples[i].name, name) == 0) {
                 U16 inner = 0;
@@ -52,6 +55,8 @@ Profiler::~Profiler() {
 
                 manager->samples[i].openedProfiles--;
 
+                //count how many profiles was opened before this and still don't end -- these are parents of this profile.
+                //The profile right before that is it immediet parent
                 while(manager->samples[inner].valid) {
                     if(manager->samples[inner].openedProfiles > 0) {
                         numParents++;
@@ -67,9 +72,11 @@ Profiler::~Profiler() {
 
                 manager->samples[i].numParents = numParents;
                 if(parent>=0) {
+                    //add time of children execution to parent profile
                     manager->samples[parent].childrenSampleTime += (endTime - manager->samples[i].startTime);
                 }
 
+                //add time of execution to accumulator
                 manager->samples[i].accumulator += (endTime - manager->samples[i].startTime);
                 return;
             }
@@ -112,6 +119,7 @@ void ProfilerManager::DumpProfileDataToBuffer() {
         outputBuffer.Print("-----------------------------------------------------\n");
 
 
+        //time since last call of dump profile data
         float totalTime = stopTime-startTime;
 
         total.numSamples++;
@@ -133,16 +141,18 @@ void ProfilerManager::DumpProfileDataToBuffer() {
         char line[256], name[256], indentedName[256];
         char ave[16], min[16], max[16], num[16];
 
+        //calculate time and percent time of all profiles
         while( i < MAX_PROFILE_SAMPLES && samples[i].valid) {
             U16 indent = 0;
-
 
             if( samples[i].openedProfiles > 0 ) {
                 ASSERT(0, "There are still opened profiles");
             }
 
+            //only the time of profile without time of child profiles
             sampleTime = samples[i].accumulator - samples[i].childrenSampleTime;
 
+            //percent time of frame
             if(stopTime-startTime!=0.0f)
                 percentTime = ( sampleTime / (stopTime - startTime) ) * 100.0f;
             else percentTime = 0;
@@ -190,6 +200,8 @@ void ProfilerManager::DumpProfileDataToBuffer() {
         for( i=0; i<MAX_PROFILE_SAMPLES; i++ ) {
             samples[i].valid = false;
         }
+
+        //get new start time
         startTime = clock.GetTime();
     }
     else {

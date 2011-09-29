@@ -37,10 +37,3 @@ TextureHandle TextureManager::GetTexture(void* rawData, TextureInfo& info) {
 void TextureManager::ReleaseTexture(TextureHandle& handle) {
     handleManager.Release(handle);
 }
-
-/*EXPORT_OOLUA_FUNCTIONS_NON_CONST(TextureHandle, Get)
-EXPORT_OOLUA_FUNCTIONS_CONST(TextureHandle)
-
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(ITextureManager, GetTexture, ReleaseTexture)
-EXPORT_OOLUA_FUNCTIONS_CONST(ITextureManager)
-*/

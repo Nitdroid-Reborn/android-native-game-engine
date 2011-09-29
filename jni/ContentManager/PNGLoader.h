@@ -1,6 +1,6 @@
 #ifndef PNGLOADER_H
 #define PNGLOADER_H
-#include <libpng/png.h>
+#include <png.h>
 #include <GLES/gl.h>
 #include "../FileIO/BufferStream.h"
 

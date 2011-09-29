@@ -7,6 +7,11 @@
 #include <ContentManager/ITextureManager.h>
 #include <Scripts/ScriptManager.h>
 
+#define NORMAL_LAYER 10
+#define VIRTUAL_INPUT_LAYER 2
+#define PROFILER_LAYER_BG 1
+#define PROFILER_LAYER 0
+
 class IRenderer : public Thread
 {
 public:
@@ -22,8 +27,9 @@ public:
     virtual void OnGainedFocus()=0;
     virtual void OnLostFocus()=0;
     virtual void Wait()=0;
-    virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height, F32 angle=0.0f)=0;
-    virtual void DrawSprite(F32 x, F32 y, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
+    virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, F32 angle=0.0f)=0;
+    virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f)=0;
+    virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
     virtual void DrawString(int x, int y, const char * str)=0;
 
     static IRenderer* get(){return singleton;}
@@ -31,14 +37,5 @@ public:
 protected:
     static IRenderer* singleton;
 };
-
-int IRendererGet(lua_State* l);
-
-/*OOLUA_PROXY_CLASS(IRenderer)
-    OOLUA_MEM_FUNC_3(void, DrawString, int, int, char*)
-    OOLUA_MEM_FUNC_5_RENAME(DrawSprite, void, DrawSprite, F32, F32, F32, F32, F32)
-    OOLUA_MEM_FUNC_7_RENAME(DrawTexturedSprite, void, DrawSprite, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32)
-    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
-OOLUA_CLASS_END*/
 
 #endif // IRENDERER_H

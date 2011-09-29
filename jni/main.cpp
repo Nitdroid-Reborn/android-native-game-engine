@@ -5,6 +5,7 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <android/window.h>
+#include <android/native_window.h>
 
 #include <stdlib.h>
 #include <Input/Input.h>
@@ -15,10 +16,13 @@
 #include <MemoryManagement/StackAllocator.h>
 #include <unistd.h>
 
-
 static U64 keyMapper[110];
 
 U64 lastTime;
+
+
+I32 mainWindowWidth=0;
+I32 mainWindowHeight=0;
 
 ASensorManager* sensorManager;
 const ASensor* accelerometerSensor;
@@ -148,6 +152,8 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
     IEngine* engine = (IEngine*)app->userData;
 
     int32_t eventType = AInputEvent_getType(event);
+    U32 height = 0;
+    if(app->window)height=ANativeWindow_getHeight(app->window);
 
     if(eventType == AINPUT_EVENT_TYPE_MOTION) {
         if(AInputEvent_getSource(event) == AINPUT_SOURCE_TOUCHSCREEN) {
@@ -164,7 +170,7 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
                     engineTouchEvent.pointerId = pointerId;
                     engineTouchEvent.action = ENGINE_TOUCHACTION_DOWN;
                     engineTouchEvent.posX = AMotionEvent_getX(event, pointerIndex);
-                    engineTouchEvent.posY = AMotionEvent_getY(event, pointerIndex);
+                    engineTouchEvent.posY = height - AMotionEvent_getY(event, pointerIndex);
 
 
                     engine->ProcessTouchInput(engineTouchEvent);
@@ -176,7 +182,7 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
                     engineTouchEvent.pointerId = pointerId;
                     engineTouchEvent.action = ENGINE_TOUCHACTION_UP;
                     engineTouchEvent.posX = AMotionEvent_getX(event, pointerIndex);
-                    engineTouchEvent.posY = AMotionEvent_getY(event, pointerIndex);
+                    engineTouchEvent.posY = height - AMotionEvent_getY(event, pointerIndex);
 
                     engine->ProcessTouchInput(engineTouchEvent);
                     break;
@@ -190,7 +196,7 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
                         engineTouchEvent.pointerId = pointerId;
                         engineTouchEvent.action = ENGINE_TOUCHACTION_MOVE;
                         engineTouchEvent.posX = AMotionEvent_getX(event, pointerIndex);
-                        engineTouchEvent.posY = AMotionEvent_getY(event, pointerIndex);
+                        engineTouchEvent.posY = height - AMotionEvent_getY(event, pointerIndex);
 
                         engine->ProcessTouchInput(engineTouchEvent);
                     }
@@ -272,6 +278,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
             break;
         case APP_CMD_INIT_WINDOW:
             engine->OnInitWindow();
+
             break;
 
 

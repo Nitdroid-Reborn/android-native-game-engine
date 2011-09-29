@@ -24,10 +24,3 @@ SoundHandle SoundManager::GetSound(const char *filename) {
 void SoundManager::ReleaseSound(SoundHandle &handle) {
     handleManager.Release(handle);
 }
-
-
-/*EXPORT_OOLUA_FUNCTIONS_NON_CONST(SoundHandle, Get)
-EXPORT_OOLUA_FUNCTIONS_CONST(SoundHandle)
-
-EXPORT_OOLUA_FUNCTIONS_NON_CONST(ISoundManager, GetSound, ReleaseSound)
-EXPORT_OOLUA_FUNCTIONS_CONST(ISoundManager)*/

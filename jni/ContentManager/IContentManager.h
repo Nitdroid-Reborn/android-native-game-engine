@@ -4,18 +4,28 @@
 #include "ISoundManager.h"
 #include "IScriptSourceManager.h"
 
+//! Interface for game content manager
 class IContentManager {
 public:
     IContentManager(){}
     virtual ~IContentManager(){}
 
+    //! Initializes subsystem
     virtual bool Initialize()=0;
+
+    //! Releases subsystem
     virtual bool Release()=0;
 
+    //! Returns TextureManager
     ITextureManager* GetTextureManager() const {return textureManager;}
+
+    //! Returns SoundManager
     ISoundManager* GetSoundManager() const {return soundManager;}
+
+    //! Returns ScriptSourceManager
     ISciptSourceManager* GetScriptSourceManager() const {return scriptSourceManager;}
 
+    //! Returns instance of content manager
     static IContentManager* get(){return singleton;}
 
 protected:
