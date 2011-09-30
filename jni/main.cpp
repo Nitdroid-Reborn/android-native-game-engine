@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #include <jni.h>
 #include <errno.h>
 
@@ -403,4 +404,5 @@ void android_main(struct android_app* app) {
         }
     }
 }
+#endif
 //END_INCLUDE(all)

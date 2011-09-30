@@ -1,22 +1,20 @@
-#ifdef ANDROID
-#include "AndroidContentManager.h"
+#include "QtContentManager.h"
+#include "TextureManager.h"
 #include "SoundManager.h"
-#include <Utils/Utils.h>
-#include <Scripts/ScriptManager.h>
 #include "ScriptSourceManager.h"
 
 IContentManager* IContentManager::singleton=NULL;
 
-AndroidContentManager::AndroidContentManager() : IContentManager()
+QtContentManager::QtContentManager() : IContentManager()
 {
-    context = EGL_NO_CONTEXT;
 }
 
-AndroidContentManager::~AndroidContentManager() {
+QtContentManager::~QtContentManager() {
 
 }
 
-bool AndroidContentManager::Initialize() {
+
+bool QtContentManager::Initialize() {
     ASSERT(!singleton, "ContentManager already initialized");
     singleton = this;
 
@@ -24,40 +22,6 @@ bool AndroidContentManager::Initialize() {
     textureManager = new TextureManager();
     soundManager = new SoundManager();
     scriptSourceManager = new ScriptSourceManager();
-
-
-    const EGLint attribs[] = {
-            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-            EGL_BLUE_SIZE, 8,
-            EGL_GREEN_SIZE, 8,
-            EGL_RED_SIZE, 8,
-            EGL_NONE
-    };
-
-    EGLint numConfigs;
-    EGLConfig config;
-
-    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-    eglInitialize(display, 0, 0);
-
-    eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-
-    const EGLint surfaceAttribs[] = {
-        EGL_WIDTH, 16,
-        EGL_HEIGHT, 16,
-        EGL_NONE
-    };
-
-    surface = eglCreatePbufferSurface(display, config, surfaceAttribs);
-
-    context = eglCreateContext(display, config, NULL, NULL);
-
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        Logger::Log(3, "Unable to eglMakeCurrent in context manager %d", eglGetError());
-        return false;
-    }
-
 
 
     //Register to lua
@@ -102,16 +66,11 @@ bool AndroidContentManager::Initialize() {
             .def("Get", (ITexture* (TextureHandle::*) (void))&TextureHandle::Get)
     ];
 
-
-
-
-
-
-    Logger::Log(1, "Android Content Manager initialized");
+    Logger::Log(1, "Qt Content Manager initialized");
     return true;
 }
 
-bool AndroidContentManager::Release() {
+bool QtContentManager::Release() {
 
     delete textureManager;
     delete soundManager;
@@ -122,27 +81,7 @@ bool AndroidContentManager::Release() {
     scriptSourceManager = NULL;
 
 
-    if(display != EGL_NO_DISPLAY) {
-        eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if(context != EGL_NO_CONTEXT) {
-            eglDestroyContext(display, context);
-        }
-        if(surface != EGL_NO_SURFACE) {
-            eglDestroySurface(display, surface);
-        }
-        eglTerminate(display);
-    }
-    display = EGL_NO_DISPLAY;
-    context = EGL_NO_CONTEXT;
-    surface = EGL_NO_SURFACE;
-
     singleton = NULL;
-    Logger::Log(1, "Android Content Manager released");
+    Logger::Log(1, "Qt Content Manager released");
     return true;
 }
-
-const EGLContext AndroidContentManager::GetEGLContext() const{
-    return context;
-}
-
-#endif

@@ -2,7 +2,12 @@
 #include "SpriteBatcher.h"
 #include <Graphics/IRenderer.h>
 #include <ContentManager/IContentManager.h>
+
+#ifdef ANDROID
 #include <GLES/gl.h>
+#else
+#include <GL/gl.h>
+#endif
 
 /*#define FONT_W 8
 #define FONT_H 8

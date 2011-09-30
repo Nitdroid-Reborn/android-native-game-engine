@@ -1,44 +1,13 @@
-#ifdef ANDROID
-#include <Utils/Utils.h>
-#include "AndroidEngine.h"
-#include <FileIO/AndroidFileIO.h>
-#include <android/keycodes.h>
-
-#include <unistd.h>
+#include "QtEngine.h"
 #include <Utils/Profiler.h>
-#include <Audio/WaveSound.h>
-#include <Audio/Sound.h>
 
 
-
-extern "C" {
-    #include <Scripts/lua/lua.h>
-    #include <Scripts/lua/lualib.h>
-    #include <Scripts/lua/lauxlib.h>
-}
-#define PI 3.1415926535897932f
 
 static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
 
 
-static void gluPerspective(GLfloat fovy, GLfloat aspect,
-                           GLfloat zNear, GLfloat zFar)
-{
-    GLfloat xmin, xmax, ymin, ymax;
-
-    ymax = zNear * (GLfloat)tan(fovy * PI / 360);
-    ymin = -ymax;
-    xmin = ymin * aspect;
-    xmax = ymax * aspect;
-
-    glFrustumx((GLfixed)(xmin * 65536), (GLfixed)(xmax * 65536),
-               (GLfixed)(ymin * 65536), (GLfixed)(ymax * 65536),
-               (GLfixed)(zNear * 65536), (GLfixed)(zFar * 65536));
-}
-
-
-AndroidEngine::AndroidEngine(android_app* app) : IEngine()
+QtEngine::QtEngine(QGLWidget* app) : IEngine()
 {
     Logger::Log(1, "Engine created");
     frameCounter = 0;
@@ -48,37 +17,34 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
     isQuitting = false;
     isRunning = false;
 
-    if (app->savedState != NULL) {
+   /* if (app->savedState != NULL) {
         state = *(struct saved_state*)app->savedState;
-    }
-
-
-    //
+    }*/
 }
 
-AndroidEngine::~AndroidEngine() {
+QtEngine::~QtEngine() {
     Logger::Log(1, "Engine destroyed");
 }
 
-
-void AndroidEngine::Initialize() {
+void QtEngine::Initialize() {
     scriptManager = new ScriptManager();
     scriptManager->Initialize();
 
-    fileIOSystem = new AndroidFileIO(app->activity->assetManager);
+    fileIOSystem = new QtFileIO();
     fileIOSystem->Initialize();
 
     inputSystem = new Input();
     inputSystem->Initialize();
 
-    contentManager = new AndroidContentManager();
+    contentManager = new QtContentManager();
     contentManager->Initialize();
 
-    audioSystem = new AndroidAudioSystem();
+    audioSystem = new QtAudioSystem();
     audioSystem->Initialize();
 
-    renderer = new AndroidRenderer(app);
+    renderer = new QtRenderer(app);
     renderer->Initialize();
+
 
 
     centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 700, 80, 50);
@@ -88,16 +54,10 @@ void AndroidEngine::Initialize() {
     virtualInputSystem->AddKey(dpad);
 
 
-    volume = 1.0f;
-    angle = 0.0f;
+    //volume = 1.0f;
+    //angle = 0.0f;
 
-
-    //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
-
- //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
-
-
-    texture = IContentManager::get()->GetTextureManager()->GetTexture(":logo.png");
+    texture = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
 
     lastTime = GetCurrentTimeInMsec();
 
@@ -113,52 +73,16 @@ void AndroidEngine::Initialize() {
             luabind::def("Log", &Logger::LuaLog)
     ];
 
-
-   // delete script;
-
-
-
-
-    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");
+    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource("script.lua");
     script = new Script();
+
+
     script->Run(scr.Get());
 
     contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
-
-    //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
-
-    //script2.callFunction("doSth");
-
-    //SoundHandle sound = contentManager->GetSoundManager()->GetSound("/sdcard/flet.wav");
-
-
-   // Logger::Log("%d",sound.GetReferenceCount());
-   // script.callFunction("doSth");*/
-
-
-    //Logger::Log("Ref count %d", sound2.GetReferenceCount());
-
-    //Run a script
-   /*  if(mainState.run_chunk("IContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav'):Get():Play(0.5);"))Logger::Log("\n-Script run successfully");///sdcard/test.lua"))
-    else Logger::Log("Script error: %s", OOLUA::get_last_error(mainState.get_ptr()).c_str());
-*/
-
-
-
-  //  acm->texManager.ReleaseTexture(handle);
-
-    //contentManager->LoadTexture("logo.png");
-
-   /* texture = new Texture("logo.png");
-    spriteBatcher = new SpriteBatcher(100);
-
-*/
-
 }
 
-void AndroidEngine::Release() {
-   // mutex.Lock();
-
+void QtEngine::Release() {
     delete script;
     script = NULL;
 
@@ -171,9 +95,9 @@ void AndroidEngine::Release() {
     scriptManager = NULL;
 
     renderer->Release();
-    renderer->WaitForStop();
+    //renderer->WaitForStop();
     delete renderer;
-    renderer = NULL;    
+    renderer = NULL;
 
     audioSystem->Release();
     delete audioSystem;
@@ -196,24 +120,15 @@ void AndroidEngine::Release() {
     fileIOSystem->Release();
     delete fileIOSystem;
     fileIOSystem = NULL;
-
-
-
-
-
-
-
-
-   // mutex.UnlockQuasiFIFO();
 }
 
 
-void AndroidEngine::ProcessTouchInput(const TouchEvent& event) {
+void QtEngine::ProcessTouchInput(const TouchEvent& event) {
     if(!virtualInputSystem->NewTouchEvent(event))
     inputSystem->ProcessTouchEvent(event);
 }
 
-void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
+void QtEngine::ProcessKeyInput(const KeyEvent& event) {
     if(event.keyCode==ENGINE_KEYCODE_ESCAPE && event.action == ENGINE_KEYACTION_DOWN) {
         isQuitting=true;
     }
@@ -221,48 +136,48 @@ void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
         inputSystem->ProcessKeyEvent(event);
 }
 
-void AndroidEngine::OnGainedFocus() {
+void QtEngine::OnGainedFocus() {
     renderer->OnGainedFocus();
 }
 
-void AndroidEngine::OnLostFocus() {
+void QtEngine::OnLostFocus() {
     isRunning = 0;
     renderer->OnLostFocus();
 }
 
-void AndroidEngine::OnSaveState() {
-    app->savedState = malloc(sizeof(struct saved_state));
-    *((struct saved_state*)app->savedState) = state;
-    app->savedStateSize = sizeof(struct saved_state);
+void QtEngine::OnSaveState() {
+    //app->savedState = malloc(sizeof(struct saved_state));
+    //*((struct saved_state*)app->savedState) = state;
+    //app->savedStateSize = sizeof(struct saved_state);
 }
 
-void AndroidEngine::OnInitWindow() {
-    if (app->window != NULL) {
+void QtEngine::OnInitWindow() {
+   // if (app->window != NULL) {
         renderer->OnInitWindow();
 
-    }
+    //}
     isRunning = true;
 }
 
-void AndroidEngine::OnTerminateWindow() {
+void QtEngine::OnTerminateWindow() {
     renderer->OnTerminateWindow();
 }
 
-void AndroidEngine::OnPause() {
+void QtEngine::OnPause() {
 
 }
 
-void AndroidEngine::OnResume() {
+void QtEngine::OnResume() {
 
 }
 
 
-void AndroidEngine::ProcessAccelerometerInput(float x, float y, float z) {
+void QtEngine::ProcessAccelerometerInput(float x, float y, float z) {
            /* LOGI("accelerometer: x=%f y=%f z=%f",
                     x, y, z);*/
 }
 
-void AndroidEngine::OnFrameStart() {
+void QtEngine::OnFrameStart() {
     vector<KeyEvent> events = virtualInputSystem->GetEvents();
     for(int i=0;i<events.size();++i) {
         inputSystem->ProcessKeyEvent(events[i]);
@@ -271,11 +186,11 @@ void AndroidEngine::OnFrameStart() {
     inputSystem->StartFrame();
 }
 
-void AndroidEngine::OnFrameEnd() {
+void QtEngine::OnFrameEnd() {
     inputSystem->EndFrame();
 }
 
-void AndroidEngine::Update(float dt) {
+void QtEngine::Update(float dt) {
     this->dt = dt;
 
     script->callFunction("update", dt);
@@ -284,23 +199,22 @@ void AndroidEngine::Update(float dt) {
 }
 
 
-bool AndroidEngine::IsQuiting() {
+bool QtEngine::IsQuiting() {
     bool res = isQuitting;
     return res;
 }
 
 
-bool AndroidEngine::IsRunning() {
+bool QtEngine::IsRunning() {
     bool res = isRunning;
     return res;
 }
 
-void AndroidEngine::SingleFrame() {
+void QtEngine::SingleFrame() {
 
     currentTime = GetCurrentTimeInMsec();
     float dt = (float)(currentTime - lastTime);
     fpsClock.update(dt);
-
 
     {
         PROFILE("Start frame", &mainLoopProfileManager);
@@ -350,5 +264,3 @@ void AndroidEngine::SingleFrame() {
 
     lastTime = currentTime;
 }
-
-#endif

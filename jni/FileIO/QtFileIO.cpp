@@ -1,21 +1,17 @@
-#ifdef ANDROID
-#include "AndroidFileIO.h"
+#include "QtFileIO.h"
 #include <sys/stat.h>
-#include <Utils/Utils.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 IFileIO* IFileIO::singleton=NULL;
 
-AndroidFileIO::AndroidFileIO(AAssetManager *assetManager) : IFileIO() {
-    this->assetManager = assetManager;
-}
 
-AndroidFileIO::~AndroidFileIO() {
+QtFileIO::QtFileIO() : IFileIO() {
 
 }
 
-bool AndroidFileIO::Initialize() {
+QtFileIO::~QtFileIO() {
+
+}
+
+bool QtFileIO::Initialize() {
     ASSERT(!singleton, "FileIO system already initialized");
 
     singleton = this;
@@ -25,11 +21,11 @@ bool AndroidFileIO::Initialize() {
 
     numHandles=0;
 
-    Logger::Log(1, "Android FileIO system initialized");
+    Logger::Log(1, "Qt FileIO system initialized");
     return true;
 }
 
-bool AndroidFileIO::Release() {
+bool QtFileIO::Release() {
     if(numHandles!=0);
     for(int i=0;i<256;i++) {
         if(fileHandles[i]!=NULL) {
@@ -38,11 +34,11 @@ bool AndroidFileIO::Release() {
         }
     }
     singleton = NULL;
-    Logger::Log(1, "Android FileIO system released");
+    Logger::Log(1, "Qt FileIO system released");
     return true;
 }
 
-bool AndroidFileIO::OpenFile(const char *path, const char *mode, EngineFileHandle &fileHandle) {
+bool QtFileIO::OpenFile(const char *path, const char *mode, EngineFileHandle &fileHandle) {
     if(numHandles>=256) return false;
 
     for(int i=0;i<256;i++) {
@@ -63,7 +59,7 @@ bool AndroidFileIO::OpenFile(const char *path, const char *mode, EngineFileHandl
     return -1;
 }
 
-void AndroidFileIO::CloseFile(EngineFileHandle fileHandle) {
+void QtFileIO::CloseFile(EngineFileHandle fileHandle) {
     if(fileHandle>=0 && fileHandle<256) {
         fclose(fileHandles[fileHandle]);
         fileHandles[fileHandle]=NULL;
@@ -71,7 +67,7 @@ void AndroidFileIO::CloseFile(EngineFileHandle fileHandle) {
     }
 }
 
-bool AndroidFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize) {
+bool QtFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize) {
     if(fileHandle>=0 && fileHandle<256) {
         size_t read = fread(buffer, 1, bufferSize, fileHandles[fileHandle]);
 
@@ -84,7 +80,7 @@ bool AndroidFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 
     return false;
 }
 
-bool AndroidFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize, U32& bytesRead) {
+bool QtFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize, U32& bytesRead) {
     if(fileHandle>=0 && fileHandle<256) {
         size_t read = fread(buffer, 1, bufferSize, fileHandles[fileHandle]);
 
@@ -99,7 +95,7 @@ bool AndroidFileIO::ReadFromFile(EngineFileHandle fileHandle, void *buffer, U32 
 }
 
 
-bool AndroidFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize) {
+bool QtFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize) {
     if(fileHandle>=0 && fileHandle<256) {
         size_t read = fwrite(buffer, 1, bufferSize, fileHandles[fileHandle]);
 
@@ -112,7 +108,7 @@ bool AndroidFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 b
     return false;
 }
 
-bool AndroidFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize, U32& bytesWrite) {
+bool QtFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 bufferSize, U32& bytesWrite) {
     if(fileHandle>=0 && fileHandle<256) {
         size_t read = fread(buffer, 1, bufferSize, fileHandles[fileHandle]);
 
@@ -126,8 +122,8 @@ bool AndroidFileIO::WriteToFile(EngineFileHandle fileHandle, void *buffer, U32 b
     return false;
 }
 
-U32 AndroidFileIO::GetAssetSize(const char *path) {
-    AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
+U32 QtFileIO::GetAssetSize(const char *path) {
+    /*AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
 
     if(asset == NULL)
         return 0;
@@ -135,10 +131,11 @@ U32 AndroidFileIO::GetAssetSize(const char *path) {
 
     int len = AAsset_getLength(asset);
     AAsset_close(asset);
-    return len;
+    return len;*/
+    return 0;
 }
 
-U32 AndroidFileIO::GetFileSize(const char *path) {
+U32 QtFileIO::GetFileSize(const char *path) {
     struct stat st;
     size_t fileSize=0;
     if(stat(path,&st) == 0 ){
@@ -148,8 +145,8 @@ U32 AndroidFileIO::GetFileSize(const char *path) {
 }
 
 
-bool AndroidFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize) {
-    AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
+bool QtFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize) {
+    /*AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
 
     if(asset == NULL)
         return false;
@@ -157,12 +154,13 @@ bool AndroidFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize) {
     AAsset_read(asset, buffer, bufferSize);
 
     AAsset_close(asset);
+*/
+    return false;
 
-    return true;
 }
 
-bool AndroidFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize, U32& bytesRead) {
-    AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
+bool QtFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize, U32& bytesRead) {
+    /*AAsset* asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
 
     if(asset == NULL)
         return false;
@@ -170,12 +168,13 @@ bool AndroidFileIO::ReadAsset(const char *path, void* buffer, U32 bufferSize, U3
     bytesRead = AAsset_read(asset, buffer, bufferSize);
 
     AAsset_close(asset);
-
-    return true;
+*/
+    bytesRead = 0;
+    return false;
 }
 
 
-bool AndroidFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize) {
+bool QtFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize) {
     FILE* pf = fopen(path, "r");
     if(pf == NULL)
         return false;
@@ -191,7 +190,7 @@ bool AndroidFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize) {
     return false;
 }
 
-bool AndroidFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize, U32 &bytesRead) {
+bool QtFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize, U32 &bytesRead) {
     FILE* pf = fopen(path, "r");
     if(pf == NULL)
         return false;
@@ -210,7 +209,7 @@ bool AndroidFileIO::ReadFile(const char *path, void *buffer, U32 bufferSize, U32
 }
 
 
-bool AndroidFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize) {
+bool QtFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize) {
     FILE* pf = fopen(path, "w");
     if(pf == NULL)
         return false;
@@ -227,7 +226,7 @@ bool AndroidFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize) {
     return false;
 }
 
-bool AndroidFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize, U32 &byteWrite) {
+bool QtFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize, U32 &byteWrite) {
     FILE* pf = fopen(path, "w");
     if(pf == NULL)
         return false;
@@ -247,7 +246,7 @@ bool AndroidFileIO::WriteFile(const char *path, void *buffer, U32 bufferSize, U3
 
 
 
-U32 AndroidFileIO::GetSize(const char *path) {
+U32 QtFileIO::GetSize(const char *path) {
     if(path[0] == ':') {
         const char* assetPath = &path[1];
         return GetAssetSize(assetPath);
@@ -257,7 +256,7 @@ U32 AndroidFileIO::GetSize(const char *path) {
     }
 }
 
-bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize) {
+bool QtFileIO::Read(const char *path, void *buffer, U32 bufferSize) {
     if(path[0] == ':') {
         const char* assetPath = &path[1];
         return ReadAsset(assetPath, buffer, bufferSize);
@@ -267,7 +266,7 @@ bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize) {
     }
 }
 
-bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize, U32 &bytesRead) {
+bool QtFileIO::Read(const char *path, void *buffer, U32 bufferSize, U32 &bytesRead) {
     if(path[0] == ':') {
         const char* assetPath = &path[1];
         return ReadAsset(assetPath, buffer, bufferSize, bytesRead);
@@ -276,5 +275,3 @@ bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize, U32 &by
         return ReadFile(path, buffer, bufferSize, bytesRead);
     }
 }
-#endif
-

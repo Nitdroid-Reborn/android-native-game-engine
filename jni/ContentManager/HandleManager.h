@@ -46,6 +46,8 @@ public:
             }
         }
         data.clear();
+
+        delete dataFactory;
     }
 
     void SetDataFactory(FACTORY* f) {

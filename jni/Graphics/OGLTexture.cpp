@@ -1,6 +1,11 @@
 #include "OGLTexture.h"
 
+#ifdef ANDROID
 #include <GLES/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
 #include "../ContentManager/PNGLoader.h"
 
 OGLTexture::OGLTexture() : ITexture()

@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #ifndef ENGINE_H
 #define ENGINE_H
 
@@ -121,3 +122,4 @@ private:
 };
 
 #endif // ENGINE_H
+#endif

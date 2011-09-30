@@ -108,13 +108,12 @@ LOCAL_SRC_FILES := main.cpp \
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
-LOCAL_SHARED_LIBRARIES :=  libpng box2d ftgles
+LOCAL_SHARED_LIBRARIES :=  libpng box2d
 LOCAL_STATIC_LIBRARIES := android_native_app_glue boost_thread freetype2
 
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module, boost)
-$(call import-module, ftgles)
 $(call import-module, freetype2)
 $(call import-module, libpng)
 $(call import-module, box2d)

@@ -1,7 +1,9 @@
 #ifndef PNGLOADER_H
 #define PNGLOADER_H
 #include <png.h>
+#ifdef ANDROID
 #include <GLES/gl.h>
+#endif
 #include "../FileIO/BufferStream.h"
 
 class PNGLoader

@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #ifndef STACKALLOCATOR_H
 #define STACKALLOCATOR_H
 #include <Utils/EngineTypes.h>
@@ -28,3 +29,4 @@ private:
 };
 
 #endif // STACKALLOCATOR_H
+#endif

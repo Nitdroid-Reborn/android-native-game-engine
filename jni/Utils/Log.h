@@ -2,10 +2,13 @@
 #define LOG_H
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
 #include <Scripts/ScriptManager.h>
 
+
+using namespace std;
 static U32 verbosityLevel = 1;
 
 enum LogType {
@@ -17,7 +20,7 @@ enum LogType {
 
 class Logger {
 public:
-    static void Log(LogType logType, const char* format, __va_list argList);
+    static void Log(LogType logType, const char* format, va_list argList);
     static void Log(const char* format, ...);
     static void Log(LogType logType, const char* format, ...);
 

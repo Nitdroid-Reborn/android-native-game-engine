@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #ifndef ANDROIDAUDIOSYSTEM_H
 #define ANDROIDAUDIOSYSTEM_H
 
@@ -65,3 +66,4 @@ private:
 };
 
 #endif // ANDROIDAUDIOSYSTEM_H
+#endif

@@ -13,7 +13,11 @@ VirtualDPad::VirtualDPad(float posX, float posY, float radius, float deadZone)
 
     pressedAny = false;
 
+#ifdef ANDROID
+    texture = IContentManager::get()->GetTextureManager()->GetTexture(":dpad.png");
+#else
     texture = IContentManager::get()->GetTextureManager()->GetTexture("dpad.png");
+#endif
 }
 
 VirtualDPad::~VirtualDPad() {

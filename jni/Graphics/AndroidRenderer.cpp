@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #include "AndroidRenderer.h"
 #include <Utils/Utils.h>
 #include <GLES/gl.h>
@@ -222,8 +223,6 @@ void AndroidRenderer::Release() {
     closing = true;
     delete batcher;
     batcher = NULL;
-    delete font;
-    font = NULL;
     singleton = NULL;
     mutex.Unlock();
 }
@@ -378,3 +377,5 @@ void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height,
 void AndroidRenderer::DrawString(int x, int y, const char * str) {
     textBox.DrawStr(x, y, (char*)str);
 }
+
+#endif

@@ -1,6 +1,10 @@
 #include "SpriteBatcher.h"
+#ifdef ANDROID
 #include <GLES/gl.h>
 #include <GLES/glext.h>
+#else
+#include <GL/gl.h>
+#endif
 #include <cmath>
 
 #define PI 3.14159265358979323846
@@ -14,6 +18,8 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     numVertices = maxSprites*4;
     numIndices = maxSprites*6;
 
+
+    numSprites=0;
    // vertexSize = 8*4;
 
 
@@ -70,8 +76,8 @@ void SpriteBatcher::EndBatch() {
             glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].u);
             glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
 
-            glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
 
+            glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
 
             texChanges++;
             if(!(*it).texture)

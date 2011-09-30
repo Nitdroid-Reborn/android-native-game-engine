@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #include "AndroidAudioSystem.h"
 #include <Utils/Utils.h>
 #include <math.h>
@@ -293,3 +294,5 @@ void AndroidAudioSystem::StopMusic() {
         (*fdPlayerPlay)->SetPlayState(fdPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
 }
+
+#endif

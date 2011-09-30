@@ -1,5 +1,5 @@
 #include "Log.h"
-#include <android/log.h>
+#include "Utils.h"
 
 
 void Logger::Log(const char *format...) {
@@ -22,7 +22,7 @@ void Logger::Log(LogType logType, const char *format...) {
 
 void Logger::LuaLog(const char *message) {
     if(message)
-    __android_log_print(ANDROID_LOG_INFO, "native-activity", message);
+        LOGI(message);
 }
 
 void Logger::Log(LogType logType, const char *format, va_list argList) {
@@ -34,7 +34,11 @@ void Logger::Log(LogType logType, const char *format, va_list argList) {
     vsnprintf(buffer, MAX_CHARS, format, argList);
     buffer[MAX_CHARS] = '\0';
 
+#ifdef ANDROID
     __android_log_print(logType, "native-activity", buffer);
+#else
+    LOGI(buffer);
+#endif
 
 }
 

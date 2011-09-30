@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #ifndef ANDROIDCONTENTMANAGER_H
 #define ANDROIDCONTENTMANAGER_H
 #include "IContentManager.h"
@@ -23,3 +24,4 @@ private:
 };
 
 #endif // ANDROIDCONTENTMANAGER_H
+#endif

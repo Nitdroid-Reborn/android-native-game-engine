@@ -1,15 +1,12 @@
-#ifdef ANDROID
-#ifndef ANDROIDFILEIO_H
-#define ANDROIDFILEIO_H
+#ifndef QTFILEIO_H
+#define QTFILEIO_H
 #include "IFileIO.h"
-#include <android/asset_manager.h>
-#include <stdio.h>
 
-class AndroidFileIO : public IFileIO
+class QtFileIO : public IFileIO
 {
 public:
-    explicit AndroidFileIO(AAssetManager* assetManager);
-    ~AndroidFileIO();
+    explicit QtFileIO();
+    ~QtFileIO();
 
     bool Initialize();
     bool Release();
@@ -39,10 +36,7 @@ public:
     U32 GetSize(const char* path);
 
 private:
-    AAssetManager* assetManager;
     FILE* fileHandles[256];
     U8 numHandles;
 };
-
-#endif // ANDROIDFILEIO_H
-#endif
+#endif // QTFILEIO_H

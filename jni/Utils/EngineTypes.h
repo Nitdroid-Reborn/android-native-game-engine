@@ -18,5 +18,5 @@ typedef signed long long I64;
 typedef float F32;
 typedef double F64;
 
-
+#define NULL 0
 #endif // ENGINETYPES_H

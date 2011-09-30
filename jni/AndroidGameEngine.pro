@@ -10,8 +10,12 @@ DEPENDPATH += .
 #               "/home/mateusz/Workspace/SDKs/android-ndk-r6/sources/boost/"
 
 # Input
+
+INCLUDEPATH += "/usr/include/freetype2"
+
+QT += core gui opengl
+
 SOURCES += main.cpp \
-    AudioSystem.cpp \
     FileIO/BufferStream.cpp \
     FileIO/AndroidFileIO.cpp \
     ContentManager/PNGLoader.cpp \
@@ -109,7 +113,14 @@ SOURCES += main.cpp \
     Scripts/ScriptSource.cpp \
     Scripts/ScriptSourceFactory.cpp \
     ContentManager/ScriptSourceManager.cpp \
-    Graphics/Font.cpp
+    Graphics/Font.cpp \
+    DesktopMain.cpp \
+    MainGLWidget.cpp \
+    Core/QtEngine.cpp \
+    Audio/QtAudioSystem.cpp \
+    FileIO/QtFileIO.cpp \
+    ContentManager/QtContentManager.cpp \
+    Graphics/QtRenderer.cpp
 
 HEADERS += \
     FileIO/BufferStream.h \
@@ -282,12 +293,32 @@ HEADERS += \
     Scripts/ScriptSource.h \
     Scripts/ScriptSourceFactory.h \
     ContentManager/IScriptSourceManager.h \
-    ContentManager/ScriptSourceManager.h
+    ContentManager/ScriptSourceManager.h \
+    MainGLWidget.h \
+    Core/QtEngine.h \
+    Audio/QtAudioSystem.h \
+    FileIO/QtFileIO.h \
+    ContentManager/QtContentManager.h \
+    Graphics/QtRenderer.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

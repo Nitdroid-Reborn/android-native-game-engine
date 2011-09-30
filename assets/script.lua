@@ -6,7 +6,7 @@ contentManager = ContentManager.Get();
 
 angle = 0.0;
 
-texture = contentManager:GetTextureManager():GetTexture("logo.png");
+texture = contentManager:GetTextureManager():GetTexture(":logo.png");
 textureRegion = TextureRegion(0, 0, 0.5, 0.75);
 sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
 

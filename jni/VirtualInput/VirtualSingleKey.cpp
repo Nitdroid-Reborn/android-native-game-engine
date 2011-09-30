@@ -12,7 +12,11 @@ VirtualSingleKey::VirtualSingleKey(EngineKeyCode keyCode, float posX, float posY
     pressed = false;
     oldPressed = false;
 
+#ifdef ANDROID
+    texture = IContentManager::get()->GetTextureManager()->GetTexture(":dpad.png");
+#else
     texture = IContentManager::get()->GetTextureManager()->GetTexture("dpad.png");
+#endif
 }
 
 VirtualSingleKey::~VirtualSingleKey() {

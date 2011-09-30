@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #ifndef ANDROIDRENDERER_H
 #define ANDROIDRENDERER_H
 #include "IRenderer.h"
@@ -12,7 +13,6 @@
 #include "OGLTexture.h"
 #include "TextBox.h"
 #include "Font.h"
-#include <FTGL/ftgles.h>
 
 using namespace std;
 
@@ -36,8 +36,6 @@ public:
     void DrawString(int x, int y, const char * str);
 
     TextureHandle fontTexture;
-
-    FTFont* font;
 
     Font myFont;
 private:
@@ -77,3 +75,4 @@ private:
 };
 
 #endif // ANDROIDRENDERER_H
+#endif

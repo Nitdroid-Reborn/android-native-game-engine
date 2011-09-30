@@ -1,3 +1,4 @@
+#ifdef ANDROID
 #include "StackAllocator.h"
 
 StackAllocator::StackAllocator(U32 stackSizeInBytes)
@@ -48,3 +49,5 @@ void StackAllocator::FreeToMarker(StackAllocator::MemoryMarker marker) {
 void StackAllocator::Clear() {
     stackPointer = stackBase;
 }
+
+#endif

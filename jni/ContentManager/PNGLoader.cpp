@@ -1,5 +1,4 @@
 #include "PNGLoader.h"
-#include <android/log.h>
 #include "FileIO/IFileIO.h"
 #include <Utils/Utils.h>
 
@@ -20,10 +19,10 @@ void PNGLoader::pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t 
 bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
                      U16 &height, U8& colorDepth, bool &alpha) {
 
-    U32 len = IFileIO::get()->GetAssetSize(filename);
+    U32 len = IFileIO::get()->GetSize(filename);
     U8* buffer = new U8[len];
 
-    IFileIO::get()->ReadAsset(filename, buffer, len);
+    IFileIO::get()->Read(filename, buffer, len);
 
     stream.setBuffer(buffer, len);
 

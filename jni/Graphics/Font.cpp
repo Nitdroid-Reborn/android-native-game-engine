@@ -36,6 +36,8 @@ void Font::Load(const char *fontPath, U8 fontSize) {
 
         if(bitmap.width>maxGlyphWidth)maxGlyphWidth=bitmap.width;
         if(bitmap.rows>maxGlyphHeight)maxGlyphHeight=bitmap.rows;
+
+        FT_Done_Glyph(glyph);
     }
 
     U16 textureWidth = nextPowerOf2(maxGlyphWidth*10);
@@ -89,6 +91,7 @@ void Font::Load(const char *fontPath, U8 fontSize) {
                 data[2*index+1] = bitmap.buffer[x+bitmap.width*y];
             }
         }
+        FT_Done_Glyph(glyph);
     }
 
 
