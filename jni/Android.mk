@@ -23,7 +23,6 @@ LOCAL_SRC_FILES := main.cpp \
                    Math/Vector2.cpp \
                    Math/Vector3.cpp \
                    Math/Vector4.cpp \
-                   MyModel.cpp \
                    VirtualInput/VirtualInput.cpp \
                    VirtualInput/VirtualSingleKey.cpp \
                    VirtualInput/VirtualDPad.cpp \
@@ -107,7 +106,7 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/Font.cpp
 
 
-LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv1_CM -lOpenSLES -lz
+LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz
 LOCAL_SHARED_LIBRARIES :=  libpng box2d
 LOCAL_STATIC_LIBRARIES := android_native_app_glue boost_thread freetype2
 

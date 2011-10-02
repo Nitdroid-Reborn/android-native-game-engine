@@ -31,6 +31,7 @@ bool AndroidContentManager::Initialize() {
             EGL_BLUE_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_RED_SIZE, 8,
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_NONE
     };
 
@@ -51,7 +52,12 @@ bool AndroidContentManager::Initialize() {
 
     surface = eglCreatePbufferSurface(display, config, surfaceAttribs);
 
-    context = eglCreateContext(display, config, NULL, NULL);
+    int attrib_list[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE
+    };
+
+    context = eglCreateContext(display, config, NULL, attrib_list);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         Logger::Log(3, "Unable to eglMakeCurrent in context manager %d", eglGetError());

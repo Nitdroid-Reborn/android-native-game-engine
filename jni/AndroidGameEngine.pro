@@ -120,7 +120,8 @@ SOURCES += main.cpp \
     Audio/QtAudioSystem.cpp \
     FileIO/QtFileIO.cpp \
     ContentManager/QtContentManager.cpp \
-    Graphics/QtRenderer.cpp
+    Graphics/QtRenderer.cpp \
+    Graphics/GLee.c
 
 HEADERS += \
     FileIO/BufferStream.h \
@@ -299,12 +300,17 @@ HEADERS += \
     Audio/QtAudioSystem.h \
     FileIO/QtFileIO.h \
     ContentManager/QtContentManager.h \
-    Graphics/QtRenderer.h
+    Graphics/QtRenderer.h \
+    Graphics/glext.h \
+    Graphics/GLee.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
+
 
 
 

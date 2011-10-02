@@ -1,14 +1,106 @@
 #include "SpriteBatcher.h"
 #ifdef ANDROID
-#include <GLES/gl.h>
-#include <GLES/glext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 #else
+#include "GLee.h"
 #include <GL/gl.h>
+
 #endif
+
+#include <Math/MathLib.h>
 #include <cmath>
 
 #define PI 3.14159265358979323846
 ProfilerManager* SpriteBatcher::batcherProfileManager;
+
+static void printGLString(const char *name, GLenum s) {
+    const char *v = (const char *) glGetString(s);
+    LOGI("GL %s = %s\n", name, v);
+}
+
+static void checkGlError(const char* op) {
+    for (GLint error = glGetError(); error; error
+            = glGetError()) {
+        LOGI("after %s() glError (0x%x)\n", op, error);
+    }
+}
+static const char gVertexShader[] =
+    "uniform mat4 mvp;"
+    "attribute vec4 vPosition;\n"
+    "void main() {\n"
+    "  gl_Position = mvp * (vPosition);\n"
+    "}\n";
+
+static const char gFragmentShader[] =
+    "precision mediump float;\n"
+    "void main() {\n"
+    "  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+    "}\n";
+
+GLuint loadShader(GLenum shaderType, const char* pSource) {
+    GLuint shader = glCreateShader(shaderType);
+    if (shader) {
+        glShaderSource(shader, 1, &pSource, NULL);
+        glCompileShader(shader);
+        GLint compiled = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+        if (!compiled) {
+            GLint infoLen = 0;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+            if (infoLen) {
+                char* buf = (char*) malloc(infoLen);
+                if (buf) {
+                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
+                    LOGE("Could not compile shader %d:\n%s\n",
+                            shaderType, buf);
+                    free(buf);
+                }
+                glDeleteShader(shader);
+                shader = 0;
+            }
+        }
+    }
+    return shader;
+}
+
+GLuint createProgram(const char* pVertexSource, const char* pFragmentSource) {
+    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, pVertexSource);
+    if (!vertexShader) {
+        return 0;
+    }
+
+    GLuint pixelShader = loadShader(GL_FRAGMENT_SHADER, pFragmentSource);
+    if (!pixelShader) {
+        return 0;
+    }
+
+    GLuint program = glCreateProgram();
+    if (program) {
+        glAttachShader(program, vertexShader);
+        checkGlError("glAttachShader");
+        glAttachShader(program, pixelShader);
+        checkGlError("glAttachShader");
+        glLinkProgram(program);
+        GLint linkStatus = GL_FALSE;
+        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+        if (linkStatus != GL_TRUE) {
+            GLint bufLength = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
+            if (bufLength) {
+                char* buf = (char*) malloc(bufLength);
+                if (buf) {
+                    glGetProgramInfoLog(program, bufLength, NULL, buf);
+                    LOGE("Could not link program:\n%s\n", buf);
+                    free(buf);
+                }
+            }
+            glDeleteProgram(program);
+            program = 0;
+        }
+    }
+    return program;
+}
 
 SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     indices = new U16[maxSprites*6];
@@ -17,6 +109,9 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     verticesIndex=0;
     numVertices = maxSprites*4;
     numIndices = maxSprites*6;
+
+    indicesBuffer=0;
+    vertexBuffer=0;
 
 
     numSprites=0;
@@ -33,6 +128,19 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
         indices[i+5] = j+0;
     }
 
+    I32 bufferSize;
+
+
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*numVertices, 0, GL_STREAM_DRAW);
+
+
+    glGenBuffers(1, &indicesBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(U16)*numIndices, &indices[0], GL_STATIC_DRAW);
+
+  //  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16)*numIndices, &indices[0]);
    // oldSprites.reserve(maxSprites);
    // sprites.reserve(maxSprites);
 }
@@ -48,6 +156,9 @@ SpriteBatcher::~SpriteBatcher() {
     vertices = NULL;
     delete[] indices;
     indices = NULL;
+
+    glDeleteBuffers(1, &vertexBuffer);
+    glDeleteBuffers(1, &indicesBuffer);
 }
 
 void SpriteBatcher::BeginBatch() {
@@ -55,30 +166,78 @@ void SpriteBatcher::BeginBatch() {
     verticesIndex=0;
 }
 
+void SpriteBatcher::Bind() {
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
+}
+
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 void SpriteBatcher::EndBatch() {
 
     int texChanges = 0;
-
-    //Logger::Log("Num sprites: %d", oldSprites.size());
 
     {
         PROFILE("Sprites sorting", batcherProfileManager);
         sort(oldSprites.begin(), oldSprites.end());
     }
 
+    glUseProgram(gProgram);
+    checkGlError("glUseProgram");
+    glEnableVertexAttribArray(gvPositionHandle);
+    checkGlError("glEnableVertexAttribArray");
+
+   // glPushMatrix();
+
+   // glScalef(0.1, 0.1, 0.1);
+
+   // glMatrixMode(GL_TEXTURE);
+   // glPushMatrix();
+   // glScalef(0.001, 0.001, 0.001);
+
+
 
     ITexture* currentTexture = 0;
     vector<Sprite>::iterator it = oldSprites.begin();
+
+
+    Matrix4x4 mat;
+    mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 1.0);
+
+    Matrix4x4 scale;
+    scale.SetScale(Vector3(0.1 ,0.1, 0.1));
+
+    mat = mat*scale;
+
+
+
+    glUniformMatrix4fv(gvMatrixHandle, 1, 0, &mat.entries[0]);
+    checkGlError("glUniformMatrix4fv");
+    //LOGI("%d", oldSprites.size());
     for(it; it!=oldSprites.end(); ++it) {
 
         if(currentTexture != (*it).texture) {
-            glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0]);
-            glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].u);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
 
 
-            glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
 
+            //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vertices[0].x);
+
+
+
+
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
+            glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+            //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
+            //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
+            //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
+
+            glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+
+
+           /* glVertexPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].x);
+            glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].u);
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);*/
+
+          //  glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
             texChanges++;
             if(!(*it).texture)
                 currentTexture->Unbind();
@@ -118,37 +277,40 @@ void SpriteBatcher::EndBatch() {
             x4 += (*it).x;
             y4 += (*it).y;
 
-            vertices[verticesIndex].x = x1;
-            vertices[verticesIndex].y = y1;
-            vertices[verticesIndex].u = (*it).texRegion.u1;
-            vertices[verticesIndex].v = (*it).texRegion.v1;
+            vertices[verticesIndex].x = (I16)x1*10;
+            vertices[verticesIndex].y = (I16)y1*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x2;
-            vertices[verticesIndex].y = y2;
-            vertices[verticesIndex].u = (*it).texRegion.u2;
-            vertices[verticesIndex].v = (*it).texRegion.v1;
+
+            vertices[verticesIndex].x = (I16)x2*10;
+            vertices[verticesIndex].y = (I16)y2*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x3;
-            vertices[verticesIndex].y = y3;
-            vertices[verticesIndex].u = (*it).texRegion.u2;
-            vertices[verticesIndex].v = (*it).texRegion.v2;
+
+            vertices[verticesIndex].x = (I16)x3*10;
+            vertices[verticesIndex].y = (I16)y3*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x4;
-            vertices[verticesIndex].y = y4;
-            vertices[verticesIndex].u = (*it).texRegion.u1;
-            vertices[verticesIndex].v = (*it).texRegion.v2;
+
+            vertices[verticesIndex].x = (I16)x4*10;
+            vertices[verticesIndex].y = (I16)y4*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
@@ -163,37 +325,37 @@ void SpriteBatcher::EndBatch() {
             float x2 = (*it).x + halfWidth;
             float y2 = (*it).y + halfHeight;
 
-            vertices[verticesIndex].x = x1;
-            vertices[verticesIndex].y = y1;
-            vertices[verticesIndex].u = (*it).texRegion.u1;
-            vertices[verticesIndex].v = (*it).texRegion.v1;
+            vertices[verticesIndex].x = (I16)x1*10;
+            vertices[verticesIndex].y = (I16)y1*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x2;
-            vertices[verticesIndex].y = y1;
-            vertices[verticesIndex].u = (*it).texRegion.u2;
-            vertices[verticesIndex].v = (*it).texRegion.v1;
+            vertices[verticesIndex].x = (I16)x2*10;
+            vertices[verticesIndex].y = (I16)y1*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x2;
-            vertices[verticesIndex].y = y2;
-            vertices[verticesIndex].u = (*it).texRegion.u2;
-            vertices[verticesIndex].v = (*it).texRegion.v2;
+            vertices[verticesIndex].x = (I16)x2*10;
+            vertices[verticesIndex].y = (I16)y2*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
             vertices[verticesIndex++].a = (*it).a;
 
-            vertices[verticesIndex].x = x1;
-            vertices[verticesIndex].y = y2;
-            vertices[verticesIndex].u = (*it).texRegion.u1;
-            vertices[verticesIndex].v = (*it).texRegion.v2;
+            vertices[verticesIndex].x = (I16)x1*10;
+            vertices[verticesIndex].y = (I16)y2*10;
+            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
+            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
             vertices[verticesIndex].r = (*it).r;
             vertices[verticesIndex].g = (*it).g;
             vertices[verticesIndex].b = (*it).b;
@@ -203,11 +365,52 @@ void SpriteBatcher::EndBatch() {
         }
     }
 
-    glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].x);
-    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].u);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
+   /* glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
 
-    glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
+    glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
+    glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
+
+    glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));*/
+
+    //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vertices[0].x);
+    //glVertexPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].x);
+    //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].u);
+    //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
+    glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+    //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
+    //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
+    //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
+
+    glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+
+
+    //glPopMatrix();
+   // glMatrixMode(GL_MODELVIEW);
+   // glPopMatrix();
+
+    if(currentTexture) {
+        currentTexture->Unbind();
+        currentTexture = 0;
+    }
+}
+
+void SpriteBatcher::Init() {
+    gProgram = createProgram(gVertexShader, gFragmentShader);
+        if (!gProgram) {
+            LOGE("Could not create program.");
+            return;
+        }
+        gvPositionHandle = glGetAttribLocation(gProgram, "vPosition");
+        gvMatrixHandle = glGetUniformLocation(gProgram, "mvp");
+        checkGlError("glGetAttribLocation");
+        LOGI("glGetAttribLocation(\"vPosition\") = %d\n",
+                gvPositionHandle);
+
+        LOGI("glGetUniformLocation(\"mvp\") = %d\n",
+                gvMatrixHandle);
 }
 
 void SpriteBatcher::DrawSprite(ITexture* texture, F32 x, F32 y, F32 z,
