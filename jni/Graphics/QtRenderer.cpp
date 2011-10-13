@@ -73,6 +73,7 @@ void QtRenderer::Initialize() {
     singleton = this;
 
     batcher = new SpriteBatcher(1000);
+    batcher->Init();
 
     SpriteBatcher::batcherProfileManager = &rendererProfileManager;
 

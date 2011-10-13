@@ -122,7 +122,8 @@ SOURCES += main.cpp \
     FileIO/QtFileIO.cpp \
     ContentManager/QtContentManager.cpp \
     Graphics/QtRenderer.cpp \
-    Graphics/GLee.c
+    Graphics/GLee.c \
+    Graphics/ShaderProgram.cpp
 
 HEADERS += \
     FileIO/BufferStream.h \
@@ -303,12 +304,15 @@ HEADERS += \
     ContentManager/QtContentManager.h \
     Graphics/QtRenderer.h \
     Graphics/glext.h \
-    Graphics/GLee.h
+    Graphics/GLee.h \
+    Graphics/ShaderProgram.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
 
 
 

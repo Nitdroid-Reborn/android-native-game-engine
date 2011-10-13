@@ -33,7 +33,6 @@ static const char gVertexShader[] =
     "}\n";
 
 static const char gFragmentShader[] =
-    "precision mediump float;\n"
     "void main() {\n"
     "  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
     "}\n";
@@ -76,6 +75,7 @@ GLuint createProgram(const char* pVertexSource, const char* pFragmentSource) {
     }
 
     GLuint program = glCreateProgram();
+    LOGE("%ud", program);
     if (program) {
         glAttachShader(program, vertexShader);
         checkGlError("glAttachShader");

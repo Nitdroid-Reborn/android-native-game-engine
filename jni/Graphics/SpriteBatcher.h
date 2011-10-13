@@ -92,9 +92,9 @@ private:
     U32 vertexBuffer;
     U32 indicesBuffer;
 
-    I32 gProgram;
-    I32 gvPositionHandle;
-    I32 gvMatrixHandle;
+    U32 gProgram;
+    U32 gvPositionHandle;
+    U32 gvMatrixHandle;
 
 };
 
