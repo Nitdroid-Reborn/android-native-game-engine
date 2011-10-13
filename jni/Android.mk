@@ -103,7 +103,9 @@ LOCAL_SRC_FILES := main.cpp \
                    Scripts/ScriptSource.cpp \
                    Scripts/ScriptSourceFactory.cpp \
                    ContentManager/ScriptSourceManager.cpp \
-                   Graphics/Font.cpp
+                   Graphics/Font.cpp \
+                   Graphics/Shader.cpp \
+                   Graphics/ShaderProgram.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz

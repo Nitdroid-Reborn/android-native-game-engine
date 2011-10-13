@@ -4,7 +4,8 @@
 #include "ISpriteBatcher.h"
 
 #include <Utils/Profiler.h>
-
+class ShaderProgram;
+class Shader;
 
 
 struct Sprite {
@@ -92,6 +93,9 @@ private:
     U32 vertexBuffer;
     U32 indicesBuffer;
 
+    ShaderProgram* shaderProgram;
+    Shader* vertexShader;
+    Shader* pixelShader;
     U32 gProgram;
     U32 gvPositionHandle;
     U32 gvMatrixHandle;

@@ -4,12 +4,13 @@
 #include <GLES2/gl2ext.h>
 #else
 #include "GLee.h"
-#include <GL/gl.h>
 
 #endif
 
 #include <Math/MathLib.h>
 #include <cmath>
+#include "ShaderProgram.h"
+#include "Shader.h"
 
 #define PI 3.14159265358979323846
 ProfilerManager* SpriteBatcher::batcherProfileManager;
@@ -157,6 +158,14 @@ SpriteBatcher::~SpriteBatcher() {
     delete[] indices;
     indices = NULL;
 
+    if(shaderProgram) {
+        delete shaderProgram;
+    }
+    if(vertexShader)
+        delete vertexShader;
+    if(pixelShader)
+        delete pixelShader;
+
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &indicesBuffer);
 }
@@ -181,10 +190,9 @@ void SpriteBatcher::EndBatch() {
         sort(oldSprites.begin(), oldSprites.end());
     }
 
-    glUseProgram(gProgram);
-    checkGlError("glUseProgram");
-    glEnableVertexAttribArray(gvPositionHandle);
-    checkGlError("glEnableVertexAttribArray");
+
+    shaderProgram->Bind();
+    shaderProgram->EnableAttributeArray("vPosition");
 
    // glPushMatrix();
 
@@ -210,9 +218,8 @@ void SpriteBatcher::EndBatch() {
 
 
 
-    glUniformMatrix4fv(gvMatrixHandle, 1, 0, &mat.entries[0]);
-    checkGlError("glUniformMatrix4fv");
-    //LOGI("%d", oldSprites.size());
+    shaderProgram->SetUniformValue("mvp", mat);
+
     for(it; it!=oldSprites.end(); ++it) {
 
         if(currentTexture != (*it).texture) {
@@ -225,7 +232,9 @@ void SpriteBatcher::EndBatch() {
 
 
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
-            glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+            shaderProgram->SetAttributeArray("vPosition", 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+
+            //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
             //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
             //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
             //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
@@ -379,7 +388,8 @@ void SpriteBatcher::EndBatch() {
     //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
-    glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+    shaderProgram->SetAttributeArray("vPosition", 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+    //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
     //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
     //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
     //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
@@ -395,22 +405,23 @@ void SpriteBatcher::EndBatch() {
         currentTexture->Unbind();
         currentTexture = 0;
     }
+
+    shaderProgram->Release();
 }
 
 void SpriteBatcher::Init() {
-    gProgram = createProgram(gVertexShader, gFragmentShader);
-        if (!gProgram) {
-            LOGE("Could not create program.");
-            return;
-        }
-        gvPositionHandle = glGetAttribLocation(gProgram, "vPosition");
-        gvMatrixHandle = glGetUniformLocation(gProgram, "mvp");
-        checkGlError("glGetAttribLocation");
-        LOGI("glGetAttribLocation(\"vPosition\") = %d\n",
-                gvPositionHandle);
 
-        LOGI("glGetUniformLocation(\"mvp\") = %d\n",
-                gvMatrixHandle);
+    shaderProgram = new ShaderProgram();
+
+
+    vertexShader = new Shader(Shader::VertexShader);
+    vertexShader->CompileSource(std::string(gVertexShader));
+    pixelShader = new Shader(Shader::PixelShader);
+    pixelShader->CompileSource(std::string(gFragmentShader));
+
+    shaderProgram->AddShader(vertexShader);
+    shaderProgram->AddShader(pixelShader);
+    shaderProgram->Link();
 }
 
 void SpriteBatcher::DrawSprite(ITexture* texture, F32 x, F32 y, F32 z,
