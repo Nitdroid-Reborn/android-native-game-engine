@@ -11,6 +11,7 @@ DEPENDPATH += .
 
 # Input
 
+INCLUDEPATH += "Scripts/"
 INCLUDEPATH += "/usr/include/freetype2"
 
 QT += core gui opengl
