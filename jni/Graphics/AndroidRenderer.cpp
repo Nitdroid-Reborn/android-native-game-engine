@@ -1,8 +1,8 @@
 #ifdef ANDROID
 #include "AndroidRenderer.h"
 #include <Utils/Utils.h>
-#include <GLES/gl.h>
-#include <GLES/glext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 #include "SpriteBatcher.h"
 #include <unistd.h>
 #include <ContentManager/AndroidContentManager.h>
@@ -67,6 +67,7 @@ void AndroidRenderer::InitWindow() {
             EGL_BLUE_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_RED_SIZE, 8,
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_NONE
     };
     EGLint w, h, format;
@@ -95,7 +96,13 @@ void AndroidRenderer::InitWindow() {
 
     const AndroidContentManager* manager = (const AndroidContentManager*)IContentManager::get();
 
-    context = eglCreateContext(display, config, manager->GetEGLContext(), NULL);
+    int attrib_list[] = {
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE
+    };
+
+
+    context = eglCreateContext(display, config, manager->GetEGLContext(), attrib_list);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         Logger::Log("Unable to eglMakeCurrent");
@@ -111,21 +118,21 @@ void AndroidRenderer::InitWindow() {
     glEnable(GL_TEXTURE_2D);
 
     // Initialize GL state.
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+    //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    glShadeModel(GL_SMOOTH);
+    //glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrthof(0.0, w, 0.0, h, -1.0, 1.0);
+    //glMatrixMode(GL_PROJECTION);
+   // glLoadIdentity();
+    //glOrthof(0.0, w, 0.0, h, -1.0, 1.0);
     //gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    //glMatrixMode(GL_MODELVIEW);
+    //glLoadIdentity();
     glViewport(0, 0, (int) w, (int) h);
 
     glEnable(GL_BLEND);
@@ -133,12 +140,20 @@ void AndroidRenderer::InitWindow() {
 
     glDisable(GL_DITHER);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    //glEnableClientState(GL_VERTEX_ARRAY);
+    //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    //glEnableClientState(GL_COLOR_ARRAY);
 
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    batcher->Init();
+    batcher->Bind();
+
+    printGLString("Version", GL_VERSION);
+    printGLString("Vendor", GL_VENDOR);
+    printGLString("Renderer", GL_RENDERER);
+    printGLString("Extensions", GL_EXTENSIONS);
 
     contextValid=true;
 }
@@ -165,7 +180,7 @@ void AndroidRenderer::Initialize() {
 
     singleton = this;
 
-    batcher = new SpriteBatcher(1000);
+    batcher = new SpriteBatcher(1500);
 
     SpriteBatcher::batcherProfileManager = &rendererProfileManager;
 
@@ -174,10 +189,6 @@ void AndroidRenderer::Initialize() {
 
     textBox.font = &myFont;
 
-    printGLString("Version", GL_VERSION);
-    printGLString("Vendor", GL_VENDOR);
-    printGLString("Renderer", GL_RENDERER);
-    printGLString("Extensions", GL_EXTENSIONS);
 
     lua_State* L =  ScriptManager::Get()->getState();
 
@@ -253,6 +264,7 @@ void AndroidRenderer::Run() {
                 terminateWindow = false;
             }
 
+            if(contextValid) {
            // if(active) {
                // mutex.Unlock();
                // pauseConditionalVariable.Wait();
@@ -286,7 +298,7 @@ void AndroidRenderer::Run() {
                     }*/
 
 
-                    textBox.Draw();
+
 
 
                     {
@@ -319,6 +331,7 @@ void AndroidRenderer::Run() {
                     if(contextValid)
                         eglSwapBuffers(display, surface);
                     }
+                }
 
 
 
@@ -334,6 +347,7 @@ void AndroidRenderer::Run() {
                    // }
             //}
             }
+
             rendererProfileManager.DumpProfileDataToBuffer();
             mutex.Unlock();
             mainLoopCond.Signal();
@@ -345,13 +359,13 @@ void AndroidRenderer::Wait() {
     mainLoopCond.Wait();
     mutex.Lock();
     batcher->SwapSpriteBuffer();
-    textBox.SwapTextBuffer();
     mutex.Unlock();
+
 
     if(ProfilerManager::profilerEnabled) {
        // if(++profileCounter>400) {
             profileCounter=0;
-            //Logger::Log("%s", rendererProfileManager.outputBuffer.Get());
+            Logger::Log("%s", rendererProfileManager.outputBuffer.Get());
              //DrawString(5, 200, rendererProfileManager.outputBuffer.Get());
             //DrawString(5, 400, "asdas");
             textBox.DrawStr(0, 250, rendererProfileManager.outputBuffer.Get());

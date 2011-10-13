@@ -169,7 +169,6 @@ void MainGLWidget::go() {
 }
 
 void MainGLWidget::paintGL() {
-    if(gogo) {
 
     if(engine->IsQuiting()) {
         engine->Release();
@@ -179,7 +178,6 @@ void MainGLWidget::paintGL() {
 
     if(engine->IsRunning()) {
         engine->SingleFrame();
-    }
     }
 }
 

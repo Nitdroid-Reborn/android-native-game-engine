@@ -115,7 +115,7 @@ void QtRenderer::Initialize() {
 
 
 
-    Logger::Log(1, "Android Renderer initialized");
+    Logger::Log(1, "Qt Renderer initialized");
 }
 
 void QtRenderer::Release() {
@@ -136,7 +136,7 @@ void QtRenderer::Run() {
 
             glClear(GL_COLOR_BUFFER_BIT);
 
-            textBox.Draw();
+            //textBox.Draw();
 
             {
                PROFILE("Batch", &rendererProfileManager);
@@ -178,7 +178,7 @@ void QtRenderer::Run() {
 
 void QtRenderer::Wait() {
     batcher->SwapSpriteBuffer();
-    textBox.SwapTextBuffer();
+    //textBox.SwapTextBuffer();
 
     Run();
 

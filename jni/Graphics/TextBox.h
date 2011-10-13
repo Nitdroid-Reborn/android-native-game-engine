@@ -15,16 +15,6 @@ public:
     ~TextBox(){}
 
 private:
-
-    struct TextBatch {
-        std::string text;
-        U16 x;
-        U16 y;
-    };
-
-    vector<TextBatch> texts;
-    vector<TextBatch> oldTexts;
-
     // Info
     int pageLineCnt;
     int scrollCnt;
@@ -33,8 +23,6 @@ private:
 
 public:
     void DrawStr(int x, int y, char* string);
-    void Draw();
-    void SwapTextBuffer();
     Font* font;
 };
 

@@ -5,6 +5,8 @@
 
 #include <Utils/Profiler.h>
 
+
+
 struct Sprite {
     F32 x;
     F32 y;
@@ -60,13 +62,16 @@ public:
 
     void SwapSpriteBuffer();
 
+    void Bind();
+
+    void Init();
 private:
 
     struct Vertex {
-        F32 x;
-        F32 y;
-        F32 u;
-        F32 v;
+        I16 x;
+        I16 y;
+        I16 u;
+        I16 v;
         U8 r;
         U8 g;
         U8 b;
@@ -83,6 +88,14 @@ private:
 
     vector<Sprite> sprites;
     vector<Sprite> oldSprites;
+
+    U32 vertexBuffer;
+    U32 indicesBuffer;
+
+    I32 gProgram;
+    I32 gvPositionHandle;
+    I32 gvMatrixHandle;
+
 };
 
 #endif // SPRITEBATCHER_H
