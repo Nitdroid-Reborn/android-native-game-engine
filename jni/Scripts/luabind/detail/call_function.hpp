@@ -38,8 +38,6 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 
-#include <android/log.h>
-
 #include <luabind/error.hpp>
 #include <luabind/detail/convert_to_lua.hpp>
 #include <luabind/detail/pcall.hpp>
