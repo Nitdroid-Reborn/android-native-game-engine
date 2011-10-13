@@ -4,7 +4,9 @@
 #ifdef ANDROID
 #include <GLES2/gl2.h>
 #else
-#include <QGLWidget>
+#include <GL/gl.h>
+#include <GL/glext.h>
+
 #endif
 
 enum ShaderType {
