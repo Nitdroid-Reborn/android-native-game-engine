@@ -23,7 +23,7 @@ private:
 
 public:
     void DrawStr(int x, int y, char* string);
-    Font* font;
+    Font2* font;
 };
 
 #endif // TEXTBOX_H

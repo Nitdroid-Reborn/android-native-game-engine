@@ -1,4 +1,14 @@
+#include "qdatastream.h"
+#include "qtextstream.h"
+#include "qmetatype.h"
+#include "qcursor.h"
+#include "VBO.h"
+#include "Shader.h"
+#include "ShaderProgram.h"
+#include "ModelGeometry.h"
+
 #include "QtRenderer.h"
+
 IRenderer* IRenderer::singleton = NULL;
 ProfilerManager rendererProfileManager;
 static int profileCounter = 0;
@@ -21,9 +31,9 @@ void QtRenderer::OnInitWindow() {
 
     // Initialize GL state.
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    //glEnable(GL_CULL_FACE);
+   // glCullFace(GL_BACK);
+   // glFrontFace(GL_CCW);
 
     glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
@@ -34,7 +44,7 @@ void QtRenderer::OnInitWindow() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
+    //glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
     //gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -48,11 +58,15 @@ void QtRenderer::OnInitWindow() {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
 
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     contextValid=true;
+
+
+
 }
 
 void QtRenderer::OnTerminateWindow() {
@@ -115,6 +129,44 @@ void QtRenderer::Initialize() {
     ];
 
 
+    model = new ModelGeometry();
+    model->Load("krasnal.ms3d");
+
+    sp = new ShaderProgram();
+    vs = new Shader(Shader::VertexShader);
+    fs = new Shader(Shader::PixelShader);
+
+    vbo = new VBO(model);
+
+    static const char gVertexShader[] =
+        "uniform mat4 mvp;"
+        "attribute mediump vec4 vPosition;\n"
+        "attribute mediump vec4 vTexCoords;\n"
+        "attribute lowp vec4 vColor;\n"
+        "varying mediump vec4 texCoords;\n"
+        "varying lowp vec4 color;\n"
+        "void main() {\n"
+        "  gl_Position = mvp * (vPosition);\n"
+        "  texCoords = vTexCoords;\n"
+        "  color = vColor;\n"
+        "}\n";
+
+    static const char gFragmentShader[] =
+        "uniform sampler2D textureSampler;\n"
+        "varying mediump vec4 texCoords;\n"
+        "varying lowp vec4 color;\n"
+        "void main() {\n"
+        "  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "}\n";
+
+    vs->CompileSource(gVertexShader);
+    fs->CompileSource(gFragmentShader);
+    sp->AddShader(vs);
+    sp->AddShader(fs);
+    sp->Link();
+
+    Logger::Log("num v: %d, num i: %d", model->GetVerticesCount(), model->GetIndicesCount());
+
 
     Logger::Log(1, "Qt Renderer initialized");
 }
@@ -124,6 +176,19 @@ void QtRenderer::Release() {
     delete batcher;
     batcher = NULL;;
     singleton = NULL;
+
+
+    delete sp;
+    delete vs;
+    delete fs;
+    delete vbo;
+    delete model;
+
+    sp=NULL;
+    vs=NULL;
+    fs=NULL;
+    vbo=NULL;
+    model=NULL;
 }
 
 void QtRenderer::Run() {
@@ -143,12 +208,38 @@ void QtRenderer::Run() {
                PROFILE("Batch", &rendererProfileManager);
 
 
-               batcher->EndBatch();
+               //batcher->EndBatch();
 
-               batcher->BeginBatch();
+             //  batcher->BeginBatch();
             }
 
 
+            sp->Bind();
+            sp->EnableAttributeArray("vPosition");
+            sp->EnableAttributeArray("vTexCoords");
+            sp->EnableAttributeArray("vColor");
+
+            Matrix4x4 mat;
+            mat.SetPerspective(54.0f, 800.0f/480.0f, 0.1, 1000);
+
+
+            Matrix4x4 scale;
+            //scale.SetScale(Vector3(2.1 ,2.1, 2.1));
+            scale.SetTranslation(Vector3(0, 0, -15));
+
+            mat = mat*scale;
+
+            sp->SetUniformValue("mvp", mat);
+
+            vbo->Bind();
+            vbo->SetData(model->GetVerticesCount(), model->GetVertices(),
+                         model->GetIndicesCount(), model->GetIndices());
+            sp->SetAttributeArray(vbo);
+
+            vbo->Draw(0, model->GetIndicesCount()/3);
+
+            vbo->Release();
+            sp->Release();
 
 
 

@@ -11,6 +11,11 @@
 #include <Utils/Profiler.h>
 #include <algorithm>
 
+#include "VBO.h"
+#include "Shader.h"
+#include "ShaderProgram.h"
+#include "ModelGeometry.h"
+
 IRenderer* IRenderer::singleton = NULL;
 
 ProfilerManager rendererProfileManager;
@@ -147,13 +152,8 @@ void AndroidRenderer::InitWindow() {
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    batcher->Init();
-    batcher->Bind();
 
-    printGLString("Version", GL_VERSION);
-    printGLString("Vendor", GL_VENDOR);
-    printGLString("Renderer", GL_RENDERER);
-    printGLString("Extensions", GL_EXTENSIONS);
+
 
     contextValid=true;
 }
@@ -173,6 +173,8 @@ void AndroidRenderer::TerminateWindow() {
     display = EGL_NO_DISPLAY;
     context = EGL_NO_CONTEXT;
     surface = EGL_NO_SURFACE;
+
+
 }
 
 void AndroidRenderer::Initialize() {
@@ -181,6 +183,7 @@ void AndroidRenderer::Initialize() {
     singleton = this;
 
     batcher = new SpriteBatcher(1500);
+    batcher->Init();
 
     SpriteBatcher::batcherProfileManager = &rendererProfileManager;
 
@@ -221,7 +224,41 @@ void AndroidRenderer::Initialize() {
     ];
 
 
+    model = new ModelGeometry();
+    model->Load("/sdcard/krasnal.ms3d");
 
+    sp = new ShaderProgram();
+    vs = new Shader(Shader::VertexShader);
+    fs = new Shader(Shader::PixelShader);
+
+    vbo = new VBO(model);
+
+    static const char gVertexShader[] =
+        "uniform mat4 mvp;"
+        "attribute mediump vec4 vPosition;\n"
+        "attribute mediump vec4 vTexCoords;\n"
+        "attribute lowp vec4 vColor;\n"
+        "varying mediump vec4 texCoords;\n"
+        "varying lowp vec4 color;\n"
+        "void main() {\n"
+        "  gl_Position = mvp * (vPosition);\n"
+        "  texCoords = vTexCoords;\n"
+        "  color = vColor;\n"
+        "}\n";
+
+    static const char gFragmentShader[] =
+        "uniform sampler2D textureSampler;\n"
+        "varying mediump vec4 texCoords;\n"
+        "varying lowp vec4 color;\n"
+        "void main() {\n"
+        "  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "}\n";
+
+    vs->CompileSource(gVertexShader);
+    fs->CompileSource(gFragmentShader);
+    sp->AddShader(vs);
+    sp->AddShader(fs);
+    sp->Link();
     Logger::Log(1, "Android Renderer initialized");
 }
 
@@ -235,6 +272,18 @@ void AndroidRenderer::Release() {
     delete batcher;
     batcher = NULL;
     singleton = NULL;
+
+    delete sp;
+    delete vs;
+    delete fs;
+    delete vbo;
+    delete model;
+
+    sp=NULL;
+    vs=NULL;
+    fs=NULL;
+    vbo=NULL;
+    model=NULL;
     mutex.Unlock();
 }
 
@@ -306,23 +355,38 @@ void AndroidRenderer::Run() {
 
 
 
-                       batcher->EndBatch();
+                       //batcher->EndBatch();
 
-                       batcher->BeginBatch();
-                        /*if(oldSprites.size()>0) {
-                            for(int i=1;i<textureChanges.size();i++) {
-                                batcher->BeginBatch(oldSprites[textureChanges[i-1]].texture);
-                                for(int j=textureChanges[i-1];j<textureChanges[i];j++) {
-                                    batcher->DrawSprite(oldSprites[j].x, oldSprites[j].y,
-                                                    oldSprites[j].width, oldSprites[j].height,
-                                                    oldSprites[j].texRegion, oldSprites[j].angle);
-                                }
-                                batcher->EndBatch();
-                            }
-                        }*/
+                       //batcher->BeginBatch();
+
                     }
 
+                    sp->Bind();
+                    sp->EnableAttributeArray("vPosition");
+                    sp->EnableAttributeArray("vTexCoords");
+                    sp->EnableAttributeArray("vColor");
 
+                    Matrix4x4 mat;
+                    mat.SetPerspective(54.0f, 800.0f/480.0f, 0.1, 1000);
+
+
+                    Matrix4x4 scale;
+                    //scale.SetScale(Vector3(2.1 ,2.1, 2.1));
+                    scale.SetTranslation(Vector3(0, 0, -15));
+
+                    mat = mat*scale;
+
+                    sp->SetUniformValue("mvp", mat);
+
+                    vbo->Bind();
+                    vbo->SetData(model->GetVerticesCount(), model->GetVertices(),
+                                 model->GetIndicesCount(), model->GetIndices());
+                    sp->SetAttributeArray(vbo);
+
+                    vbo->Draw(0, model->GetIndicesCount()/3);
+
+                    vbo->Release();
+                    sp->Release();
 
 
 
@@ -368,7 +432,7 @@ void AndroidRenderer::Wait() {
             Logger::Log("%s", rendererProfileManager.outputBuffer.Get());
              //DrawString(5, 200, rendererProfileManager.outputBuffer.Get());
             //DrawString(5, 400, "asdas");
-            textBox.DrawStr(0, 250, rendererProfileManager.outputBuffer.Get());
+            //textBox.DrawStr(0, 250, rendererProfileManager.outputBuffer.Get());
 
         //}
     }

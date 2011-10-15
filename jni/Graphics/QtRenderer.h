@@ -6,9 +6,13 @@
 #include "SpriteBatcher.h"
 #include "TextBox.h"
 #include "Utils/Profiler.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <Utils/Clock.h>
+
+
+class ModelGeometry;
+class VBO;
+class Shader;
+class ShaderProgram;
 
 class QtRenderer : public IRenderer
 {
@@ -29,7 +33,10 @@ public:
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
 
-    Font myFont;
+    Font2 myFont;
+
+    ModelGeometry* model;
+
 
 private:
     QGLWidget* app;
@@ -46,6 +53,11 @@ private:
     bool terminateWindow;
     bool closing;
     bool active;
+
+    ShaderProgram* sp;
+    Shader*vs;
+    Shader*fs;
+    VBO* vbo;
 };
 
 #endif // QTRENDERER_H

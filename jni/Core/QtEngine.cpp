@@ -1,7 +1,7 @@
 #include "QtEngine.h"
 #include <Utils/Profiler.h>
 
-
+#include <Graphics/ModelGeometry.h>
 
 static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
@@ -80,6 +80,9 @@ void QtEngine::Initialize() {
     script->Run(scr.Get());
 
     contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
+
+
+
 }
 
 void QtEngine::Release() {

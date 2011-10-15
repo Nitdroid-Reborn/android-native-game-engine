@@ -86,7 +86,7 @@ public:
 
 
 
-class MyModel
+class MS3DModel
 {
 	Vector3 position;
 	Vector3 direction;
@@ -131,11 +131,11 @@ public:
 	Vector3 getDirection(){return direction;}
 	float getRotation();
 	void setRotation(float newRotation);
-	MyModel();
+	MS3DModel();
 
         short* indices;
         int numIndices;
-	~MyModel();
+	~MS3DModel();
 };
 
 

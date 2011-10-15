@@ -246,10 +246,43 @@ void ShaderProgram::SetUniformValue(std::string name, const Matrix4x4 &m) {
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &m.entries[0]);
 }
 
+
+
+void ShaderProgram::SetAttributeArray(VBO *vbo) {
+    glVertexAttribPointer(GetAttributeLocation("vPosition"),
+                          vbo->GetVertexAttributeSize(VertexPosition),
+                          vbo->GetVertexAttributeType(VertexPosition),
+                          vbo->GetVertexAttributeNormalization(VertexPosition),
+                          vbo->GetVertexAttributeStride(VertexPosition),
+                          vbo->GetVertexAttributeOffset(VertexPosition));
+
+    glVertexAttribPointer(GetAttributeLocation("vNormal"),
+                          vbo->GetVertexAttributeSize(VertexNormal),
+                          vbo->GetVertexAttributeType(VertexNormal),
+                          vbo->GetVertexAttributeNormalization(VertexNormal),
+                          vbo->GetVertexAttributeStride(VertexNormal),
+                          vbo->GetVertexAttributeOffset(VertexNormal));
+
+    glVertexAttribPointer(GetAttributeLocation("vTexCoords"),
+                          vbo->GetVertexAttributeSize(VertexTexCoord),
+                          vbo->GetVertexAttributeType(VertexTexCoord),
+                          vbo->GetVertexAttributeNormalization(VertexTexCoord),
+                          vbo->GetVertexAttributeStride(VertexTexCoord),
+                          vbo->GetVertexAttributeOffset(VertexTexCoord));
+
+    glVertexAttribPointer(GetAttributeLocation("vColor"),
+                          vbo->GetVertexAttributeSize(VertexColor),
+                          vbo->GetVertexAttributeType(VertexColor),
+                          vbo->GetVertexAttributeNormalization(VertexColor),
+                          vbo->GetVertexAttributeStride(VertexColor),
+                          vbo->GetVertexAttributeOffset(VertexColor));
+}
+
+/*
 void ShaderProgram::SetAttributeArray(int attr, int size, GLenum type, bool normalized, GLsizei stride, const GLvoid *pointer) {
     glVertexAttribPointer(attr, size, type, normalized, stride, pointer);
 }
 
 void ShaderProgram::SetAttributeArray(std::string name, int size, GLenum type, bool normalized, GLsizei stride, const GLvoid *pointer) {
     glVertexAttribPointer(GetAttributeLocation(name), size, type, normalized, stride, pointer);
-}
+}*/

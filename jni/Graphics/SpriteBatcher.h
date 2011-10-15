@@ -2,10 +2,12 @@
 #define SPRITEBATCHER_H
 
 #include "ISpriteBatcher.h"
-
 #include <Utils/Profiler.h>
+#include "IGeometry.h"
+
 class ShaderProgram;
 class Shader;
+class VBO;
 
 
 struct Sprite {
@@ -68,24 +70,26 @@ public:
     void Init();
 private:
 
-    struct Vertex {
-        I16 x;
-        I16 y;
-        I16 u;
-        I16 v;
+    /*struct Vertex {
+        F32 x;
+        F32 y;
+        F32 u;
+        F32 v;
         U8 r;
         U8 g;
         U8 b;
         U8 a;
-    };
+    };*/
 
     U8 vertexSize;
-    Vertex* vertices;
+    Vertex3D* vertices;
     U16 numSprites;
     U16 numVertices;
     U32 numIndices;
     U32 verticesIndex;
     U16* indices;
+
+
 
     vector<Sprite> sprites;
     vector<Sprite> oldSprites;
@@ -96,6 +100,7 @@ private:
     ShaderProgram* shaderProgram;
     Shader* vertexShader;
     Shader* pixelShader;
+    VBO* vbo;
     U32 gProgram;
     U32 gvPositionHandle;
     U32 gvMatrixHandle;

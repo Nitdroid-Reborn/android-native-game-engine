@@ -14,6 +14,8 @@
 
 #define PI 3.14159265358979323846
 ProfilerManager* SpriteBatcher::batcherProfileManager;
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
@@ -28,84 +30,28 @@ static void checkGlError(const char* op) {
 }
 static const char gVertexShader[] =
     "uniform mat4 mvp;"
-    "attribute vec4 vPosition;\n"
+    "attribute mediump vec4 vPosition;\n"
+    "attribute mediump vec4 vTexCoords;\n"
+    "attribute lowp vec4 vColor;\n"
+    "varying mediump vec4 texCoords;\n"
+    "varying lowp vec4 color;\n"
     "void main() {\n"
     "  gl_Position = mvp * (vPosition);\n"
+    "  texCoords = vTexCoords;\n"
+    "  color = vColor;\n"
     "}\n";
 
 static const char gFragmentShader[] =
+    "uniform sampler2D textureSampler;\n"
+    "varying mediump vec4 texCoords;\n"
+    "varying lowp vec4 color;\n"
     "void main() {\n"
-    "  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+    "  gl_FragColor = texture2D(textureSampler, texCoords.xy)*color;\n"
     "}\n";
-
-GLuint loadShader(GLenum shaderType, const char* pSource) {
-    GLuint shader = glCreateShader(shaderType);
-    if (shader) {
-        glShaderSource(shader, 1, &pSource, NULL);
-        glCompileShader(shader);
-        GLint compiled = 0;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if (!compiled) {
-            GLint infoLen = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-            if (infoLen) {
-                char* buf = (char*) malloc(infoLen);
-                if (buf) {
-                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                    LOGE("Could not compile shader %d:\n%s\n",
-                            shaderType, buf);
-                    free(buf);
-                }
-                glDeleteShader(shader);
-                shader = 0;
-            }
-        }
-    }
-    return shader;
-}
-
-GLuint createProgram(const char* pVertexSource, const char* pFragmentSource) {
-    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, pVertexSource);
-    if (!vertexShader) {
-        return 0;
-    }
-
-    GLuint pixelShader = loadShader(GL_FRAGMENT_SHADER, pFragmentSource);
-    if (!pixelShader) {
-        return 0;
-    }
-
-    GLuint program = glCreateProgram();
-    LOGE("%ud", program);
-    if (program) {
-        glAttachShader(program, vertexShader);
-        checkGlError("glAttachShader");
-        glAttachShader(program, pixelShader);
-        checkGlError("glAttachShader");
-        glLinkProgram(program);
-        GLint linkStatus = GL_FALSE;
-        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-        if (linkStatus != GL_TRUE) {
-            GLint bufLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-            if (bufLength) {
-                char* buf = (char*) malloc(bufLength);
-                if (buf) {
-                    glGetProgramInfoLog(program, bufLength, NULL, buf);
-                    LOGE("Could not link program:\n%s\n", buf);
-                    free(buf);
-                }
-            }
-            glDeleteProgram(program);
-            program = 0;
-        }
-    }
-    return program;
-}
 
 SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     indices = new U16[maxSprites*6];
-    vertices = new Vertex[maxSprites*4]; //each sprite 4 vertices
+    vertices = new Vertex3D[maxSprites*4]; //each sprite 4 vertices
 
     verticesIndex=0;
     numVertices = maxSprites*4;
@@ -132,7 +78,7 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     I32 bufferSize;
 
 
-    glGenBuffers(1, &vertexBuffer);
+    /*glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*numVertices, 0, GL_STREAM_DRAW);
 
@@ -140,7 +86,7 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     glGenBuffers(1, &indicesBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(U16)*numIndices, &indices[0], GL_STATIC_DRAW);
-
+*/
   //  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16)*numIndices, &indices[0]);
    // oldSprites.reserve(maxSprites);
    // sprites.reserve(maxSprites);
@@ -166,8 +112,10 @@ SpriteBatcher::~SpriteBatcher() {
     if(pixelShader)
         delete pixelShader;
 
-    glDeleteBuffers(1, &vertexBuffer);
-    glDeleteBuffers(1, &indicesBuffer);
+    if(vbo)
+        delete vbo;
+   // glDeleteBuffers(1, &vertexBuffer);
+    //glDeleteBuffers(1, &indicesBuffer);
 }
 
 void SpriteBatcher::BeginBatch() {
@@ -176,11 +124,12 @@ void SpriteBatcher::BeginBatch() {
 }
 
 void SpriteBatcher::Bind() {
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
+    vbo->Bind();
+    //glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 }
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 void SpriteBatcher::EndBatch() {
 
     int texChanges = 0;
@@ -191,8 +140,11 @@ void SpriteBatcher::EndBatch() {
     }
 
 
+    vbo->Bind();
     shaderProgram->Bind();
     shaderProgram->EnableAttributeArray("vPosition");
+    shaderProgram->EnableAttributeArray("vTexCoords");
+    shaderProgram->EnableAttributeArray("vColor");
 
    // glPushMatrix();
 
@@ -211,42 +163,28 @@ void SpriteBatcher::EndBatch() {
     Matrix4x4 mat;
     mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 1.0);
 
-    Matrix4x4 scale;
-    scale.SetScale(Vector3(0.1 ,0.1, 0.1));
+   // Matrix4x4 scale;
+    //scale.SetScale(Vector3(0.1 ,0.1, 0.1));
 
-    mat = mat*scale;
+    //mat = mat*scale;
 
 
 
     shaderProgram->SetUniformValue("mvp", mat);
+    shaderProgram->SetUniformValue("textureSampler", 0);
 
     for(it; it!=oldSprites.end(); ++it) {
 
         if(currentTexture != (*it).texture) {
 
 
-
-            //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vertices[0].x);
-
-
+            vbo->SetData((int)verticesIndex, &vertices[0],
+                         (int)numIndices, &indices[0]);
 
 
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
-            shaderProgram->SetAttributeArray("vPosition", 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+            shaderProgram->SetAttributeArray(vbo);
 
-            //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
-            //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
-            //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
-            //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
-
-            glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
-
-
-           /* glVertexPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].x);
-            glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].u);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);*/
-
-          //  glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, indices);
+            vbo->Draw(0, numSprites*2);
             texChanges++;
             if(!(*it).texture)
                 currentTexture->Unbind();
@@ -286,44 +224,48 @@ void SpriteBatcher::EndBatch() {
             x4 += (*it).x;
             y4 += (*it).y;
 
-            vertices[verticesIndex].x = (I16)x1*10;
-            vertices[verticesIndex].y = (I16)y1*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x1;
+            vertices[verticesIndex].position[1] = y1;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u1;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v1;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
 
-            vertices[verticesIndex].x = (I16)x2*10;
-            vertices[verticesIndex].y = (I16)y2*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x2;
+            vertices[verticesIndex].position[1] = y2;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u2;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v1;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
 
-            vertices[verticesIndex].x = (I16)x3*10;
-            vertices[verticesIndex].y = (I16)y3*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x3;
+            vertices[verticesIndex].position[1] = y3;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u2;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v2;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
 
-            vertices[verticesIndex].x = (I16)x4*10;
-            vertices[verticesIndex].y = (I16)y4*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x4;
+            vertices[verticesIndex].position[1] = y4;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u1;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v2;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
             numSprites++;
 
@@ -334,72 +276,58 @@ void SpriteBatcher::EndBatch() {
             float x2 = (*it).x + halfWidth;
             float y2 = (*it).y + halfHeight;
 
-            vertices[verticesIndex].x = (I16)x1*10;
-            vertices[verticesIndex].y = (I16)y1*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x1;
+            vertices[verticesIndex].position[1] = y1;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u1;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v1;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
-            vertices[verticesIndex].x = (I16)x2*10;
-            vertices[verticesIndex].y = (I16)y1*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v1*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x2;
+            vertices[verticesIndex].position[1] = y1;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u2;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v1;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
-            vertices[verticesIndex].x = (I16)x2*10;
-            vertices[verticesIndex].y = (I16)y2*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u2*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x2;
+            vertices[verticesIndex].position[1] = y2;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u2;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v2;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
-            vertices[verticesIndex].x = (I16)x1*10;
-            vertices[verticesIndex].y = (I16)y2*10;
-            vertices[verticesIndex].u = (I16)((*it).texRegion.u1*1000);
-            vertices[verticesIndex].v = (I16)((*it).texRegion.v2*1000);
-            vertices[verticesIndex].r = (*it).r;
-            vertices[verticesIndex].g = (*it).g;
-            vertices[verticesIndex].b = (*it).b;
-            vertices[verticesIndex++].a = (*it).a;
+            vertices[verticesIndex].position[0] = x1;
+            vertices[verticesIndex].position[1] = y2;
+            vertices[verticesIndex].position[2] = 0;
+            vertices[verticesIndex].texCoords[0] = (*it).texRegion.u1;
+            vertices[verticesIndex].texCoords[1] = (*it).texRegion.v2;
+            vertices[verticesIndex].color[0] = (*it).r;
+            vertices[verticesIndex].color[1] = (*it).g;
+            vertices[verticesIndex].color[2] = (*it).b;
+            vertices[verticesIndex++].color[3] = (*it).a;
 
             numSprites++;
         }
     }
 
-   /* glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
-
-    glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
-    glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
-
-    glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));*/
-
-    //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), &vertices[0].x);
-    //glVertexPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].x);
-    //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), &vertices[0].u);
-    //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].r);
-
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex)*verticesIndex, &vertices[0].x);
-    shaderProgram->SetAttributeArray("vPosition", 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
-    //glVertexAttribPointer(gvPositionHandle, 2, GL_SHORT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
-    //glVertexPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(0));
-    //glTexCoordPointer(2, GL_SHORT, sizeof(Vertex), BUFFER_OFFSET(4));
-    //glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), BUFFER_OFFSET(8));
-
-    glDrawElements(GL_TRIANGLES, numSprites*6, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+    vbo->SetData(verticesIndex, &vertices[0],
+                 numIndices, &indices[0]);
 
 
-    //glPopMatrix();
-   // glMatrixMode(GL_MODELVIEW);
-   // glPopMatrix();
+    shaderProgram->SetAttributeArray(vbo);
+
+    vbo->Draw(0, numSprites*2);
+
 
     if(currentTexture) {
         currentTexture->Unbind();
@@ -407,6 +335,7 @@ void SpriteBatcher::EndBatch() {
     }
 
     shaderProgram->Release();
+    vbo->Release();
 }
 
 void SpriteBatcher::Init() {
@@ -422,6 +351,8 @@ void SpriteBatcher::Init() {
     shaderProgram->AddShader(vertexShader);
     shaderProgram->AddShader(pixelShader);
     shaderProgram->Link();
+
+    vbo = new VBO();
 }
 
 void SpriteBatcher::DrawSprite(ITexture* texture, F32 x, F32 y, F32 z,

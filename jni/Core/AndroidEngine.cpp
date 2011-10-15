@@ -323,11 +323,11 @@ void AndroidEngine::SingleFrame() {
 
     if(ProfilerManager::profilerEnabled) {
        // if(++profileCounter>120) {
-            renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
+           // renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
             //Logger::Log("%s", mainLoopProfileManager.outputBuffer.Get());
             profileCounter = 0;
        // }
-        renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
+        //renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
 
 
         //

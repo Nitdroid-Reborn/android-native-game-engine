@@ -124,7 +124,10 @@ SOURCES += main.cpp \
     Graphics/QtRenderer.cpp \
     Graphics/GLee.c \
     Graphics/ShaderProgram.cpp \
-    Graphics/Shader.cpp
+    Graphics/Shader.cpp \
+    Graphics/VBO.cpp \
+    Graphics/ModelGeometry.cpp \
+    Graphics/MS3DModel.cpp
 
 
 HEADERS += \
@@ -308,12 +311,29 @@ HEADERS += \
     Graphics/glext.h \
     Graphics/GLee.h \
     Graphics/ShaderProgram.h \
-    Graphics/Shader.h
+    Graphics/Shader.h \
+    Graphics/VBO.h \
+    Graphics/IGeometry.h \
+    Graphics/ModelGeometry.h \
+    Graphics/MS3DModel.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

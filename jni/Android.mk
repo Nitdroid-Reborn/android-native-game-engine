@@ -105,7 +105,10 @@ LOCAL_SRC_FILES := main.cpp \
                    ContentManager/ScriptSourceManager.cpp \
                    Graphics/Font.cpp \
                    Graphics/Shader.cpp \
-                   Graphics/ShaderProgram.cpp
+                   Graphics/ShaderProgram.cpp \
+                   Graphics/VBO.cpp \
+                   Graphics/ModelGeometry.cpp \
+                   Graphics/MS3DModel.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz

@@ -9,6 +9,7 @@
 #endif
 #include <Utils/EngineTypes.h>
 #include <Math/MathLib.h>
+#include "VBO.h"
 
 class Shader;
 
@@ -34,11 +35,14 @@ public:
     bool Link();
     inline GLuint GetId() const {return id;}
 
-    void SetAttributeArray(int attr, int size, GLenum type, bool normalized,
+
+    void SetAttributeArray(VBO* vbo);
+
+    /*void SetAttributeArray(int attr, int size, GLenum type, bool normalized,
                            GLsizei stride, const GLvoid * pointer);
     void SetAttributeArray(std::string name, int size, GLenum type, bool normalized,
                            GLsizei stride, const GLvoid * pointer);
-
+*/
 
     void SetAttributeValue(int attr, F32 x);
     void SetAttributeValue(int attr, F32 x, F32 y);

@@ -16,6 +16,11 @@
 
 using namespace std;
 
+class ModelGeometry;
+class VBO;
+class Shader;
+class ShaderProgram;
+
 class AndroidRenderer : public IRenderer
 {
 public:
@@ -37,7 +42,7 @@ public:
 
     TextureHandle fontTexture;
 
-    Font myFont;
+    Font2 myFont;
 private:
     void InitWindow();
     void TerminateWindow();
@@ -72,6 +77,12 @@ private:
     Clock fpsClock;
     ConditionalVariable mainLoopCond;
     SpriteBatcher* batcher;   
+
+    ModelGeometry* model;
+    ShaderProgram* sp;
+    Shader*vs;
+    Shader*fs;
+    VBO* vbo;
 };
 
 #endif // ANDROIDRENDERER_H

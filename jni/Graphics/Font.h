@@ -20,7 +20,7 @@ struct Glyph {
 };
 
 
-struct Font {
+struct Font2 {
     TextureHandle fontTexture;
     Glyph glyphs[127];
 

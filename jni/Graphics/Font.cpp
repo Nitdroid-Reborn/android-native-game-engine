@@ -8,7 +8,7 @@ U16 nextPowerOf2(U16 a) {
     return v;
 }
 
-void Font::Load(const char *fontPath, U8 fontSize) {
+void Font2::Load(const char *fontPath, U8 fontSize) {
     FT_Library library;
     FT_Init_FreeType( &library );
 
@@ -111,7 +111,7 @@ void Font::Load(const char *fontPath, U8 fontSize) {
     Logger::Log("Loaded %d %d", maxGlyphWidth, maxGlyphHeight);
 }
 
-void Font::Dispose() {
+void Font2::Dispose() {
     if(!fontTexture.IsNull())
         IContentManager::get()->GetTextureManager()->ReleaseTexture(fontTexture);
 }
