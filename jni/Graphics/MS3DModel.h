@@ -25,7 +25,9 @@ class MS3DModel
 {
 public:
     void Load(const char*filename, Vertex3D*&vertices, int& numVertices,
-              U16*& indices, int& numIndices);
+              U16*& indices, int& numIndices,
+              std::vector<Mesh>& meshesInfo,
+              std::vector<Material>& materialsInfo);
 };
 
 

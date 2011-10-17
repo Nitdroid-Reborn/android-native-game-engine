@@ -1,21 +1,19 @@
 #include "MS3DModel.h"
 #include <FileIO/IFileIO.h>
+#include <string.h>
 #define PI 3.14156
 
 void MS3DModel::Load(const char* filename, Vertex3D*&vertices, int& numV,
-                   U16*& indices, int& numI)
+                     U16*& indices, int& numI,
+                     std::vector<Mesh>& meshesInfo,
+                     std::vector<Material>& materialsInfo)
 {
     IFileIO* io = IFileIO::get();
     EngineFileHandle fHandle;
     io->OpenFile(filename, "rb", fHandle);
 
-    //Vertex3D* vertices;
-    //U16* indices;
-
     int i;
     char tempChar;
-    float tempFloat;
-    int tempInt;
     char tempString[40];
 	
 
@@ -72,18 +70,23 @@ void MS3DModel::Load(const char* filename, Vertex3D*&vertices, int& numV,
     float norm[9];
     float u[3];
     float v[3];
+    char group;
+
     for(i=0;i<numTriangles;i++)
     {
         io->ReadFromFile(fHandle, tempString, sizeof(short));
-        io->ReadFromFile(fHandle, &indic, sizeof(short)*3);
-        io->ReadFromFile(fHandle, &norm, sizeof(float)*9);
-        io->ReadFromFile(fHandle, &u, sizeof(float)*3);
-        io->ReadFromFile(fHandle, &v, sizeof(float)*3);
-        io->ReadFromFile(fHandle, tempString, sizeof(char)*2);
+        io->ReadFromFile(fHandle, indic, sizeof(short)*3);
+        io->ReadFromFile(fHandle, norm, sizeof(float)*9);
+        io->ReadFromFile(fHandle, u, sizeof(float)*3);
+        io->ReadFromFile(fHandle, v, sizeof(float)*3);
+        io->ReadFromFile(fHandle, &group, sizeof(char));
+        io->ReadFromFile(fHandle, tempString, sizeof(char));
 
         for(int j=0;j<3;j++) {
+
+
             vertices[indic[j]].texCoords[0]=u[j];
-            vertices[indic[j]].texCoords[1]=v[j];
+            vertices[indic[j]].texCoords[1]=1-v[j];
             vertices[indic[j]].normal[0]=norm[j*3];
             vertices[indic[j]].normal[1]=norm[j*3+1];
             vertices[indic[j]].normal[2]=norm[j*3+2];
@@ -92,12 +95,14 @@ void MS3DModel::Load(const char* filename, Vertex3D*&vertices, int& numV,
             vertices[indic[j]].color[2]=255;
             vertices[indic[j]].color[3]=255;
             indices[i*3+j]=indic[j];
+
+            if(indic[j]==2)
+                Logger::Log("%f %f", vertices[indic[j]].texCoords[0], vertices[indic[j]].texCoords[1]);
         }
+
     }
 
-    for(int z=0;z<numTriangles*3;z++) {
-      //  Logger::Log("%d", indices[z]);
-    }
+
     //====================
 
     //Read meshes data
@@ -105,8 +110,7 @@ void MS3DModel::Load(const char* filename, Vertex3D*&vertices, int& numV,
 
     short numMeshes;
     io->ReadFromFile(fHandle, &numMeshes, sizeof(short));
-    Logger::Log("Milkshape file %d", numMeshes);
-    //meshes = new MyModelMesh[numMeshes];
+
     short numTris;
     char materialIndex;
     for(i=0;i<numMeshes;i++)
@@ -117,43 +121,48 @@ void MS3DModel::Load(const char* filename, Vertex3D*&vertices, int& numV,
         io->ReadFromFile(fHandle, trisIndices, sizeof(short)*numTris);
         io->ReadFromFile(fHandle, &materialIndex, sizeof(char));
 
+        Mesh mesh;
+        mesh.startIndex = trisIndices[0]*3;
+        mesh.indicesCount = numTris*3;
+        mesh.materialIndex = materialIndex;
+        meshesInfo.push_back(mesh);
+
         delete[] trisIndices;
     }
 
     numV = numVertices;
 
-    Logger::Log("Num vertices %d", numVertices);
+
     //====================
-/*
-	//Read materials data
-	//====================
-	fread(&numMaterials, sizeof(short), 1, pf);
-	materials = new MyModelMaterial[numMaterials];
 
-	for(i=0;i<numMaterials;i++)
-	{
-		fread(tempString, sizeof(char), 32, pf);
-		fread(materials[i].ambient, sizeof(float), 4, pf);
-		fread(materials[i].diffuse, sizeof(float), 4, pf);
-		fread(materials[i].specular, sizeof(float), 4, pf);
-		fread(materials[i].emissive, sizeof(float), 4, pf);
-		fread(&materials[i].shinniness, sizeof(float), 1, pf);
-		fread(&materials[i].transparency, sizeof(float), 1, pf);
-		fread(tempString, sizeof(char), 1, pf); //mode
-		fread(materials[i].texture, sizeof(char), 128, pf);
-		fread(materials[i].alphamap, sizeof(char), 128, pf);
+    //Read materials data
+    //====================
 
-                //materials[i].textureID=0;
+    short numMaterials;
+    io->ReadFromFile(fHandle, &numMaterials, sizeof(short));
+    for(i=0;i<numMaterials;i++)
+    {
+        char texName[128];
+        memset(texName, '\0', 128);
+        Material mat;
+        io->ReadFromFile(fHandle, tempString, sizeof(char)*32);
+        io->ReadFromFile(fHandle, mat.ambient, sizeof(float)*4);
+        io->ReadFromFile(fHandle, mat.diffuse, sizeof(float)*4);
+        io->ReadFromFile(fHandle, mat.specular, sizeof(float)*4);
+        io->ReadFromFile(fHandle, mat.emissive, sizeof(float)*4);
+        io->ReadFromFile(fHandle, &mat.shinniness, sizeof(float));
+        io->ReadFromFile(fHandle, &mat.transparency, sizeof(float));
+        io->ReadFromFile(fHandle, tempString, sizeof(char));
+        io->ReadFromFile(fHandle, texName, sizeof(char)*128);
 
+        if(strcmp(texName, "")!=0) {
+            mat.texture = IContentManager::get()->GetTextureManager()->GetTexture(texName);
+        }
 
-               // qDebug()<<i<<materials[i].ambient[0]<<materials[i].ambient[1]<<materials[i].ambient[2];
-		if(strcmp(materials[i].texture, "")!=0)
-		{
-                    //materials[i].textureID=0;
-//			materials[i].textureID = LoadGLTexture(materials[i].texture);
-		}
+        io->ReadFromFile(fHandle, texName, sizeof(char)*128);
 
-        }*/
+        materialsInfo.push_back(mat);
+    }
 
     io->CloseFile(fHandle);
 }

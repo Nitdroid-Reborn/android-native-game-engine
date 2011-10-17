@@ -108,7 +108,11 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/ShaderProgram.cpp \
                    Graphics/VBO.cpp \
                    Graphics/ModelGeometry.cpp \
-                   Graphics/MS3DModel.cpp
+                   Graphics/MS3DModel.cpp \
+                   ContentManager/ShaderSourceManager.cpp \
+                   Graphics/ShaderSource.cpp \
+                   Graphics/ShaderSourceFactory.cpp \
+                   Graphics/Camera.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz

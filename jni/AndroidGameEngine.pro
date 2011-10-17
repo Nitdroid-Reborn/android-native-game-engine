@@ -16,7 +16,8 @@ INCLUDEPATH += "/usr/include/freetype2"
 
 QT += core gui opengl
 
-SOURCES += main.cpp \
+SOURCES += DesktopMain.cpp \
+    main.cpp \
     FileIO/BufferStream.cpp \
     FileIO/AndroidFileIO.cpp \
     ContentManager/PNGLoader.cpp \
@@ -115,7 +116,6 @@ SOURCES += main.cpp \
     Scripts/ScriptSourceFactory.cpp \
     ContentManager/ScriptSourceManager.cpp \
     Graphics/Font.cpp \
-    DesktopMain.cpp \
     MainGLWidget.cpp \
     Core/QtEngine.cpp \
     Audio/QtAudioSystem.cpp \
@@ -127,7 +127,12 @@ SOURCES += main.cpp \
     Graphics/Shader.cpp \
     Graphics/VBO.cpp \
     Graphics/ModelGeometry.cpp \
-    Graphics/MS3DModel.cpp
+    Graphics/MS3DModel.cpp \
+    Graphics/ShaderSource.cpp \
+    ContentManager/ShaderSourceManager.cpp \
+    Graphics/ShaderSourceFactory.cpp \
+    Graphics/Model.cpp \
+    Graphics/Camera.cpp
 
 
 HEADERS += \
@@ -315,12 +320,29 @@ HEADERS += \
     Graphics/VBO.h \
     Graphics/IGeometry.h \
     Graphics/ModelGeometry.h \
-    Graphics/MS3DModel.h
+    Graphics/MS3DModel.h \
+    Graphics/ShaderSource.h \
+    ContentManager/IShaderSourceManager.h \
+    ContentManager/ShaderSourceManager.h \
+    Graphics/ShaderSourceFactory.h \
+    Graphics/Model.h \
+    Graphics/Camera.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
+
+
+
+
+
+
+
+
+
 
 
 

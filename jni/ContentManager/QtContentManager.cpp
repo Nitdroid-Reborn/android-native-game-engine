@@ -2,6 +2,8 @@
 #include "TextureManager.h"
 #include "SoundManager.h"
 #include "ScriptSourceManager.h"
+#include "ShaderSourceManager.h"
+#include <Scripts/ScriptManager.h>
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -22,6 +24,7 @@ bool QtContentManager::Initialize() {
     textureManager = new TextureManager();
     soundManager = new SoundManager();
     scriptSourceManager = new ScriptSourceManager();
+    shaderSourceManager = new ShaderSourceManager();
 
 
     //Register to lua
@@ -75,6 +78,7 @@ bool QtContentManager::Release() {
     delete textureManager;
     delete soundManager;
     delete scriptSourceManager;
+    delete shaderSourceManager;
 
     textureManager = NULL;
     soundManager = NULL;

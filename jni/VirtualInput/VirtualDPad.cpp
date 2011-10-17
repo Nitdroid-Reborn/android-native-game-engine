@@ -83,14 +83,14 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
             pressed[2] = true;
             KeyEvent e;
             e.action = ENGINE_KEYACTION_DOWN;
-            e.keyCode = ENGINE_KEYCODE_DOWN;
+            e.keyCode = ENGINE_KEYCODE_UP;
             events.push_back(e);
 
             if(pressed[0]) {
                 pressed[0] = false;
                 KeyEvent e;
                 e.action = ENGINE_KEYACTION_UP;
-                e.keyCode = ENGINE_KEYCODE_UP;
+                e.keyCode = ENGINE_KEYCODE_DOWN;
                 events.push_back(e);
             }
         }
@@ -98,14 +98,14 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
             pressed[0] = true;
             KeyEvent e;
             e.action = ENGINE_KEYACTION_DOWN;
-            e.keyCode = ENGINE_KEYCODE_UP;
+            e.keyCode = ENGINE_KEYCODE_DOWN;
             events.push_back(e);
 
             if(pressed[2]) {
                 pressed[2] = false;
                 KeyEvent e;
                 e.action = ENGINE_KEYACTION_UP;
-                e.keyCode = ENGINE_KEYCODE_DOWN;
+                e.keyCode = ENGINE_KEYCODE_UP;
                 events.push_back(e);
             }
         }
@@ -114,14 +114,14 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
                 pressed[0] = false;
                 KeyEvent e;
                 e.action = ENGINE_KEYACTION_UP;
-                e.keyCode = ENGINE_KEYCODE_UP;
+                e.keyCode = ENGINE_KEYCODE_DOWN;
                 events.push_back(e);
             }
             if(pressed[2]) {
                 pressed[2] = false;
                 KeyEvent e;
                 e.action = ENGINE_KEYACTION_UP;
-                e.keyCode = ENGINE_KEYCODE_DOWN;
+                e.keyCode = ENGINE_KEYCODE_UP;
                 events.push_back(e);
             }
         }
@@ -179,7 +179,7 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
             pressed[0] = false;
             KeyEvent e;
             e.action = ENGINE_KEYACTION_UP;
-            e.keyCode = ENGINE_KEYCODE_UP;
+            e.keyCode = ENGINE_KEYCODE_DOWN;
             events.push_back(e);
         }
         if(pressed[1]) {
@@ -193,7 +193,7 @@ vector<KeyEvent> VirtualDPad::GetEvents() {
             pressed[2] = false;
             KeyEvent e;
             e.action = ENGINE_KEYACTION_UP;
-            e.keyCode = ENGINE_KEYCODE_DOWN;
+            e.keyCode = ENGINE_KEYCODE_UP;
             events.push_back(e);
         }
         if(pressed[3]) {

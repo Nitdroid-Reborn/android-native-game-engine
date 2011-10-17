@@ -13,6 +13,7 @@
 #include "OGLTexture.h"
 #include "TextBox.h"
 #include "Font.h"
+#include "Camera.h"
 
 using namespace std;
 
@@ -41,6 +42,7 @@ public:
     void DrawString(int x, int y, const char * str);
 
     TextureHandle fontTexture;
+    Camera* GetCamera() {return mainThreadCamera;}
 
     Font2 myFont;
 private:
@@ -63,6 +65,8 @@ private:
     EGLContext context;
 
 
+    Camera* camera;
+    Camera* mainThreadCamera;
 
     TextBox textBox;
 
@@ -78,11 +82,12 @@ private:
     ConditionalVariable mainLoopCond;
     SpriteBatcher* batcher;   
 
+
+    float angle;
     ModelGeometry* model;
     ShaderProgram* sp;
     Shader*vs;
     Shader*fs;
-    VBO* vbo;
 };
 
 #endif // ANDROIDRENDERER_H

@@ -4,6 +4,7 @@
 #include <Utils/Utils.h>
 #include <Scripts/ScriptManager.h>
 #include "ScriptSourceManager.h"
+#include "ShaderSourceManager.h"
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -24,6 +25,7 @@ bool AndroidContentManager::Initialize() {
     textureManager = new TextureManager();
     soundManager = new SoundManager();
     scriptSourceManager = new ScriptSourceManager();
+    shaderSourceManager = new ShaderSourceManager();
 
 
     const EGLint attribs[] = {
@@ -122,6 +124,7 @@ bool AndroidContentManager::Release() {
     delete textureManager;
     delete soundManager;
     delete scriptSourceManager;
+    delete shaderSourceManager;
 
     textureManager = NULL;
     soundManager = NULL;

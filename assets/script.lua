@@ -52,11 +52,11 @@ update = function(dt)
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
-    for x=30,800,40 do
-       for y=30,450,40 do
-           renderer:DrawSprite(x, y, Renderer.NORMAL_LAYER, 30, 30, textureRegion, texture, angle);
-       end
-    end
+   -- for x=30,800,40 do
+    --   for y=30,450,40 do
+     --      renderer:DrawSprite(x, y, Renderer.NORMAL_LAYER, 30, 30, textureRegion, texture, angle);
+      -- end
+   -- end
 
     angle= angle + dt/3;
 end

@@ -66,6 +66,34 @@ Vector4 Matrix4x4::GetRow(int position) const
 	return Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
+
+void Matrix4x4::SetRow(int position, const Vector4& row) {
+    if(position==0) {
+        entries[0] = row.x;
+        entries[4] = row.y;
+        entries[8] = row.z;
+        entries[12] = row.w;
+    }
+    else if(position==0) {
+        entries[1] = row.x;
+        entries[5] = row.y;
+        entries[9] = row.z;
+        entries[13] = row.w;
+    }
+    else if(position==0) {
+        entries[2] = row.x;
+        entries[6] = row.y;
+        entries[10] = row.z;
+        entries[14] = row.w;
+    }
+    else {
+        entries[3] = row.x;
+        entries[7] = row.y;
+        entries[11] = row.z;
+        entries[15] = row.w;
+    }
+}
+
 Vector4 Matrix4x4::GetColumn(int position) const
 {
 	if(position==0)

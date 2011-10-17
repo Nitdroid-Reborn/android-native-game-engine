@@ -1,7 +1,6 @@
 #ifndef SCRIPTMANAGER_H
 #define SCRIPTMANAGER_H
 
-
 extern "C" {
     #include <Scripts/lua/lua.h>
     #include <Scripts/lua/lualib.h>

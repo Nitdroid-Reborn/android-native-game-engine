@@ -2,6 +2,7 @@
 #include <FileIO/IFileIO.h>
 #include <FileIO/BufferStream.h>
 #include <Utils/Utils.h>
+#include <string.h>
 WaveSound::WaveSound()
 {
 

@@ -45,6 +45,11 @@ bool AndroidFileIO::Release() {
 bool AndroidFileIO::OpenFile(const char *path, const char *mode, EngineFileHandle &fileHandle) {
     if(numHandles>=256) return false;
 
+
+    char prefix[128];
+    strcpy(prefix, "/sdcard/");
+    strcat(prefix, path);
+
     for(int i=0;i<256;i++) {
         if(fileHandles[i]==NULL) {
             fileHandle = i;
@@ -53,7 +58,7 @@ bool AndroidFileIO::OpenFile(const char *path, const char *mode, EngineFileHandl
         }
     }
 
-    fileHandles[fileHandle] = fopen(path, mode);
+    fileHandles[fileHandle] = fopen(prefix, mode);
     if(fileHandles[fileHandle]) {
         return 1;
     }
@@ -253,7 +258,12 @@ U32 AndroidFileIO::GetSize(const char *path) {
         return GetAssetSize(assetPath);
     }
     else {
-        return GetFileSize(path);
+        char prefix[128];
+        strcpy(prefix, "/sdcard/");
+        strcat(prefix, path);
+
+        Logger::Log("%s", prefix);
+        return GetFileSize(prefix);
     }
 }
 
@@ -263,7 +273,10 @@ bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize) {
         return ReadAsset(assetPath, buffer, bufferSize);
     }
     else {
-        return ReadFile(path, buffer, bufferSize);
+        char prefix[128];
+        strcpy(prefix, "/sdcard/");
+        strcat(prefix, path);
+        return ReadFile(prefix, buffer, bufferSize);
     }
 }
 
@@ -273,7 +286,10 @@ bool AndroidFileIO::Read(const char *path, void *buffer, U32 bufferSize, U32 &by
         return ReadAsset(assetPath, buffer, bufferSize, bytesRead);
     }
     else {
-        return ReadFile(path, buffer, bufferSize, bytesRead);
+        char prefix[128];
+        strcpy(prefix, "/sdcard/");
+        strcat(prefix, path);
+        return ReadFile(prefix, buffer, bufferSize, bytesRead);
     }
 }
 #endif

@@ -1,4 +1,5 @@
 #include <QtGui/QApplication>
+#include <qdatastream.h>
 #include "MainGLWidget.h"
 
 int main(int argc, char *argv[])

@@ -1,12 +1,14 @@
 #ifndef SHADER_H
 #define SHADER_H
-#include <string>
+
 #ifdef ANDROID
 #include <GLES2/gl2.h>
 #else
 #include "GLee.h"
 #endif
 
+#include <string>
+#include <ContentManager/IShaderSourceManager.h>
 
 class Shader
 {
@@ -18,12 +20,10 @@ public:
 
     Shader(ShaderType type);
     ~Shader();
-    bool CompileSource(std::string sourceCode);
+    bool CompileSource(const ShaderSourceHandle& shaderSrc);
     inline GLuint GetId() const {return id;}
     inline ShaderType GetType() const {return type;}
     inline bool IsCompiled() const {return compiled;}
-
-
 
 
 private:

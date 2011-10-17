@@ -20,6 +20,8 @@ public:
 	float GetEntry(int position) const;
 	Vector4 GetRow(int position) const;
 	Vector4 GetColumn(int position) const;
+
+        void SetRow(int position, const Vector4& row);
 	
 	void LoadIdentity(void);
 	void LoadZero(void);

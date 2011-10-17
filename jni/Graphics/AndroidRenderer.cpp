@@ -72,6 +72,7 @@ void AndroidRenderer::InitWindow() {
             EGL_BLUE_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_RED_SIZE, 8,
+            EGL_DEPTH_SIZE, 16,
             EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_NONE
     };
@@ -128,8 +129,7 @@ void AndroidRenderer::InitWindow() {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    //glShadeModel(GL_SMOOTH);
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
 
     //glMatrixMode(GL_PROJECTION);
@@ -139,6 +139,14 @@ void AndroidRenderer::InitWindow() {
     //glMatrixMode(GL_MODELVIEW);
     //glLoadIdentity();
     glViewport(0, 0, (int) w, (int) h);
+
+
+    camera->SetProjection(54, (float)w/(float)h, 0.1, 100.0f);
+    camera->SetPosition(Vector3(0,0,0));
+    camera->SetDirection(Vector3(0,0,-1));
+    camera->SetUpVector(Vector3(0,1,0));
+
+    mainThreadCamera->Clone(camera);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -150,9 +158,10 @@ void AndroidRenderer::InitWindow() {
     //glEnableClientState(GL_COLOR_ARRAY);
 
     glClearColor(0,0,0,1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearDepthf(1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+    angle=0.0f;
 
 
     contextValid=true;
@@ -225,40 +234,25 @@ void AndroidRenderer::Initialize() {
 
 
     model = new ModelGeometry();
-    model->Load("/sdcard/krasnal.ms3d");
+    model->Load("krasnal.ms3d");
 
     sp = new ShaderProgram();
     vs = new Shader(Shader::VertexShader);
     fs = new Shader(Shader::PixelShader);
 
-    vbo = new VBO(model);
 
-    static const char gVertexShader[] =
-        "uniform mat4 mvp;"
-        "attribute mediump vec4 vPosition;\n"
-        "attribute mediump vec4 vTexCoords;\n"
-        "attribute lowp vec4 vColor;\n"
-        "varying mediump vec4 texCoords;\n"
-        "varying lowp vec4 color;\n"
-        "void main() {\n"
-        "  gl_Position = mvp * (vPosition);\n"
-        "  texCoords = vTexCoords;\n"
-        "  color = vColor;\n"
-        "}\n";
+    ShaderSourceHandle vertexSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/3d.vert");
+    ShaderSourceHandle fragmentSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/3d.frag");
 
-    static const char gFragmentShader[] =
-        "uniform sampler2D textureSampler;\n"
-        "varying mediump vec4 texCoords;\n"
-        "varying lowp vec4 color;\n"
-        "void main() {\n"
-        "  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "}\n";
+    vs->CompileSource(vertexSrc);
+    fs->CompileSource(fragmentSrc);
 
-    vs->CompileSource(gVertexShader);
-    fs->CompileSource(gFragmentShader);
     sp->AddShader(vs);
     sp->AddShader(fs);
     sp->Link();
+
+    camera = new Camera();
+    mainThreadCamera = new Camera();
     Logger::Log(1, "Android Renderer initialized");
 }
 
@@ -276,13 +270,14 @@ void AndroidRenderer::Release() {
     delete sp;
     delete vs;
     delete fs;
-    delete vbo;
     delete model;
+
+    delete camera;
+    delete mainThreadCamera;
 
     sp=NULL;
     vs=NULL;
     fs=NULL;
-    vbo=NULL;
     model=NULL;
     mutex.Unlock();
 }
@@ -326,69 +321,39 @@ void AndroidRenderer::Run() {
 
                     //if(contextValid) {
 
-                    glClear(GL_COLOR_BUFFER_BIT);
-
-                  /*  vector<int> textureChanges;
-                    {
-                        PROFILE("Sprites sorting", &rendererProfileManager);
-
-                        if(oldSprites.size() > 0) {
-                            std::sort(oldSprites.begin(), oldSprites.end());
-                            ITexture* current = oldSprites[0].texture;
-                            textureChanges.push_back(0);
-                            for(int i=1;i<oldSprites.size();i++) {
-                                if(current!=oldSprites[i].texture) {
-                                    current = oldSprites[i].texture;
-                                    textureChanges.push_back(i);
-                                }
-                            }
-                            textureChanges.push_back(oldSprites.size());
-                        }
-                    }*/
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+                    camera->Update();
+                    //textBox.Draw();
 
+                    Matrix4x4 translation;
+                    translation.SetTranslation(Vector3(0,-1,-5));
+
+                    Matrix4x4 rotation;
+                    rotation.SetRotationY(angle);
+
+                    Matrix4x4 world = translation*rotation;
+
+                    model->Draw(camera, world, sp);
 
 
                     {
                        PROFILE("Batch", &rendererProfileManager);
 
 
+                       glDisable(GL_DEPTH_TEST);
+                       batcher->EndBatch();
 
-                       //batcher->EndBatch();
+                       batcher->BeginBatch();
 
-                       //batcher->BeginBatch();
+                       glEnable(GL_DEPTH_TEST);
 
                     }
 
-                    sp->Bind();
-                    sp->EnableAttributeArray("vPosition");
-                    sp->EnableAttributeArray("vTexCoords");
-                    sp->EnableAttributeArray("vColor");
-
-                    Matrix4x4 mat;
-                    mat.SetPerspective(54.0f, 800.0f/480.0f, 0.1, 1000);
 
 
-                    Matrix4x4 scale;
-                    //scale.SetScale(Vector3(2.1 ,2.1, 2.1));
-                    scale.SetTranslation(Vector3(0, 0, -15));
-
-                    mat = mat*scale;
-
-                    sp->SetUniformValue("mvp", mat);
-
-                    vbo->Bind();
-                    vbo->SetData(model->GetVerticesCount(), model->GetVertices(),
-                                 model->GetIndicesCount(), model->GetIndices());
-                    sp->SetAttributeArray(vbo);
-
-                    vbo->Draw(0, model->GetIndicesCount()/3);
-
-                    vbo->Release();
-                    sp->Release();
-
-
+                    angle+=1.1;
 
                     {
                       PROFILE("Swap buffers", &rendererProfileManager);
@@ -423,6 +388,7 @@ void AndroidRenderer::Wait() {
     mainLoopCond.Wait();
     mutex.Lock();
     batcher->SwapSpriteBuffer();
+    camera->Clone(mainThreadCamera);
     mutex.Unlock();
 
 

@@ -1,6 +1,11 @@
 #include "Log.h"
 #include "Utils.h"
 
+#ifndef ANDROID
+#include <QDebug>
+#else
+#include <android/log.h>
+#endif
 
 void Logger::Log(const char *format...) {
     va_list argList;
@@ -21,8 +26,13 @@ void Logger::Log(LogType logType, const char *format...) {
 }
 
 void Logger::LuaLog(const char *message) {
-    if(message)
-        LOGI(message);
+    if(message) {
+#ifdef ANDROID
+    __android_log_print(LOG_INFO, "native-activity", message);
+#else
+    qDebug(message);
+#endif
+    }
 }
 
 void Logger::Log(LogType logType, const char *format, va_list argList) {
@@ -37,7 +47,7 @@ void Logger::Log(LogType logType, const char *format, va_list argList) {
 #ifdef ANDROID
     __android_log_print(logType, "native-activity", buffer);
 #else
-    LOGI(buffer);
+    qDebug(buffer);
 #endif
 
 }

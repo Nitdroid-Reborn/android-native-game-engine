@@ -91,10 +91,10 @@ char* VBO::GetVertexAttributeOffset(VertexAttribute attr) {
     switch(attr) {
         case VertexPosition:
             return BUFFER_OFFSET(0);
-        case VertexTexCoord:
-            return BUFFER_OFFSET(24);
         case VertexNormal:
             return BUFFER_OFFSET(12);
+        case VertexTexCoord:
+            return BUFFER_OFFSET(24);
         case VertexColor:
             return BUFFER_OFFSET(32);
     }

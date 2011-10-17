@@ -11,43 +11,12 @@
 #include <cmath>
 #include "ShaderProgram.h"
 #include "Shader.h"
+#include <ContentManager/IContentManager.h>
 
 #define PI 3.14159265358979323846
 ProfilerManager* SpriteBatcher::batcherProfileManager;
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 
-static void printGLString(const char *name, GLenum s) {
-    const char *v = (const char *) glGetString(s);
-    LOGI("GL %s = %s\n", name, v);
-}
-
-static void checkGlError(const char* op) {
-    for (GLint error = glGetError(); error; error
-            = glGetError()) {
-        LOGI("after %s() glError (0x%x)\n", op, error);
-    }
-}
-static const char gVertexShader[] =
-    "uniform mat4 mvp;"
-    "attribute mediump vec4 vPosition;\n"
-    "attribute mediump vec4 vTexCoords;\n"
-    "attribute lowp vec4 vColor;\n"
-    "varying mediump vec4 texCoords;\n"
-    "varying lowp vec4 color;\n"
-    "void main() {\n"
-    "  gl_Position = mvp * (vPosition);\n"
-    "  texCoords = vTexCoords;\n"
-    "  color = vColor;\n"
-    "}\n";
-
-static const char gFragmentShader[] =
-    "uniform sampler2D textureSampler;\n"
-    "varying mediump vec4 texCoords;\n"
-    "varying lowp vec4 color;\n"
-    "void main() {\n"
-    "  gl_FragColor = texture2D(textureSampler, texCoords.xy)*color;\n"
-    "}\n";
 
 SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     indices = new U16[maxSprites*6];
@@ -57,13 +26,8 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
     numVertices = maxSprites*4;
     numIndices = maxSprites*6;
 
-    indicesBuffer=0;
-    vertexBuffer=0;
-
 
     numSprites=0;
-   // vertexSize = 8*4;
-
 
     U16 j=0;
     for(int i=0;i<numIndices; i+=6, j+=4) {
@@ -74,22 +38,6 @@ SpriteBatcher::SpriteBatcher(U16 maxSprites) : ISpriteBatcher(maxSprites) {
         indices[i+4] = j+3;
         indices[i+5] = j+0;
     }
-
-    I32 bufferSize;
-
-
-    /*glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*numVertices, 0, GL_STREAM_DRAW);
-
-
-    glGenBuffers(1, &indicesBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(U16)*numIndices, &indices[0], GL_STATIC_DRAW);
-*/
-  //  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16)*numIndices, &indices[0]);
-   // oldSprites.reserve(maxSprites);
-   // sprites.reserve(maxSprites);
 }
 
 
@@ -114,8 +62,6 @@ SpriteBatcher::~SpriteBatcher() {
 
     if(vbo)
         delete vbo;
-   // glDeleteBuffers(1, &vertexBuffer);
-    //glDeleteBuffers(1, &indicesBuffer);
 }
 
 void SpriteBatcher::BeginBatch() {
@@ -125,8 +71,6 @@ void SpriteBatcher::BeginBatch() {
 
 void SpriteBatcher::Bind() {
     vbo->Bind();
-    //glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer);
 }
 
 
@@ -146,28 +90,13 @@ void SpriteBatcher::EndBatch() {
     shaderProgram->EnableAttributeArray("vTexCoords");
     shaderProgram->EnableAttributeArray("vColor");
 
-   // glPushMatrix();
-
-   // glScalef(0.1, 0.1, 0.1);
-
-   // glMatrixMode(GL_TEXTURE);
-   // glPushMatrix();
-   // glScalef(0.001, 0.001, 0.001);
-
-
 
     ITexture* currentTexture = 0;
     vector<Sprite>::iterator it = oldSprites.begin();
 
 
     Matrix4x4 mat;
-    mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 1.0);
-
-   // Matrix4x4 scale;
-    //scale.SetScale(Vector3(0.1 ,0.1, 0.1));
-
-    //mat = mat*scale;
-
+    mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 10.0);
 
 
     shaderProgram->SetUniformValue("mvp", mat);
@@ -342,11 +271,18 @@ void SpriteBatcher::Init() {
 
     shaderProgram = new ShaderProgram();
 
+#ifdef ANDROID
+    ShaderSourceHandle vertexShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/batcher.vert");
+    ShaderSourceHandle fragmentShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/batcher.frag");
+#else
+    ShaderSourceHandle vertexShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/batcher.vert");
+    ShaderSourceHandle fragmentShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/batcher.frag");
+#endif
 
     vertexShader = new Shader(Shader::VertexShader);
-    vertexShader->CompileSource(std::string(gVertexShader));
+    vertexShader->CompileSource(vertexShaderSource);
     pixelShader = new Shader(Shader::PixelShader);
-    pixelShader->CompileSource(std::string(gFragmentShader));
+    pixelShader->CompileSource(fragmentShaderSource);
 
     shaderProgram->AddShader(vertexShader);
     shaderProgram->AddShader(pixelShader);

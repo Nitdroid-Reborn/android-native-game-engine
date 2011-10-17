@@ -109,7 +109,7 @@ void AcquireWakeLock(android_app* app) {
 
     jint lResult=lJavaVM->AttachCurrentThread(&lJNIEnv, &lJavaVMAttachArgs);
     if (lResult == JNI_ERR) {
-        LOGI("error");
+
     }
 
     jobject lNativeActivity = app->activity->clazz;
@@ -132,7 +132,7 @@ void ReleaseWakeLock(android_app* app) {
 
     jint lResult=lJavaVM->AttachCurrentThread(&lJNIEnv, &lJavaVMAttachArgs);
     if (lResult == JNI_ERR) {
-        LOGI("error");
+
     }
 
     jobject lNativeActivity = app->activity->clazz;

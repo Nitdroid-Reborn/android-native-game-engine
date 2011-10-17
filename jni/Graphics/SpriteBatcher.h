@@ -69,18 +69,6 @@ public:
 
     void Init();
 private:
-
-    /*struct Vertex {
-        F32 x;
-        F32 y;
-        F32 u;
-        F32 v;
-        U8 r;
-        U8 g;
-        U8 b;
-        U8 a;
-    };*/
-
     U8 vertexSize;
     Vertex3D* vertices;
     U16 numSprites;
@@ -90,21 +78,14 @@ private:
     U16* indices;
 
 
-
     vector<Sprite> sprites;
     vector<Sprite> oldSprites;
-
-    U32 vertexBuffer;
-    U32 indicesBuffer;
 
     ShaderProgram* shaderProgram;
     Shader* vertexShader;
     Shader* pixelShader;
-    VBO* vbo;
-    U32 gProgram;
-    U32 gvPositionHandle;
-    U32 gvMatrixHandle;
 
+    VBO* vbo;
 };
 
 #endif // SPRITEBATCHER_H

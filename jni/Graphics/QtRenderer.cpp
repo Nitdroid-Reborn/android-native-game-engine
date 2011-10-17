@@ -31,12 +31,12 @@ void QtRenderer::OnInitWindow() {
 
     // Initialize GL state.
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-    //glEnable(GL_CULL_FACE);
-   // glCullFace(GL_BACK);
-   // glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     glShadeModel(GL_SMOOTH);
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     int w,h;
     w = app->width();
@@ -50,6 +50,13 @@ void QtRenderer::OnInitWindow() {
     glLoadIdentity();
     glViewport(0, 0, (int) w, (int) h);
 
+    camera->SetProjection(54, (float)w/(float)h, 0.1, 100.0f);
+    camera->SetPosition(Vector3(0,0,0));
+    camera->SetDirection(Vector3(0,0,-1));
+    camera->SetUpVector(Vector3(0,1,0));
+
+    mainThreadCamera->Clone(camera);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -60,13 +67,11 @@ void QtRenderer::OnInitWindow() {
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
 
-    glClearColor(0,0,0,1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0,0,0,0);
+    glClearDepth(1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     contextValid=true;
-
-
-
 }
 
 void QtRenderer::OnTerminateWindow() {
@@ -136,37 +141,20 @@ void QtRenderer::Initialize() {
     vs = new Shader(Shader::VertexShader);
     fs = new Shader(Shader::PixelShader);
 
-    vbo = new VBO(model);
+    ShaderSourceHandle vertexSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/3d.vert");
+    ShaderSourceHandle fragmentSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/3d.frag");
 
-    static const char gVertexShader[] =
-        "uniform mat4 mvp;"
-        "attribute mediump vec4 vPosition;\n"
-        "attribute mediump vec4 vTexCoords;\n"
-        "attribute lowp vec4 vColor;\n"
-        "varying mediump vec4 texCoords;\n"
-        "varying lowp vec4 color;\n"
-        "void main() {\n"
-        "  gl_Position = mvp * (vPosition);\n"
-        "  texCoords = vTexCoords;\n"
-        "  color = vColor;\n"
-        "}\n";
-
-    static const char gFragmentShader[] =
-        "uniform sampler2D textureSampler;\n"
-        "varying mediump vec4 texCoords;\n"
-        "varying lowp vec4 color;\n"
-        "void main() {\n"
-        "  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-        "}\n";
-
-    vs->CompileSource(gVertexShader);
-    fs->CompileSource(gFragmentShader);
+    vs->CompileSource(vertexSrc);
+    fs->CompileSource(fragmentSrc);
     sp->AddShader(vs);
     sp->AddShader(fs);
     sp->Link();
 
-    Logger::Log("num v: %d, num i: %d", model->GetVerticesCount(), model->GetIndicesCount());
 
+    camera = new Camera();
+    mainThreadCamera = new Camera();
+
+    angle=150.0f;
 
     Logger::Log(1, "Qt Renderer initialized");
 }
@@ -177,17 +165,18 @@ void QtRenderer::Release() {
     batcher = NULL;;
     singleton = NULL;
 
+    delete camera;
+    delete mainThreadCamera;
+
 
     delete sp;
     delete vs;
     delete fs;
-    delete vbo;
     delete model;
 
     sp=NULL;
     vs=NULL;
     fs=NULL;
-    vbo=NULL;
     model=NULL;
 }
 
@@ -200,21 +189,22 @@ void QtRenderer::Run() {
 
             //if(contextValid) {
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+            camera->Update();
             //textBox.Draw();
 
-            {
-               PROFILE("Batch", &rendererProfileManager);
+            Matrix4x4 translation;
+            translation.SetTranslation(Vector3(0,-1,-5));
 
+            Matrix4x4 rotation;
+            rotation.SetRotationY(angle);
 
-               //batcher->EndBatch();
+            Matrix4x4 world = translation*rotation;
 
-             //  batcher->BeginBatch();
-            }
-
-
-            sp->Bind();
+            model->Draw(camera, world, sp);
+            /*sp->Bind();
             sp->EnableAttributeArray("vPosition");
             sp->EnableAttributeArray("vTexCoords");
             sp->EnableAttributeArray("vColor");
@@ -223,15 +213,23 @@ void QtRenderer::Run() {
             mat.SetPerspective(54.0f, 800.0f/480.0f, 0.1, 1000);
 
 
-            Matrix4x4 scale;
-            //scale.SetScale(Vector3(2.1 ,2.1, 2.1));
-            scale.SetTranslation(Vector3(0, 0, -15));
 
-            mat = mat*scale;
+
+            Matrix4x4 translation;
+            translation.SetTranslation(Vector3(0,-1,-5));
+            mat = mat*translation;
+
+            Matrix4x4 rotation;
+            rotation.SetRotationY(angle);
+
+            mat = mat*rotation;
+
 
             sp->SetUniformValue("mvp", mat);
+            sp->SetUniformValue("textureSampler", 0);
 
-            vbo->Bind();
+            model->Draw(sp);*/
+            /*vbo->Bind();
             vbo->SetData(model->GetVerticesCount(), model->GetVertices(),
                          model->GetIndicesCount(), model->GetIndices());
             sp->SetAttributeArray(vbo);
@@ -239,8 +237,20 @@ void QtRenderer::Run() {
             vbo->Draw(0, model->GetIndicesCount()/3);
 
             vbo->Release();
-            sp->Release();
+            sp->Release();*/
 
+            {
+               PROFILE("Batch", &rendererProfileManager);
+
+
+               glDisable(GL_DEPTH_TEST);
+
+               batcher->EndBatch();
+
+               batcher->BeginBatch();
+
+               glEnable(GL_DEPTH_TEST);
+            }
 
 
             {
@@ -250,6 +260,8 @@ void QtRenderer::Run() {
               app->swapBuffers();
 
              frameCounter++;
+
+             angle+=1.1;
 
              if(frameCounter>60) {
                  frameCounter=0;
@@ -270,6 +282,7 @@ void QtRenderer::Run() {
 
 void QtRenderer::Wait() {
     batcher->SwapSpriteBuffer();
+    camera->Clone(mainThreadCamera);
     //textBox.SwapTextBuffer();
 
     Run();
@@ -301,4 +314,9 @@ void QtRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r
 
 void QtRenderer::DrawString(int x, int y, const char * str) {
     textBox.DrawStr(x, y, (char*)str);
+}
+
+
+void QtRenderer::DrawGeometry(const IGeometry *geometry, Matrix4x4 worldMatrix) {
+
 }

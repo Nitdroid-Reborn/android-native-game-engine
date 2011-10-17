@@ -5,7 +5,6 @@
 #include <stdarg.h>
 #include "EngineTypes.h"
 #include <Core/Mutex.h>
-#include <Scripts/ScriptManager.h>
 
 
 using namespace std;

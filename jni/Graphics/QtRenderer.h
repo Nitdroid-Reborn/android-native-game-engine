@@ -7,7 +7,8 @@
 #include "TextBox.h"
 #include "Utils/Profiler.h"
 #include <Utils/Clock.h>
-
+#include <Math/MathLib.h>
+#include "Camera.h"
 
 class ModelGeometry;
 class VBO;
@@ -33,6 +34,10 @@ public:
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
 
+    void DrawGeometry(const IGeometry* geometry, Matrix4x4 worldMatrix);
+
+
+    Camera* GetCamera() {return mainThreadCamera;}
     Font2 myFont;
 
     ModelGeometry* model;
@@ -53,11 +58,13 @@ private:
     bool terminateWindow;
     bool closing;
     bool active;
+    Camera* camera;
+    Camera* mainThreadCamera;
 
+    float angle;
     ShaderProgram* sp;
     Shader*vs;
     Shader*fs;
-    VBO* vbo;
 };
 
 #endif // QTRENDERER_H

@@ -1,4 +1,5 @@
 #include "QtAudioSystem.h"
+#include <Scripts/ScriptManager.h>
 
 IAudioSystem* IAudioSystem::singleton = NULL;
 

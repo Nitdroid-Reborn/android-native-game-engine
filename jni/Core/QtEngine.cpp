@@ -241,6 +241,21 @@ void QtEngine::SingleFrame() {
 
     mainLoopProfileManager.DumpProfileDataToBuffer();
 
+    QtRenderer* ren = (QtRenderer*)renderer;
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_UP)) {
+       ren->GetCamera()->MoveForvard(0.1);
+    }
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_DOWN)) {
+       ren->GetCamera()->MoveForvard(-0.1);
+    }
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT)) {
+       ren->GetCamera()->MoveLeft(-0.1);
+    }
+    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT)) {
+       ren->GetCamera()->MoveLeft(0.1);
+    }
+
+
     if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
         ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
     }
