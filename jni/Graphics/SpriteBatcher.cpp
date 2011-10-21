@@ -52,14 +52,16 @@ SpriteBatcher::~SpriteBatcher() {
     delete[] indices;
     indices = NULL;
 
-    if(shaderProgram) {
+    IContentManager::get()->GetShaderProgramManager()->ReleaseShaderProgram(shaderProgram);
+
+   /* if(shaderProgram) {
         delete shaderProgram;
     }
     if(vertexShader)
         delete vertexShader;
     if(pixelShader)
         delete pixelShader;
-
+*/
     if(vbo)
         delete vbo;
 }
@@ -85,10 +87,11 @@ void SpriteBatcher::EndBatch() {
 
 
     vbo->Bind();
-    shaderProgram->Bind();
-    shaderProgram->EnableAttributeArray("vPosition");
-    shaderProgram->EnableAttributeArray("vTexCoords");
-    shaderProgram->EnableAttributeArray("vColor");
+    ShaderProgram* sp = shaderProgram.Get();
+    sp->Bind();
+    sp->EnableAttributeArray("vPosition");
+    sp->EnableAttributeArray("vTexCoords");
+    sp->EnableAttributeArray("vColor");
 
 
     ITexture* currentTexture = 0;
@@ -99,8 +102,8 @@ void SpriteBatcher::EndBatch() {
     mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 10.0);
 
 
-    shaderProgram->SetUniformValue("mvp", mat);
-    shaderProgram->SetUniformValue("textureSampler", 0);
+    sp->SetUniformValue("mvp", mat);
+    sp->SetUniformValue("textureSampler", 0);
 
     for(it; it!=oldSprites.end(); ++it) {
 
@@ -111,7 +114,7 @@ void SpriteBatcher::EndBatch() {
                          (int)numIndices, &indices[0]);
 
 
-            shaderProgram->SetAttributeArray(vbo);
+            sp->SetAttributeArray(vbo);
 
             vbo->Draw(0, numSprites*2);
             texChanges++;
@@ -253,7 +256,7 @@ void SpriteBatcher::EndBatch() {
                  numIndices, &indices[0]);
 
 
-    shaderProgram->SetAttributeArray(vbo);
+    sp->SetAttributeArray(vbo);
 
     vbo->Draw(0, numSprites*2);
 
@@ -263,30 +266,12 @@ void SpriteBatcher::EndBatch() {
         currentTexture = 0;
     }
 
-    shaderProgram->Release();
+    sp->Release();
     vbo->Release();
 }
 
 void SpriteBatcher::Init() {
-
-    shaderProgram = new ShaderProgram();
-
-#ifdef ANDROID
-    ShaderSourceHandle vertexShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/batcher.vert");
-    ShaderSourceHandle fragmentShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/batcher.frag");
-#else
-    ShaderSourceHandle vertexShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/batcher.vert");
-    ShaderSourceHandle fragmentShaderSource = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/batcher.frag");
-#endif
-
-    vertexShader = new Shader(Shader::VertexShader);
-    vertexShader->CompileSource(vertexShaderSource);
-    pixelShader = new Shader(Shader::PixelShader);
-    pixelShader->CompileSource(fragmentShaderSource);
-
-    shaderProgram->AddShader(vertexShader);
-    shaderProgram->AddShader(pixelShader);
-    shaderProgram->Link();
+    shaderProgram = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("spriteBatcher");
 
     vbo = new VBO();
 }

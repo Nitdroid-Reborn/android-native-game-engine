@@ -22,6 +22,14 @@ class VBO;
 class Shader;
 class ShaderProgram;
 
+
+struct GeometryInstance {
+    Matrix4x4 worldMatrix;
+    ModelGeometry* geometry;
+    ShaderProgram* shaderProgram;
+};
+
+
 class AndroidRenderer : public IRenderer
 {
 public:
@@ -40,8 +48,8 @@ public:
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f);
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
+    void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix, ShaderProgramHandle shaderProgram);
 
-    TextureHandle fontTexture;
     Camera* GetCamera() {return mainThreadCamera;}
 
     Font2 myFont;
@@ -84,10 +92,8 @@ private:
 
 
     float angle;
-    ModelGeometry* model;
-    ShaderProgram* sp;
-    Shader*vs;
-    Shader*fs;
+    std::vector<GeometryInstance> geometry;
+    std::vector<GeometryInstance> oldGeometry;
 };
 
 #endif // ANDROIDRENDERER_H

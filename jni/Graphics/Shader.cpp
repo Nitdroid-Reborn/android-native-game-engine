@@ -1,16 +1,21 @@
 #include "Shader.h"
 #include <Utils/Log.h>
+#include <Utils/Assert.h>
 
-Shader::Shader(ShaderType type)
+Shader::Shader()
 {
-    this->type = type;
     compiled = false;
+    id=0;
+}
 
+void Shader::SetType(ShaderType type) {
+    ASSERT(id==0, "Shader already intialized");
+
+   this->type = type;
     if(type == VertexShader)
         id = glCreateShader(GL_VERTEX_SHADER);
     else
         id = glCreateShader(GL_FRAGMENT_SHADER);
-
 }
 
 Shader::~Shader() {
@@ -38,25 +43,25 @@ static void checkGlError(const char* op) {
     }
 }
 
-bool Shader::CompileSource(const ShaderSourceHandle& shaderSrc) {
-    const char* src = shaderSrc.Get()->GetSource();
+bool Shader::CompileSource(const char* src, const char* fileName) {
+
     glShaderSource(id, 1, &src, NULL);
     glCompileShader(id);
     GLint compiled = 0;
     glGetShaderiv(id, GL_COMPILE_STATUS, &compiled);
-    if (!compiled) {
+    if (!compiled || src[0]=='\0') {
         GLint infoLen = 0;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLen);
         if (infoLen) {
             char* buf = new char[infoLen];
             if (buf) {
                 glGetShaderInfoLog(id, infoLen, NULL, buf);
-                Logger::Log("Could not compile shader %s: %s\n", shaderSrc.Get()->GetFileName(), buf);
+                Logger::Log("Could not compile shader %s: %s\n", fileName, buf);
+                Logger::Log("%s", src);
                 delete[] buf;
             }   
         }
         if(type == VertexShader) {
-
             std::string src(minimalVertexShader);
             const char* s = src.c_str();
             glShaderSource(id, 1, &s, NULL);

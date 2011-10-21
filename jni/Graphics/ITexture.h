@@ -37,8 +37,5 @@ protected:
     TextureInfo textureInfo;
 };
 
-/*OOLUA_PROXY_CLASS(ITexture)
-    OOLUA_TYPEDEFS Abstract OOLUA_END_TYPES
-OOLUA_CLASS_END*/
 
 #endif // ITEXTURE_H

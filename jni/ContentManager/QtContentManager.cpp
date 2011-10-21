@@ -2,8 +2,10 @@
 #include "TextureManager.h"
 #include "SoundManager.h"
 #include "ScriptSourceManager.h"
-#include "ShaderSourceManager.h"
+#include "ShaderManager.h"
 #include <Scripts/ScriptManager.h>
+#include "ShaderProgramManager.h"
+#include "ModelGeometryManager.h"
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -24,7 +26,9 @@ bool QtContentManager::Initialize() {
     textureManager = new TextureManager();
     soundManager = new SoundManager();
     scriptSourceManager = new ScriptSourceManager();
-    shaderSourceManager = new ShaderSourceManager();
+    shaderManager = new ShaderManager();
+    shaderProgramManager = new ShaderProgramManager();
+    modelGeometryManager = new ModelGeometryManager();
 
 
     //Register to lua
@@ -35,6 +39,9 @@ bool QtContentManager::Initialize() {
         luabind::class_<IContentManager>("ContentManager")
             .def("GetSoundManager", &IContentManager::GetSoundManager)
             .def("GetTextureManager", &IContentManager::GetTextureManager)
+            .def("GetShaderManager", &IContentManager::GetShaderManager)
+            .def("GetShaderProgramManager", &IContentManager::GetShaderProgramManager)
+            .def("GetModelGeometryManager", &IContentManager::GetModelGeometryManager)
             .scope
             [
                 luabind::def("Get", &IContentManager::get)
@@ -69,20 +76,67 @@ bool QtContentManager::Initialize() {
             .def("Get", (ITexture* (TextureHandle::*) (void))&TextureHandle::Get)
     ];
 
+
+    luabind::module(L)
+    [
+        luabind::class_<IShaderManager>("ShaderManager")
+            .def("GetShader", &IShaderManager::GetShader)
+            .def("ReleaseShader", &IShaderManager::ReleaseShader)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ShaderHandle>("ShaderHandle")
+    ];
+
+
+    luabind::module(L)
+    [
+        luabind::class_<IShaderProgramManager>("ShaderProgramManager")
+            .def("GetShaderProgram", &IShaderProgramManager::GetShaderProgram)
+            .def("ReleaseShaderProgram", &IShaderProgramManager::ReleaseShaderProgram)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ShaderProgramHandle>("ShaderProgramHandle")
+            .def("Get", (ShaderProgram* (ShaderProgramHandle::*)(void))&ShaderProgramHandle::Get)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<IModelGeometryManager>("ModelGeometryManager")
+            .def("GetModelGeometry", &IModelGeometryManager::GetModelGeometry)
+            .def("ReleaseModelGeometry", &IModelGeometryManager::ReleaseModelGeometry)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ModelGeometryHandle>("ModelGeometryHandle")
+    ];
+
+
     Logger::Log(1, "Qt Content Manager initialized");
     return true;
 }
 
 bool QtContentManager::Release() {
 
+    delete modelGeometryManager;
     delete textureManager;
     delete soundManager;
     delete scriptSourceManager;
-    delete shaderSourceManager;
+    delete shaderProgramManager;
+    delete shaderManager;
+
+
 
     textureManager = NULL;
     soundManager = NULL;
     scriptSourceManager = NULL;
+    shaderManager = NULL;
+    shaderProgramManager = NULL;
+    modelGeometryManager = NULL;
 
 
     singleton = NULL;

@@ -262,7 +262,6 @@ U32 AndroidFileIO::GetSize(const char *path) {
         strcpy(prefix, "/sdcard/");
         strcat(prefix, path);
 
-        Logger::Log("%s", prefix);
         return GetFileSize(prefix);
     }
 }

@@ -10,6 +10,7 @@ TextureManager::TextureManager() : ITextureManager()
 }
 
 TextureManager::~TextureManager() {
+    loadedTextures.clear();
 }
 
 TextureHandle TextureManager::GetTexture(const char *fileName) {

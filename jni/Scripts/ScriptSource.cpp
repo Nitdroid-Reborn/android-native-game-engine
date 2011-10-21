@@ -19,7 +19,6 @@ bool ScriptSource::Load(const char *fileName) {
 
     char * buffer = new char[size+1];
 
-    Logger::Log("loading script %s %d", fileName, size);
     bool result = fileIO->Read(fileName, buffer, size);
     buffer[size] = '\0';
 

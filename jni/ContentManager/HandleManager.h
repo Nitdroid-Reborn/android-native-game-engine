@@ -39,6 +39,7 @@ public:
       */
     ~HandleManager()
     {
+        Logger::Log("Left %d", data.size());
         for(int i=0;i<data.size();i++) {
             if(data[i]!=NULL) {
                 delete data[i];

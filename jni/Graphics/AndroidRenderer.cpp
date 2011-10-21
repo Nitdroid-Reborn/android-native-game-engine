@@ -10,7 +10,7 @@
 #include "Font.h"
 #include <Utils/Profiler.h>
 #include <algorithm>
-
+#include <Scripts/Script.h>
 #include "VBO.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
@@ -118,9 +118,6 @@ void AndroidRenderer::InitWindow() {
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-
-    Logger::Log("%d", ANativeWindow_getHeight(app->window));
-
     glEnable(GL_TEXTURE_2D);
 
     // Initialize GL state.
@@ -218,10 +215,20 @@ void AndroidRenderer::Initialize() {
 
     luabind::module(L)
     [
+        luabind::class_<ShaderProgram>("ShaderProgram")
+            .def("Bind", &ShaderProgram::Bind)
+            .def("Release", &ShaderProgram::Release)
+            .def("Link", &ShaderProgram::Link)
+            .def("AddShader", (void (ShaderProgram::*)(ShaderHandle))&ShaderProgram::AddShader)
+    ];
+
+    luabind::module(L)
+    [
         luabind::class_<IRenderer>("Renderer")
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
+            .def("DrawGeometry", &IRenderer::DrawGeometry)
             .scope
             [
                 luabind::def("Get", IRenderer::get)
@@ -233,26 +240,14 @@ void AndroidRenderer::Initialize() {
     ];
 
 
-    model = new ModelGeometry();
-    model->Load("krasnal.ms3d");
-
-    sp = new ShaderProgram();
-    vs = new Shader(Shader::VertexShader);
-    fs = new Shader(Shader::PixelShader);
-
-
-    ShaderSourceHandle vertexSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/3d.vert");
-    ShaderSourceHandle fragmentSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource(":shaders/3d.frag");
-
-    vs->CompileSource(vertexSrc);
-    fs->CompileSource(fragmentSrc);
-
-    sp->AddShader(vs);
-    sp->AddShader(fs);
-    sp->Link();
+    ScriptSourceHandle initGraphicsScriptSrc = IContentManager::get()->GetScriptSourceManager()->GetScriptSource(":initGraphics.lua");
+    Script initGraphicsScript;
+    initGraphicsScript.Run(initGraphicsScriptSrc.Get());
 
     camera = new Camera();
     mainThreadCamera = new Camera();
+
+
     Logger::Log(1, "Android Renderer initialized");
 }
 
@@ -267,18 +262,10 @@ void AndroidRenderer::Release() {
     batcher = NULL;
     singleton = NULL;
 
-    delete sp;
-    delete vs;
-    delete fs;
-    delete model;
-
     delete camera;
     delete mainThreadCamera;
 
-    sp=NULL;
-    vs=NULL;
-    fs=NULL;
-    model=NULL;
+    camera = mainThreadCamera = NULL;
     mutex.Unlock();
 }
 
@@ -287,8 +274,6 @@ void AndroidRenderer::Run() {
    // lastTime = getCurrentTimeInMsec();
     while(1) {
          mutex.Lock();
-
-
 
             if(closing) {
                 TerminateWindow();
@@ -327,15 +312,13 @@ void AndroidRenderer::Run() {
                     camera->Update();
                     //textBox.Draw();
 
-                    Matrix4x4 translation;
-                    translation.SetTranslation(Vector3(0,-1,-5));
+                    {
+                        PROFILE("Model rendering", &rendererProfileManager);
 
-                    Matrix4x4 rotation;
-                    rotation.SetRotationY(angle);
-
-                    Matrix4x4 world = translation*rotation;
-
-                    model->Draw(camera, world, sp);
+                        for(int i=0;i<oldGeometry.size();i++) {
+                            oldGeometry[i].geometry->Draw(camera, oldGeometry[i].worldMatrix, oldGeometry[i].shaderProgram);
+                        }
+                    }
 
 
                     {
@@ -350,8 +333,6 @@ void AndroidRenderer::Run() {
                        glEnable(GL_DEPTH_TEST);
 
                     }
-
-
 
                     angle+=1.1;
 
@@ -388,6 +369,8 @@ void AndroidRenderer::Wait() {
     mainLoopCond.Wait();
     mutex.Lock();
     batcher->SwapSpriteBuffer();
+    oldGeometry = geometry;
+    geometry.clear();
     camera->Clone(mainThreadCamera);
     mutex.Unlock();
 
@@ -422,4 +405,12 @@ void AndroidRenderer::DrawString(int x, int y, const char * str) {
     textBox.DrawStr(x, y, (char*)str);
 }
 
+void AndroidRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix, ShaderProgramHandle shaderProgram) {
+    GeometryInstance gi;
+    gi.geometry = geometry.Get();
+    gi.worldMatrix = worldMatrix;
+    gi.shaderProgram = shaderProgram.Get();
+
+    this->geometry.push_back(gi);
+}
 #endif

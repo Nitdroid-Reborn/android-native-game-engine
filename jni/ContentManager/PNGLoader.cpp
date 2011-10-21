@@ -37,10 +37,9 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
     if (!is_png) {
         delete[] buffer;
         buffer = NULL;
-        Logger::Log("Not a png file : %s", filename);
+        Logger::Log(2, "Not a png file : %s", filename);
         return false;
       }
-    Logger::Log("This is png file: %s", filename);
 
      //create png struct
       png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
@@ -48,7 +47,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
       if (!png_ptr) {
         delete[] buffer;
         buffer = NULL;
-        Logger::Log("Unable to create png struct : %s", filename);
+        Logger::Log(2, "Unable to create png struct : %s", filename);
         return false;
       }
 
@@ -56,7 +55,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
       png_infop info_ptr = png_create_info_struct(png_ptr);
       if (!info_ptr) {
         png_destroy_read_struct(&png_ptr, (png_infopp) NULL, (png_infopp) NULL);
-        Logger::Log("Unable to create png info : %s", filename);
+        Logger::Log(2, "Unable to create png info : %s", filename);
         delete[] buffer;
         buffer = NULL;
         return false;
@@ -66,7 +65,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
       png_infop end_info = png_create_info_struct(png_ptr);
       if (!end_info) {
         png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
-        Logger::Log("Unable to create png end info : %s", filename);
+        Logger::Log(2, "Unable to create png end info : %s", filename);
         delete[] buffer;
         buffer = NULL;
         return false;
@@ -76,7 +75,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
       if (setjmp(png_jmpbuf(png_ptr))) {
         delete[] buffer;
         buffer = NULL;
-        Logger::Log("Error during setjmp : %s", filename);
+        Logger::Log(2, "Error during setjmp : %s", filename);
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         return false;
       }
@@ -124,7 +123,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
       if (!imageData) {
         //clean up memory and close stuff
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        Logger::Log("Unable to allocate image_data while loading %s ", filename);
+        Logger::Log(2, "Unable to allocate image_data while loading %s ", filename);
         delete[] buffer;
         buffer = NULL;
         return false;
@@ -136,7 +135,7 @@ bool PNGLoader::Load(const char *filename, U8* &imageData, U16 &width,
         //clean up memory and close stuff
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         delete[] imageData;
-        Logger::Log("Unable to allocate row_pointer while loading %s ", filename);
+        Logger::Log(2, "Unable to allocate row_pointer while loading %s ", filename);
         delete[] buffer;
         buffer = NULL;
         return false;

@@ -15,7 +15,7 @@ void Font2::Load(const char *fontPath, U8 fontSize) {
     FT_Face face;
 
     if(FT_New_Face( library, fontPath, 0, &face ))
-        Logger::Log("pupa");
+        Logger::Log(2, "Cannot read font file");
 
     FT_Set_Char_Size( face, fontSize << 6, fontSize << 6, 96, 96);
 
@@ -107,8 +107,6 @@ void Font2::Load(const char *fontPath, U8 fontSize) {
     FT_Done_FreeType(library);
 
     delete[] data;
-
-    Logger::Log("Loaded %d %d", maxGlyphWidth, maxGlyphHeight);
 }
 
 void Font2::Dispose() {

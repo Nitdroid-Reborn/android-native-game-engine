@@ -43,13 +43,13 @@ void Camera::Update() {
     _viewMatrix.SetTranslationPart(-_position);
 
 
-   /* Matrix4x4 rotateVert;
+    Matrix4x4 rotateVert;
     rotateVert.SetRotationX(_verticalAngle*180.0f/PI);
 
     Matrix4x4 rotateHor;
-    rotateHor.SetRotationY(_horizontalAngle*180.0f/PI);*/
+    rotateHor.SetRotationY(_horizontalAngle*180.0f/PI);
 
-   //_viewMatrix = _viewMatrix*rotateVert*rotateHor;
+   _viewMatrix = _viewMatrix*rotateVert*rotateHor;
 
 
     /*glPushMatrix();

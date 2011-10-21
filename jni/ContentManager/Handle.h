@@ -151,7 +151,6 @@ HandleManager<BASEDATA, FACTORY, TAG>* Handle<BASEDATA, FACTORY, TAG>::manager;
 template <typename BASEDATA, typename FACTORY, typename TAG>
 Handle<BASEDATA, FACTORY, TAG>::~Handle() {
     if(!IsNull()) {
-        Logger::Log(0, "Handle destructed, left references: %d", GetReferenceCount()-1);
         manager->Release(*this);
     }
 }

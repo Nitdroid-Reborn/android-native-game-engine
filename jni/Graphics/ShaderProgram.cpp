@@ -1,6 +1,7 @@
 #include "ShaderProgram.h"
 #include "Shader.h"
 #include <Utils/Log.h>
+#include <ContentManager/IContentManager.h>
 
 ShaderProgram::ShaderProgram()
 {
@@ -9,6 +10,9 @@ ShaderProgram::ShaderProgram()
 
 ShaderProgram::~ShaderProgram() {
     if(id) {
+        for(int i=0;i<shaders.size();i++)
+            IContentManager::get()->GetShaderManager()->ReleaseShader(shaders[i]);
+
         glDeleteProgram(id);
         id=0;
     }
@@ -16,14 +20,14 @@ ShaderProgram::~ShaderProgram() {
 
 void ShaderProgram::AddShader(Shader *s) {
     glAttachShader(id, s->GetId());
+}
+
+void ShaderProgram::AddShader(ShaderHandle s) {
+    glAttachShader(id, s.Get()->GetId());
     shaders.push_back(s);
 }
 
 void ShaderProgram::RemoveShader(Shader *s) {
-    for(std::vector<Shader*>::iterator it = shaders.begin(); it!=shaders.end(); ++it) {
-        if(*it==s)
-            shaders.erase(it);
-    }
     glDetachShader(id, s->GetId());
 }
 

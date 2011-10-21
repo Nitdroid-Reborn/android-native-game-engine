@@ -1,7 +1,10 @@
+#include <QGLWidget>
 #include "QtEngine.h"
+
 #include <Utils/Profiler.h>
 
 #include <Graphics/ModelGeometry.h>
+
 
 static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
@@ -27,6 +30,7 @@ QtEngine::~QtEngine() {
 }
 
 void QtEngine::Initialize() {
+
     scriptManager = new ScriptManager();
     scriptManager->Initialize();
 
@@ -38,6 +42,15 @@ void QtEngine::Initialize() {
 
     contentManager = new QtContentManager();
     contentManager->Initialize();
+
+
+    ScriptManager* manager = ScriptManager::Get();
+
+    luabind::module(manager->getState()) [
+
+            luabind::def("Log", &Logger::LuaLog)
+    ];
+
 
     audioSystem = new QtAudioSystem();
     audioSystem->Initialize();
@@ -57,8 +70,6 @@ void QtEngine::Initialize() {
     //volume = 1.0f;
     //angle = 0.0f;
 
-    texture = IContentManager::get()->GetTextureManager()->GetTexture("logo.png");
-
     lastTime = GetCurrentTimeInMsec();
 
     Vector2::RegisterInLua();
@@ -66,12 +77,7 @@ void QtEngine::Initialize() {
     Vector4::RegisterInLua();
     Matrix4x4::RegisterInLua();
 
-    ScriptManager* manager = ScriptManager::Get();
 
-    luabind::module(manager->getState()) [
-
-            luabind::def("Log", &Logger::LuaLog)
-    ];
 
     ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource("script.lua");
     script = new Script();
@@ -89,13 +95,9 @@ void QtEngine::Release() {
     delete script;
     script = NULL;
 
-    contentManager->GetTextureManager()->ReleaseTexture(texture);
-
     audioSystem->StopMusic();
 
-    scriptManager->Release();
-    delete scriptManager;
-    scriptManager = NULL;
+
 
     renderer->Release();
     //renderer->WaitForStop();
@@ -104,6 +106,7 @@ void QtEngine::Release() {
 
     audioSystem->Release();
     delete audioSystem;
+    audioSystem = NULL;
 
     inputSystem->Release();
     delete inputSystem;
@@ -115,14 +118,18 @@ void QtEngine::Release() {
     delete dpad;
     delete centerKey;
 
+    scriptManager->Release();
+    delete scriptManager;
+    scriptManager = NULL;
+
     contentManager->Release();
     delete contentManager;
     contentManager = NULL;
-    audioSystem = NULL;
 
     fileIOSystem->Release();
     delete fileIOSystem;
     fileIOSystem = NULL;
+
 }
 
 
@@ -249,10 +256,10 @@ void QtEngine::SingleFrame() {
        ren->GetCamera()->MoveForvard(-0.1);
     }
     if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT)) {
-       ren->GetCamera()->MoveLeft(-0.1);
+       ren->GetCamera()->RotateLeft(-0.01);
     }
     if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT)) {
-       ren->GetCamera()->MoveLeft(0.1);
+       ren->GetCamera()->RotateLeft(0.01);
     }
 
 

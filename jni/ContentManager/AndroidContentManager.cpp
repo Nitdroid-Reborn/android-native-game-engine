@@ -4,7 +4,9 @@
 #include <Utils/Utils.h>
 #include <Scripts/ScriptManager.h>
 #include "ScriptSourceManager.h"
-#include "ShaderSourceManager.h"
+#include "ShaderManager.h"
+#include "ShaderProgramManager.h"
+#include "ModelGeometryManager.h"
 
 IContentManager* IContentManager::singleton=NULL;
 
@@ -25,7 +27,9 @@ bool AndroidContentManager::Initialize() {
     textureManager = new TextureManager();
     soundManager = new SoundManager();
     scriptSourceManager = new ScriptSourceManager();
-    shaderSourceManager = new ShaderSourceManager();
+    shaderManager = new ShaderManager();
+    shaderProgramManager = new ShaderProgramManager();
+    modelGeometryManager = new ModelGeometryManager();
 
 
     const EGLint attribs[] = {
@@ -76,6 +80,9 @@ bool AndroidContentManager::Initialize() {
         luabind::class_<IContentManager>("ContentManager")
             .def("GetSoundManager", &IContentManager::GetSoundManager)
             .def("GetTextureManager", &IContentManager::GetTextureManager)
+            .def("GetShaderManager", &IContentManager::GetShaderManager)
+            .def("GetShaderProgramManager", &IContentManager::GetShaderProgramManager)
+            .def("GetModelGeometryManager", &IContentManager::GetModelGeometryManager)
             .scope
             [
                 luabind::def("Get", &IContentManager::get)
@@ -110,9 +117,43 @@ bool AndroidContentManager::Initialize() {
             .def("Get", (ITexture* (TextureHandle::*) (void))&TextureHandle::Get)
     ];
 
+    luabind::module(L)
+    [
+        luabind::class_<IShaderManager>("ShaderManager")
+            .def("GetShader", &IShaderManager::GetShader)
+            .def("ReleaseShader", &IShaderManager::ReleaseShader)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ShaderHandle>("ShaderHandle")
+    ];
 
 
+    luabind::module(L)
+    [
+        luabind::class_<IShaderProgramManager>("ShaderProgramManager")
+            .def("GetShaderProgram", &IShaderProgramManager::GetShaderProgram)
+            .def("ReleaseShaderProgram", &IShaderProgramManager::ReleaseShaderProgram)
+    ];
 
+    luabind::module(L)
+    [
+        luabind::class_<ShaderProgramHandle>("ShaderProgramHandle")
+            .def("Get", (ShaderProgram* (ShaderProgramHandle::*)(void))&ShaderProgramHandle::Get)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<IModelGeometryManager>("ModelGeometryManager")
+            .def("GetModelGeometry", &IModelGeometryManager::GetModelGeometry)
+            .def("ReleaseModelGeometry", &IModelGeometryManager::ReleaseModelGeometry)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ModelGeometryHandle>("ModelGeometryHandle")
+    ];
 
 
     Logger::Log(1, "Android Content Manager initialized");
@@ -121,14 +162,17 @@ bool AndroidContentManager::Initialize() {
 
 bool AndroidContentManager::Release() {
 
+    delete modelGeometryManager;
     delete textureManager;
     delete soundManager;
     delete scriptSourceManager;
-    delete shaderSourceManager;
+    delete shaderProgramManager;
 
     textureManager = NULL;
     soundManager = NULL;
     scriptSourceManager = NULL;
+    shaderManager = NULL;
+    shaderProgramManager = NULL;
 
 
     if(display != EGL_NO_DISPLAY) {

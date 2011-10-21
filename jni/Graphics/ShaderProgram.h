@@ -10,6 +10,7 @@
 #include <Utils/EngineTypes.h>
 #include <Math/MathLib.h>
 #include "VBO.h"
+#include <ContentManager/ShaderManager.h>
 
 class Shader;
 
@@ -19,7 +20,9 @@ public:
     ShaderProgram();
     ~ShaderProgram();
     void AddShader(Shader* s);
+    void AddShader(ShaderHandle s);
     void RemoveShader(Shader* s);
+
     void Bind();
     void Release();
     int GetAttributeLocation(std::string name);
@@ -91,7 +94,7 @@ public:
 private:
     GLuint id;
     bool linked;
-    std::vector<Shader*> shaders;
+    std::vector<ShaderHandle> shaders;
 };
 
 #endif // SHADERPROGRAM_H

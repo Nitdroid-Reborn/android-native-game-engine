@@ -3,7 +3,9 @@
 #include "ITextureManager.h"
 #include "ISoundManager.h"
 #include "IScriptSourceManager.h"
-#include "IShaderSourceManager.h"
+#include "IShaderManager.h"
+#include "IShaderProgramManager.h"
+#include "IModelGeometryManager.h"
 
 //! Interface for game content manager
 class IContentManager {
@@ -27,7 +29,11 @@ public:
     ISciptSourceManager* GetScriptSourceManager() const {return scriptSourceManager;}
 
     //! Returns ScriptSourceManager
-    IShaderSourceManager* GetShaderSourceManager() const {return shaderSourceManager;}
+    IShaderManager* GetShaderManager() const {return shaderManager;}
+
+    IShaderProgramManager* GetShaderProgramManager() const {return shaderProgramManager;}
+
+    IModelGeometryManager* GetModelGeometryManager() const {return modelGeometryManager;}
 
     //! Returns instance of content manager
     static IContentManager* get(){return singleton;}
@@ -37,7 +43,9 @@ protected:
     ITextureManager* textureManager;
     ISoundManager* soundManager;
     ISciptSourceManager* scriptSourceManager;
-    IShaderSourceManager* shaderSourceManager;
+    IShaderManager* shaderManager;
+    IShaderProgramManager* shaderProgramManager;
+    IModelGeometryManager* modelGeometryManager;
 };
 
 #endif // ICONTENTMANAGER_H

@@ -326,10 +326,10 @@ void AndroidEngine::SingleFrame() {
        ren->GetCamera()->MoveForvard(-0.1);
     }
     if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT)) {
-       ren->GetCamera()->MoveLeft(-0.1);
+       ren->GetCamera()->RotateLeft(-0.01);
     }
     if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT)) {
-       ren->GetCamera()->MoveLeft(0.1);
+       ren->GetCamera()->RotateLeft(0.01);
     }
 
     if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {

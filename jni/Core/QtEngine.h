@@ -1,7 +1,7 @@
 #ifndef QTENGINE_H
 #define QTENGINE_H
 #include "IEngine.h"
-#include <QGLWidget>
+#include "Graphics/GLee.h"
 #include <Utils/Clock.h>
 #include <Scripts/ScriptManager.h>
 #include <FileIO/QtFileIO.h>
@@ -14,6 +14,7 @@
 #include <VirtualInput/VirtualDPad.h>
 #include <VirtualInput/VirtualSingleKey.h>
 
+class QGLWidget;
 
 class QtEngine : public IEngine
 {
@@ -72,8 +73,6 @@ public:
     /// Script manager component of engine
     ScriptManager* scriptManager;
     Script* script;
-
-    TextureHandle texture;
 
     VirtualInput* virtualInputSystem;
     VirtualSingleKey* centerKey;

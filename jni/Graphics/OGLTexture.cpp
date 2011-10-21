@@ -3,7 +3,7 @@
 #ifdef ANDROID
 #include <GLES2/gl2.h>
 #else
-#include <GL/gl.h>
+#include <Graphics/GLee.h>
 #endif
 
 #include "../ContentManager/PNGLoader.h"

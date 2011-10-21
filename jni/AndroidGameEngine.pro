@@ -128,11 +128,11 @@ SOURCES += DesktopMain.cpp \
     Graphics/VBO.cpp \
     Graphics/ModelGeometry.cpp \
     Graphics/MS3DModel.cpp \
-    Graphics/ShaderSource.cpp \
-    ContentManager/ShaderSourceManager.cpp \
-    Graphics/ShaderSourceFactory.cpp \
     Graphics/Model.cpp \
-    Graphics/Camera.cpp
+    Graphics/Camera.cpp \
+    ContentManager/ShaderManager.cpp \
+    ContentManager/ShaderProgramManager.cpp \
+    ContentManager/ModelGeometryManager.cpp
 
 
 HEADERS += \
@@ -321,17 +321,35 @@ HEADERS += \
     Graphics/IGeometry.h \
     Graphics/ModelGeometry.h \
     Graphics/MS3DModel.h \
-    Graphics/ShaderSource.h \
-    ContentManager/IShaderSourceManager.h \
-    ContentManager/ShaderSourceManager.h \
-    Graphics/ShaderSourceFactory.h \
     Graphics/Model.h \
-    Graphics/Camera.h
+    Graphics/Camera.h \
+    ContentManager/IShaderManager.h \
+    ContentManager/ShaderManager.h \
+    ContentManager/IShaderProgramManager.h \
+    ContentManager/ShaderProgramManager.h \
+    ContentManager/IModelGeometryManager.h \
+    ContentManager/ModelGeometryManager.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

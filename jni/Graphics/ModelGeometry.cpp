@@ -12,6 +12,10 @@ ModelGeometry::ModelGeometry()
     vertices=NULL;
     verticesCount=0;
     vbo = NULL;
+    materials = NULL;
+    meshes = NULL;
+    meshesCount = 0;
+    materialsCount = 0;
 }
 
 ModelGeometry::~ModelGeometry() {
@@ -22,6 +26,16 @@ ModelGeometry::~ModelGeometry() {
     if(indicesCount) {
         delete[] indices;
         indices = 0;
+    }
+
+    if(meshes) {
+        delete[] meshes;
+        meshes = 0;
+    }
+
+    if(materials) {
+        delete[] materials;
+        materials = 0;
     }
 
     if(vbo) {
@@ -35,7 +49,8 @@ void ModelGeometry::Load(const char *filename) {
     MS3DModel model;
     model.Load(filename, vertices, verticesCount,
                indices, indicesCount,
-               meshes, materials);
+               meshes, meshesCount,
+               materials, materialsCount);
 
     if(vbo)
         delete vbo;
@@ -74,7 +89,7 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
     //materials[meshes[0].materialIndex].texture.Get()->Bind();
 
     //vbo->Draw(0, indicesCount/3);
-    for(int i=0;i<meshes.size();i++) {
+    for(int i=0;i<meshesCount;i++) {
         materials[meshes[i].materialIndex].texture.Get()->Bind();
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);
     }

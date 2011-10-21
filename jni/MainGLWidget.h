@@ -2,7 +2,6 @@
 #define MAINGLWIDGET_H
 
 #include <QGLWidget>
-
 #include <Core/QtEngine.h>
 
 class MainGLWidget : public QGLWidget

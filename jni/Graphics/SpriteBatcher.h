@@ -4,6 +4,7 @@
 #include "ISpriteBatcher.h"
 #include <Utils/Profiler.h>
 #include "IGeometry.h"
+#include <ContentManager/IContentManager.h>
 
 class ShaderProgram;
 class Shader;
@@ -81,9 +82,7 @@ private:
     vector<Sprite> sprites;
     vector<Sprite> oldSprites;
 
-    ShaderProgram* shaderProgram;
-    Shader* vertexShader;
-    Shader* pixelShader;
+    ShaderProgramHandle shaderProgram;
 
     VBO* vbo;
 };

@@ -10,17 +10,18 @@ texture = contentManager:GetTextureManager():GetTexture("logo.png");
 textureRegion = TextureRegion(0, 0, 0.5, 0.75);
 sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
 
-
-vector = Vector3(1, 0, 0);
-vector2 = Vector3(0, 1, 0);
-
-sum = vector + vector2;
-mul = vector*5;
-dot = vector*vector2;
-cross = vector:CrossProduct(vector2)
+shaderProgram = ContentManager.Get():GetShaderProgramManager():GetShaderProgram("textured_3d");
+dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
 
 
-Log(string.format("Sum: %f %f %f, Mul %f %f %f, dot %f %f %f, cross %f %f %f", sum.x, sum.y, sum.z,  mul.x, mul.y, mul.z, dot.x, dot.y, dot.z, cross.x, cross.y, cross.z));
+--vector = Vector3(1, 0, 0);
+--vector2 = Vector3(0, 1, 0);
+
+--sum = vector + vector2;
+--mul = vector*5;
+--dot = vector*vector2;
+--cross = vector:CrossProduct(vector2)
+
 
 
 update = function(dt)
@@ -40,11 +41,11 @@ update = function(dt)
     end
 
     if keysState:IsKeyPressed(Input.KEY_LEFT) then
-        angle = angle + 5;
+     --   angle = angle + 5;
     end
 
     if keysState:IsKeyPressed(Input.KEY_RIGHT) then
-        angle = angle - 5;
+     --   angle = angle - 5;
     end
 
 
@@ -52,7 +53,28 @@ update = function(dt)
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
+    translation = Matrix4x4();
+    translation:SetTranslation(Vector3(0,-1,-5));
+
+    rotation = Matrix4x4();
+    rotation:SetRotationY(angle);
+
+    world = translation*rotation;
+	
+    renderer:DrawGeometry(dwarfModel, world, shaderProgram);
+
+ translation = Matrix4x4();
+    translation:SetTranslation(Vector3(5,-1,-5));
+
+    rotation = Matrix4x4();
+    rotation:SetRotationY(angle);
+
+    world = translation*rotation;
+	
+    renderer:DrawGeometry(dwarfModel, world, shaderProgram);
     
 
-    --angle= angle + dt/3;
+    
+
+    angle= angle + dt/10;
 end

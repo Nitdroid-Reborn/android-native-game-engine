@@ -2,8 +2,7 @@
 #define MODELGEOMETRY_H
 #include "IGeometry.h"
 #include <vector>
-#include <ContentManager/IContentManager.h>
-
+#include "ContentManager/ITextureManager.h"
 class VBO;
 class ShaderProgram;
 
@@ -32,7 +31,7 @@ public:
 
     void Load(const char* filename);
 
-    int GetMeshCount() {return meshes.size();}
+    int GetMeshCount() {return meshesCount;}
     Material* GetMaterial(int mesh);
 
     int GetVerticesCount() {return verticesCount;}
@@ -48,8 +47,11 @@ public:
 
 private:
     VBO* vbo;
-    std::vector<Mesh> meshes;
-    std::vector<Material> materials;
+    Mesh* meshes;
+    Material* materials;
+
+    int meshesCount;
+    int materialsCount;
 
     Vertex3D* vertices;
     U16* indices;

@@ -8,7 +8,6 @@
 #endif
 
 #include <string>
-#include <ContentManager/IShaderSourceManager.h>
 
 class Shader
 {
@@ -18,9 +17,10 @@ public:
         PixelShader
     };
 
-    Shader(ShaderType type);
+    Shader();
     ~Shader();
-    bool CompileSource(const ShaderSourceHandle& shaderSrc);
+    void SetType(ShaderType type);
+    bool CompileSource(const char* shaderSrc, const char* fileName);
     inline GLuint GetId() const {return id;}
     inline ShaderType GetType() const {return type;}
     inline bool IsCompiled() const {return compiled;}

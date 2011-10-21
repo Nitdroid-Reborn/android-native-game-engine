@@ -6,7 +6,7 @@
 #ifdef ANDROID
 
 #else
-#include <GL/gl.h>
+#include <Graphics/GLee.h>
 #endif
 
 /*#define FONT_W 8

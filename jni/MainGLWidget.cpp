@@ -1,8 +1,8 @@
-#include "MainGLWidget.h"
-#include <Input/Input.h>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QCoreApplication>
+#include "MainGLWidget.h"
+#include <Input/Input.h>
 
 static std::map<U32, U64> keyMapper;
 

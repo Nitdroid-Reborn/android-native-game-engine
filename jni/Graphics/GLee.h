@@ -37,11 +37,11 @@
 #define __glee_h_
 
 #ifdef __gl_h_
-	#error gl.h included before glee.h
+//	#error gl.h included before glee.h
 #endif
 
 #ifdef __glext_h_
-	#error glext.h included before glee.h
+//	#error glext.h included before glee.h
 #endif
 
 #ifdef __wglext_h_

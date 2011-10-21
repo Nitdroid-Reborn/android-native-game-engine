@@ -1,13 +1,11 @@
-#include "qdatastream.h"
-#include "qtextstream.h"
-#include "qmetatype.h"
-#include "qcursor.h"
+#include <QGLWidget>
 #include "VBO.h"
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "ModelGeometry.h"
-
+#include <Scripts/Script.h>
 #include "QtRenderer.h"
+
 
 IRenderer* IRenderer::singleton = NULL;
 ProfilerManager rendererProfileManager;
@@ -116,6 +114,17 @@ void QtRenderer::Initialize() {
             .def(luabind::constructor<F32, F32, F32, F32>())
     ];
 
+
+    luabind::module(L)
+    [
+        luabind::class_<ShaderProgram>("ShaderProgram")
+            .def("Bind", &ShaderProgram::Bind)
+            .def("Release", &ShaderProgram::Release)
+            .def("Link", &ShaderProgram::Link)
+            .def("AddShader", (void (ShaderProgram::*)(ShaderHandle))&ShaderProgram::AddShader)
+    ];
+
+
     luabind::module(L)
     [
         luabind::class_<IRenderer>("Renderer")
@@ -123,6 +132,7 @@ void QtRenderer::Initialize() {
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, U8, U8, U8, U8, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
+            .def("DrawGeometry", &IRenderer::DrawGeometry)
             .scope
             [
                 luabind::def("Get", IRenderer::get)
@@ -134,21 +144,32 @@ void QtRenderer::Initialize() {
     ];
 
 
-    model = new ModelGeometry();
-    model->Load("krasnal.ms3d");
+    ScriptSourceHandle initGraphicsScriptSrc = IContentManager::get()->GetScriptSourceManager()->GetScriptSource("initGraphics.lua");
+    Script initGraphicsScript;
+    initGraphicsScript.Run(initGraphicsScriptSrc.Get());
 
-    sp = new ShaderProgram();
-    vs = new Shader(Shader::VertexShader);
-    fs = new Shader(Shader::PixelShader);
 
-    ShaderSourceHandle vertexSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/3d.vert");
-    ShaderSourceHandle fragmentSrc = IContentManager::get()->GetShaderSourceManager()->GetShaderSource("shaders/3d.frag");
+    /*ShaderProgramHandle shaderProgram;
+    ShaderHandle vertexShader;
+    ShaderHandle fragmentShader;
 
-    vs->CompileSource(vertexSrc);
-    fs->CompileSource(fragmentSrc);
-    sp->AddShader(vs);
-    sp->AddShader(fs);
-    sp->Link();
+    shaderProgram = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("textured_3d");
+    vertexShader = IContentManager::get()->GetShaderManager()->GetShader("shaders/3d.vert");
+    fragmentShader = IContentManager::get()->GetShaderManager()->GetShader("shaders/3d.frag");
+
+    shaderProgram.Get()->AddShader(vertexShader.Get());
+    shaderProgram.Get()->AddShader(fragmentShader.Get());
+    shaderProgram.Get()->Link();
+
+
+    shaderProgram = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("spriteBatcher");
+    vertexShader = IContentManager::get()->GetShaderManager()->GetShader("shaders/batcher.vert");
+    fragmentShader = IContentManager::get()->GetShaderManager()->GetShader("shaders/batcher.frag");
+
+    shaderProgram.Get()->AddShader(vertexShader.Get());
+    shaderProgram.Get()->AddShader(fragmentShader.Get());
+    shaderProgram.Get()->Link();*/
+
 
 
     camera = new Camera();
@@ -162,22 +183,13 @@ void QtRenderer::Initialize() {
 void QtRenderer::Release() {
     myFont.Dispose();
     delete batcher;
+
     batcher = NULL;;
     singleton = NULL;
 
     delete camera;
     delete mainThreadCamera;
 
-
-    delete sp;
-    delete vs;
-    delete fs;
-    delete model;
-
-    sp=NULL;
-    vs=NULL;
-    fs=NULL;
-    model=NULL;
 }
 
 void QtRenderer::Run() {
@@ -191,53 +203,33 @@ void QtRenderer::Run() {
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-            camera->Update();
+            {
+                PROFILE("Camera update", &rendererProfileManager);
+                camera->Update();
+            }
             //textBox.Draw();
 
-            Matrix4x4 translation;
-            translation.SetTranslation(Vector3(0,-1,-5));
-
-            Matrix4x4 rotation;
-            rotation.SetRotationY(angle);
-
-            Matrix4x4 world = translation*rotation;
-
-            model->Draw(camera, world, sp);
-            /*sp->Bind();
-            sp->EnableAttributeArray("vPosition");
-            sp->EnableAttributeArray("vTexCoords");
-            sp->EnableAttributeArray("vColor");
-
-            Matrix4x4 mat;
-            mat.SetPerspective(54.0f, 800.0f/480.0f, 0.1, 1000);
+            {
+                PROFILE("Model rendering", &rendererProfileManager);
 
 
+                for(int i=0;i<oldGeometry.size();i++) {
+                    oldGeometry[i].geometry->Draw(camera, oldGeometry[i].worldMatrix, oldGeometry[i].shaderProgram);
+                }
 
+               /* for(int i=-0;i<=0;i++) {
+                    Matrix4x4 translation;
+                    translation.SetTranslation(Vector3(i,-1,-5));
 
-            Matrix4x4 translation;
-            translation.SetTranslation(Vector3(0,-1,-5));
-            mat = mat*translation;
+                    Matrix4x4 rotation;
+                    rotation.SetRotationY(angle);
 
-            Matrix4x4 rotation;
-            rotation.SetRotationY(angle);
+                    Matrix4x4 world = translation*rotation;
 
-            mat = mat*rotation;
-
-
-            sp->SetUniformValue("mvp", mat);
-            sp->SetUniformValue("textureSampler", 0);
-
-            model->Draw(sp);*/
-            /*vbo->Bind();
-            vbo->SetData(model->GetVerticesCount(), model->GetVertices(),
-                         model->GetIndicesCount(), model->GetIndices());
-            sp->SetAttributeArray(vbo);
-
-            vbo->Draw(0, model->GetIndicesCount()/3);
-
-            vbo->Release();
-            sp->Release();*/
+                   // sp = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("default").Get();
+                    mg->Draw(camera, world, sp);
+                }*/
+            }
 
             {
                PROFILE("Batch", &rendererProfileManager);
@@ -257,7 +249,7 @@ void QtRenderer::Run() {
               PROFILE("Swap buffers", &rendererProfileManager);
 
 
-              app->swapBuffers();
+             app->swapBuffers();
 
              frameCounter++;
 
@@ -283,6 +275,9 @@ void QtRenderer::Run() {
 void QtRenderer::Wait() {
     batcher->SwapSpriteBuffer();
     camera->Clone(mainThreadCamera);
+
+    oldGeometry = geometry;
+    geometry.clear();
     //textBox.SwapTextBuffer();
 
     Run();
@@ -300,7 +295,7 @@ void QtRenderer::Wait() {
 }
 
 void QtRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, F32 angle) {
-    batcher->DrawSprite(0, x, y, layer, width, height, TextureRegion(), angle);
+   batcher->DrawSprite(0, x, y, layer, width, height, TextureRegion(), angle);
 }
 
 void QtRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height,
@@ -317,6 +312,11 @@ void QtRenderer::DrawString(int x, int y, const char * str) {
 }
 
 
-void QtRenderer::DrawGeometry(const IGeometry *geometry, Matrix4x4 worldMatrix) {
+void QtRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix, ShaderProgramHandle shaderProgram) {
+    GeometryInstance gi;
+    gi.geometry = geometry.Get();
+    gi.worldMatrix = worldMatrix;
+    gi.shaderProgram = shaderProgram.Get();
 
+    this->geometry.push_back(gi);
 }
