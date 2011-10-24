@@ -36,7 +36,8 @@ int ShaderProgram::GetAttributeLocation(std::string name) {
 }
 
 int ShaderProgram::GetUniformLocation(std::string name) {
-    return (int)glGetUniformLocation(id, name.c_str());
+    int pos = (int)glGetUniformLocation(id, name.c_str());
+    return pos;
 }
 
 

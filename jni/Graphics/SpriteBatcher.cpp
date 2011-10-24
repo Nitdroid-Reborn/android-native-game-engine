@@ -102,7 +102,7 @@ void SpriteBatcher::EndBatch() {
     mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 10.0);
 
 
-    sp->SetUniformValue("mvp", mat);
+    sp->SetUniformValue("modelViewProjectionMatrix", mat);
     sp->SetUniformValue("textureSampler", 0);
 
     for(it; it!=oldSprites.end(); ++it) {

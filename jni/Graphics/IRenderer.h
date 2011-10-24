@@ -8,6 +8,7 @@
 #include <Scripts/ScriptManager.h>
 #include <ContentManager/ShaderProgramManager.h>
 #include <ContentManager/ModelGeometryManager.h>
+#include <Graphics/Camera.h>
 
 #define NORMAL_LAYER 10
 #define VIRTUAL_INPUT_LAYER 2
@@ -34,6 +35,8 @@ public:
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
     virtual void DrawString(int x, int y, const char * str)=0;
     virtual void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix, ShaderProgramHandle shaderProgram)=0;
+
+    virtual Camera* GetCamera()=0;
 
     static IRenderer* get(){return singleton;}
 

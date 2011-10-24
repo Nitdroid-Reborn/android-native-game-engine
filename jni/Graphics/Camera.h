@@ -31,7 +31,7 @@ public:
     void SetVerticalAngle(float verticalAngle);
     float GetVerticalAngle() const;
 
-    void MoveForvard(float distance);
+    void MoveFoward(float distance);
     void MoveLeft(float distance);
     void MoveUp(float distance);
 

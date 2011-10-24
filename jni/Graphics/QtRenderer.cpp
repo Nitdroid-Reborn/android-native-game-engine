@@ -122,6 +122,25 @@ void QtRenderer::Initialize() {
             .def("Release", &ShaderProgram::Release)
             .def("Link", &ShaderProgram::Link)
             .def("AddShader", (void (ShaderProgram::*)(ShaderHandle))&ShaderProgram::AddShader)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, F32))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, F32, F32))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, F32, F32, F32))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, F32, F32, F32, F32))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, const Vector2&))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, const Vector3&))&ShaderProgram::SetAttributeValue)
+            .def("SetAttributeValue", (void (ShaderProgram::*)(std::string, const Vector4&))&ShaderProgram::SetAttributeValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, F32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, F32, F32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, F32, F32, F32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, F32, F32, F32, F32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, const Vector2&))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, const Vector3&))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, const Vector4&))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, const Matrix4x4&))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, I32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, I32, I32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, I32, I32, I32))&ShaderProgram::SetUniformValue)
+            .def("SetUniformValue", (void (ShaderProgram::*)(std::string, I32, I32, I32, I32))&ShaderProgram::SetUniformValue)
     ];
 
 
@@ -133,6 +152,7 @@ void QtRenderer::Initialize() {
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
             .def("DrawGeometry", &IRenderer::DrawGeometry)
+            .def("GetCamera", &IRenderer::GetCamera)
             .scope
             [
                 luabind::def("Get", IRenderer::get)
@@ -141,6 +161,30 @@ void QtRenderer::Initialize() {
             [
                 luabind::value("NORMAL_LAYER", NORMAL_LAYER)
             ]
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<Camera>("Camera")
+            .def("GetPosition", &Camera::GetPosition)
+            .def("GetDirection", &Camera::GetDirection)
+            .def("GetUpVector", &Camera::GetUpVector)
+            .def("GetLeftVector", &Camera::GetLeftVector)
+            .def("GetVievMatrix", &Camera::GetViewMatrix)
+            .def("GetProjectionMatrix", &Camera::GetProjectionMatrix)
+            .def("SetPosition", &Camera::SetPosition)
+            .def("SetDirection", &Camera::SetDirection)
+            .def("SetUpVector", &Camera::SetUpVector)
+            .def("SetHorizontalAngle", &Camera::SetHorizontalAngle)
+            .def("SetVerticalAngle", &Camera::SetVerticalAngle)
+            .def("GetHorizontalAngle", &Camera::GetHorizontalAngle)
+            .def("GetVerticalAngle", &Camera::GetVerticalAngle)
+            .def("MoveForward", &Camera::MoveFoward)
+            .def("MoveLeft", &Camera::MoveLeft)
+            .def("MoveUp", &Camera::MoveUp)
+            .def("RotateLeft", &Camera::RotateLeft)
+            .def("RotateUp", &Camera::RotateUp)
+            .def("SetProjection", &Camera::SetProjection)
     ];
 
 

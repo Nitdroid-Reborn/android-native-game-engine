@@ -10,7 +10,15 @@ texture = contentManager:GetTextureManager():GetTexture("logo.png");
 textureRegion = TextureRegion(0, 0, 0.5, 0.75);
 sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
 
-shaderProgram = ContentManager.Get():GetShaderProgramManager():GetShaderProgram("textured_3d");
+
+shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
+vertexShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.vert");
+fragmentShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.frag");
+
+shaderProgram:Get():AddShader(vertexShader);
+shaderProgram:Get():AddShader(fragmentShader);
+shaderProgram:Get():Link();
+
 dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
 
 
@@ -40,13 +48,17 @@ update = function(dt)
         angle = 0;
     end
 
-    if keysState:IsKeyPressed(Input.KEY_LEFT) then
-     --   angle = angle + 5;
-    end
+	camera = renderer:GetCamera();
 
-    if keysState:IsKeyPressed(Input.KEY_RIGHT) then
-     --   angle = angle - 5;
-    end
+	if keysState:IsKeyPressed(Input.KEY_UP) then
+		camera:MoveForward(5*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_DOWN) then
+		camera:MoveForward(-5*dt);
+    elseif keysState:IsKeyPressed(Input.KEY_RIGHT) then
+		camera:RotateLeft(1*dt);
+    elseif keysState:IsKeyPressed(Input.KEY_LEFT) then
+		camera:RotateLeft(-1*dt);
+	end
 
 
     if keysState:IsKeyJustPressed(Input.KEY_P) then
@@ -60,21 +72,11 @@ update = function(dt)
     rotation:SetRotationY(angle);
 
     world = translation*rotation;
-	
+
+	shaderProgram:Get():Bind();
+	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(30*math.sin(angle/100), 10, 10));
     renderer:DrawGeometry(dwarfModel, world, shaderProgram);
 
- translation = Matrix4x4();
-    translation:SetTranslation(Vector3(5,-1,-5));
 
-    rotation = Matrix4x4();
-    rotation:SetRotationY(angle);
-
-    world = translation*rotation;
-	
-    renderer:DrawGeometry(dwarfModel, world, shaderProgram);
-    
-
-    
-
-    angle= angle + dt/10;
+    angle= angle + dt*30;
 end

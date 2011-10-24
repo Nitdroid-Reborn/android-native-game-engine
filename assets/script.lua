@@ -10,9 +10,25 @@ texture = contentManager:GetTextureManager():GetTexture(":logo.png");
 textureRegion = TextureRegion(0, 0, 0.5, 0.75);
 sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
 
-shaderProgram = ContentManager.Get():GetShaderProgramManager():GetShaderProgram("textured_3d");
+
+shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
+vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.vert");
+fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.frag");
+
+shaderProgram:Get():AddShader(vertexShader);
+shaderProgram:Get():AddShader(fragmentShader);
+shaderProgram:Get():Link();
+
 dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
 
+
+--vector = Vector3(1, 0, 0);
+--vector2 = Vector3(0, 1, 0);
+
+--sum = vector + vector2;
+--mul = vector*5;
+--dot = vector*vector2;
+--cross = vector:CrossProduct(vector2)
 
 
 
@@ -32,24 +48,23 @@ update = function(dt)
         angle = 0;
     end
 
-    if keysState:IsKeyPressed(Input.KEY_LEFT) then
-        --angle = angle + 5;
-    end
+	camera = renderer:GetCamera();
 
-    if keysState:IsKeyPressed(Input.KEY_RIGHT) then
-       -- angle = angle - 5;
-    end
+	if keysState:IsKeyPressed(Input.KEY_UP) then
+		camera:MoveForward(5*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_DOWN) then
+		camera:MoveForward(-5*dt);
+    elseif keysState:IsKeyPressed(Input.KEY_RIGHT) then
+		camera:RotateLeft(1*dt);
+    elseif keysState:IsKeyPressed(Input.KEY_LEFT) then
+		camera:RotateLeft(-1*dt);
+	end
 
 
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
-   -- for x=30,800,40 do
-    --   for y=30,450,40 do
-     --      renderer:DrawSprite(x, y, Renderer.NORMAL_LAYER, 30, 30, textureRegion, texture, angle);
-      -- end
-   -- end
     translation = Matrix4x4();
     translation:SetTranslation(Vector3(0,-1,-5));
 
@@ -57,8 +72,11 @@ update = function(dt)
     rotation:SetRotationY(angle);
 
     world = translation*rotation;
-	
+
+	shaderProgram:Get():Bind();
+	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(30*math.sin(angle/100), 10, 10));
     renderer:DrawGeometry(dwarfModel, world, shaderProgram);
 
-    angle= angle + dt/10;
+
+    angle= angle + dt*30;
 end

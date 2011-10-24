@@ -77,11 +77,16 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
     shaderProgram->EnableAttributeArray("vPosition");
     shaderProgram->EnableAttributeArray("vTexCoords");
     shaderProgram->EnableAttributeArray("vColor");
+    shaderProgram->EnableAttributeArray("vNormal");
 
-    Matrix4x4 mvp = camera->GetProjectionMatrix()*camera->GetViewMatrix()*worldMatrix;
+    Matrix4x4 mv = camera->GetViewMatrix()*worldMatrix;
+    Matrix4x4 mvp = camera->GetProjectionMatrix()*mv;
 
-    shaderProgram->SetUniformValue("mvp", mvp);
+    shaderProgram->SetUniformValue("modelViewMatrix", mv);
+    shaderProgram->SetUniformValue("modelViewProjectionMatrix", mvp);
     shaderProgram->SetUniformValue("textureSampler", 0);
+
+
 
     vbo->Bind();
 
@@ -90,6 +95,17 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
 
     //vbo->Draw(0, indicesCount/3);
     for(int i=0;i<meshesCount;i++) {
+        shaderProgram->SetUniformValue("materialDiffuse", materials[meshes[i].materialIndex].diffuse[0],
+                                                          materials[meshes[i].materialIndex].diffuse[1],
+                                                          materials[meshes[i].materialIndex].diffuse[2]);
+        shaderProgram->SetUniformValue("materialAmbient", materials[meshes[i].materialIndex].ambient[0],
+                                                          materials[meshes[i].materialIndex].ambient[1],
+                                                          materials[meshes[i].materialIndex].ambient[2]);
+        shaderProgram->SetUniformValue("materialSpecular",materials[meshes[i].materialIndex].specular[0],
+                                                          materials[meshes[i].materialIndex].specular[1],
+                                                          materials[meshes[i].materialIndex].specular[2]);
+
+        shaderProgram->SetUniformValue("materialShininess", materials[meshes[i].materialIndex].shinniness);
         materials[meshes[i].materialIndex].texture.Get()->Bind();
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);
     }

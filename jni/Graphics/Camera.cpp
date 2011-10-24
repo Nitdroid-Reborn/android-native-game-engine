@@ -122,7 +122,7 @@ void Camera::SetVerticalAngle(float verticalAngle) {
     _verticalAngle = verticalAngle;
 }
 
-void Camera::MoveForvard(float distance) {
+void Camera::MoveFoward(float distance) {
     _position += _direction*distance;
 }
 

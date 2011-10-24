@@ -20,6 +20,9 @@ void MS3DModel::Load(const char *filename,
 	
 
     short numV;
+
+
+    Vertex3D* tempVertices;
     short numTriangles;
 
     //Read ms3d header
@@ -44,14 +47,14 @@ void MS3DModel::Load(const char *filename,
     io->ReadFromFile(fHandle, &numV, sizeof(short));
     //fread(&numVertices, sizeof(short), 1,pf);
 
-    numVertices = numV;
-    vertices = new Vertex3D[numVertices];
+
+    tempVertices = new Vertex3D[numV];
 
 	
-    for(i=0;i<numVertices;i++)
+    for(i=0;i<numV;i++)
     {
         io->ReadFromFile(fHandle, tempString, sizeof(char));
-        io->ReadFromFile(fHandle, vertices[i].position, sizeof(float)*3);
+        io->ReadFromFile(fHandle, tempVertices[i].position, sizeof(float)*3);
         io->ReadFromFile(fHandle, &tempChar, sizeof(char));
         io->ReadFromFile(fHandle, tempString, sizeof(char));
     }
@@ -63,8 +66,10 @@ void MS3DModel::Load(const char *filename,
     io->ReadFromFile(fHandle, &numTriangles, sizeof(short));
 
     indices = new U16[numTriangles*3];
+    vertices = new Vertex3D[numTriangles*3];
+    numVertices = numTriangles*3;
     numIndices = numTriangles*3;
-    //fread(&numTriangles, sizeof(short), 1, pf);
+
 
     //triangles = new MyModelTriangle[numTriangles];
 
@@ -86,22 +91,22 @@ void MS3DModel::Load(const char *filename,
         io->ReadFromFile(fHandle, tempString, sizeof(char));
 
         for(int j=0;j<3;j++) {
+            tempVertices[indic[j]].texCoords[0]=u[j];
+            tempVertices[indic[j]].texCoords[1]=1-v[j];
+            tempVertices[indic[j]].normal[0]=norm[j*3];
+            tempVertices[indic[j]].normal[1]=norm[j*3+1];
+            tempVertices[indic[j]].normal[2]=norm[j*3+2];
+            tempVertices[indic[j]].color[0]=255;
+            tempVertices[indic[j]].color[1]=255;
+            tempVertices[indic[j]].color[2]=255;
+            tempVertices[indic[j]].color[3]=255;
 
-
-            vertices[indic[j]].texCoords[0]=u[j];
-            vertices[indic[j]].texCoords[1]=1-v[j];
-            vertices[indic[j]].normal[0]=norm[j*3];
-            vertices[indic[j]].normal[1]=norm[j*3+1];
-            vertices[indic[j]].normal[2]=norm[j*3+2];
-            vertices[indic[j]].color[0]=255;
-            vertices[indic[j]].color[1]=255;
-            vertices[indic[j]].color[2]=255;
-            vertices[indic[j]].color[3]=255;
-            indices[i*3+j]=indic[j];
+            vertices[i*3+j]=tempVertices[indic[j]];
+            indices[i*3+j]=i*3+j;
         }
 
     }
-
+    delete[] tempVertices;
 
     //====================
 
