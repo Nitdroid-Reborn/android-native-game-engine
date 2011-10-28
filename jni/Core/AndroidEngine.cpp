@@ -251,8 +251,11 @@ void AndroidEngine::OnResume() {
 
 
 void AndroidEngine::ProcessAccelerometerInput(float x, float y, float z) {
-           /* LOGI("accelerometer: x=%f y=%f z=%f",
-                    x, y, z);*/
+    AccelEvent e;
+    e.x = x;
+    e.y = y;
+    e.z = z;
+    inputSystem->ProcessAccelerometerEvent(e);
 }
 
 void AndroidEngine::OnFrameStart() {

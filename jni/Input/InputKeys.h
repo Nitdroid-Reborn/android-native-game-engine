@@ -109,4 +109,11 @@ struct TouchEvent {
     //! Y position of pointer
     F32 posY;
 };
+
+struct AccelEvent {
+    F32 x;
+    F32 y;
+    F32 z;
+};
+
 #endif // INPUTKEYS_H

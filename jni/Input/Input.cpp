@@ -38,9 +38,17 @@ bool Input::Initialize() {
 
     luabind::module(L)
     [
+        luabind::class_<AccelerometerState>("AccelState")
+            .def("GetAcceleration", &AccelerometerState::GetAcceleration)
+            .def("GetRawAcceleration", &AccelerometerState::GetRawAcceleration)
+    ];
+
+    luabind::module(L)
+    [
         luabind::class_<Input>("Input")
             .def("GetKeys", &Input::GetKeyState)
             .def("GetTouch", &Input::GetTouchState)
+            .def("GetAccel", &Input::GetAccelState)
             .scope
             [
                 luabind::def("Get", Input::get)
@@ -140,6 +148,10 @@ const TouchState* Input::GetTouchState() const {
     return &touchState;
 }
 
+const AccelerometerState* Input::GetAccelState() const {
+    return &accelerometerState;
+}
+
 void Input::ProcessKeyEvent(const KeyEvent &event) {
     mutex.Lock();
     pendingKeyEvents.push_back(event);
@@ -149,6 +161,12 @@ void Input::ProcessKeyEvent(const KeyEvent &event) {
 void Input::ProcessTouchEvent(const TouchEvent &event) {
     mutex.Lock();
     pendingTouchEvents.push_back(event);
+    mutex.Unlock();
+}
+
+void Input::ProcessAccelerometerEvent(const AccelEvent &event) {
+    mutex.Lock();
+    pendingAccelEvents.push_back(event);
     mutex.Unlock();
 }
 
@@ -169,6 +187,13 @@ void Input::StartFrame() {
         touchState.NewEvent(pendingTouchEvents[i]);
     }
     pendingTouchEvents.clear();
+
+    for(int i=0;i<pendingAccelEvents.size();i++) {
+        accelerometerState.NewEvent(pendingAccelEvents[i]);
+    }
+
+    pendingAccelEvents.clear();
+
     mutex.Unlock();
 
     keyState.StartFrame();

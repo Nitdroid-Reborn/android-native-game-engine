@@ -1,7 +1,7 @@
 #ifndef KEYSSTATE_H
 #define KEYSSTATE_H
 #include "InputKeys.h"
-#include <Scripts/ScriptManager.h>
+
 
 //! Tracks and updates state of keys
 class KeysState

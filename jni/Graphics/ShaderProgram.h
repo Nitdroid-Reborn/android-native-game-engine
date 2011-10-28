@@ -1,7 +1,6 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
-#include <string>
-#include <vector>
+
 #ifdef ANDROID
 #include <GLES2/gl2.h>
 #else
@@ -11,6 +10,9 @@
 #include <Math/MathLib.h>
 #include "VBO.h"
 #include <ContentManager/ShaderManager.h>
+#include <string>
+#include <vector>
+
 
 class Shader;
 

@@ -52,6 +52,7 @@ void ModelGeometry::Load(const char *filename) {
                meshes, meshesCount,
                materials, materialsCount);
 
+    Logger::Log("Loaded %d %d", verticesCount, indicesCount);
     if(vbo)
         delete vbo;
 

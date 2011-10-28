@@ -86,7 +86,6 @@ void QtRenderer::OnLostFocus() {
 
 void QtRenderer::Initialize() {
     ASSERT(!singleton, "Render system already initialized");
-
     singleton = this;
 
     batcher = new SpriteBatcher(1000);

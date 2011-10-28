@@ -4,6 +4,7 @@
 #include "InputKeys.h"
 #include "KeysState.h"
 #include "TouchState.h"
+#include "AccelerometerState.h"
 #include <vector>
 #include <Core/Mutex.h>
 #include <Scripts/ScriptManager.h>
@@ -42,6 +43,10 @@ public:
       */
     virtual void ProcessTouchEvent(const TouchEvent& e);
 
+
+
+    virtual void ProcessAccelerometerEvent(const AccelEvent& event);
+
     //! Updates information about key/touch state
     /*!
       Should be called when new frame starts, updates state of keys touch based on received events since last frame
@@ -60,6 +65,8 @@ public:
     //! Returns object managing touch state
     const TouchState* GetTouchState() const;
 
+    const AccelerometerState* GetAccelState() const;
+
     //! Returns instance of input subsystem
     static Input* get() {return singleton;}
 
@@ -69,10 +76,14 @@ protected:
 private:
     KeysState keyState;
     TouchState touchState;
+    AccelerometerState accelerometerState;
+
     //list of key events to process since last frame
     vector<KeyEvent> pendingKeyEvents;
     //list of touch events since last frame
     vector<TouchEvent> pendingTouchEvents;
+
+    vector<AccelEvent> pendingAccelEvents;
     Mutex mutex;
 };
 

@@ -1,5 +1,6 @@
 touchState = Input.Get():GetTouch();
 keysState = Input.Get():GetKeys();
+accelState = Input.Get():GetAccel();
 audioSystem = AudioSystem.Get();
 renderer = Renderer.Get();
 contentManager = ContentManager.Get();
@@ -31,6 +32,13 @@ dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("kr
 --cross = vector:CrossProduct(vector2)
 
 
+function round(val, decimal)
+  if (decimal) then
+    return math.floor( (val * 10^decimal) + 0.5) / (10^decimal)
+  else
+    return math.floor(val+0.5)
+  end
+end
 
 update = function(dt)
     if keysState:IsKeyJustPressed(Input.KEY_CENTER) then
@@ -64,6 +72,12 @@ update = function(dt)
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
+
+	gravity = accelState:GetAcceleration();
+	renderer:DrawString(0, 400, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
+	gravity = accelState:GetRawAcceleration();
+	renderer:DrawString(0, 370, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
+
 
     translation = Matrix4x4();
     translation:SetTranslation(Vector3(0,-1,-5));

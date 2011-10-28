@@ -3,7 +3,6 @@
 
 #include "Input/InputKeys.h"
 #include "Math/MathLib.h"
-#include <Scripts/ScriptManager.h>
 
 //! Tracks and updates state of touch
 class TouchState

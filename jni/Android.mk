@@ -112,7 +112,8 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/Camera.cpp \
                    ContentManager/ShaderManager.cpp \
                    ContentManager/ShaderProgramManager.cpp \
-                   ContentManager/ModelGeometryManager.cpp
+                   ContentManager/ModelGeometryManager.cpp \
+                   Input/AccelerometerState.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz
@@ -126,5 +127,3 @@ $(call import-module, freetype2)
 $(call import-module, libpng)
 $(call import-module, box2d)
 $(call import-module, android/native_app_glue)
-
-

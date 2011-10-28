@@ -290,23 +290,23 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 
         case APP_CMD_GAINED_FOCUS:
             engine->OnGainedFocus();
-           /* if (accelerometerSensor != NULL) {
+            if (accelerometerSensor != NULL) {
                 ASensorEventQueue_enableSensor(sensorEventQueue,
                         accelerometerSensor);
                 // We'd like to get 60 events per second (in us).
                 ASensorEventQueue_setEventRate(sensorEventQueue,
                         accelerometerSensor, (1000L/60)*1000);
-            }*/
+            }
             AcquireWakeLock(app);
             break;
 
 
         case APP_CMD_LOST_FOCUS:
             engine->OnLostFocus();
-           /* if (accelerometerSensor != NULL) {
+            if (accelerometerSensor != NULL) {
                 ASensorEventQueue_disableSensor(sensorEventQueue,
                         accelerometerSensor);
-            }*/
+            }
             ReleaseWakeLock(app);
             break;
 
@@ -349,11 +349,11 @@ void android_main(struct android_app* app) {
     //restore state of application
 
 
-    /*sensorManager = ASensorManager_getInstance();
+    sensorManager = ASensorManager_getInstance();
     accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager,
                 ASENSOR_TYPE_ACCELEROMETER);
     sensorEventQueue = ASensorManager_createEventQueue(sensorManager,
-                app->looper, LOOPER_ID_USER, NULL, NULL);*/
+                app->looper, LOOPER_ID_USER, NULL, NULL);
 
     engine.Initialize();
 
@@ -380,13 +380,13 @@ void android_main(struct android_app* app) {
 
             // If a sensor has data, process it now.
             if (ident == LOOPER_ID_USER) {
-               /* ASensorEvent event;
+                ASensorEvent event;
                 while (ASensorEventQueue_getEvents(sensorEventQueue,
                         &event, 1) > 0) {
                     engine.ProcessAccelerometerInput(event.acceleration.x,
                                                      event.acceleration.y,
                                                      event.acceleration.z);
-                }*/
+                }
             }
 
             // Check if we are exiting.
