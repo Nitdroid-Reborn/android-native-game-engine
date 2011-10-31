@@ -47,7 +47,7 @@ static void initKeyMapper() {
     keyMapper[Qt::Key_U] = ENGINE_KEYCODE_U;
     keyMapper[Qt::Key_V] = ENGINE_KEYCODE_V;
     keyMapper[Qt::Key_W] = ENGINE_KEYCODE_W;
-    keyMapper[Qt::Key_Z] = ENGINE_KEYCODE_X;
+    keyMapper[Qt::Key_X] = ENGINE_KEYCODE_X;
     keyMapper[Qt::Key_Y] = ENGINE_KEYCODE_Y;
     keyMapper[Qt::Key_Z] = ENGINE_KEYCODE_Z;
     keyMapper[Qt::Key_Comma] = ENGINE_KEYCODE_COMMA;

@@ -107,7 +107,9 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
                                                           materials[meshes[i].materialIndex].specular[2]);
 
         shaderProgram->SetUniformValue("materialShininess", materials[meshes[i].materialIndex].shinniness);
-        materials[meshes[i].materialIndex].texture.Get()->Bind();
+        if(materials[meshes[i].materialIndex].texture.Get())
+            materials[meshes[i].materialIndex].texture.Get()->Bind();
+
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);
     }
 

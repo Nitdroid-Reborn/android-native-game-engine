@@ -74,13 +74,13 @@ void Matrix4x4::SetRow(int position, const Vector4& row) {
         entries[8] = row.z;
         entries[12] = row.w;
     }
-    else if(position==0) {
+    else if(position==1) {
         entries[1] = row.x;
         entries[5] = row.y;
         entries[9] = row.z;
         entries[13] = row.w;
     }
-    else if(position==0) {
+    else if(position==2) {
         entries[2] = row.x;
         entries[6] = row.y;
         entries[10] = row.z;

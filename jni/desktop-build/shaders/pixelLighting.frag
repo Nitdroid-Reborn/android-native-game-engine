@@ -28,6 +28,6 @@ void main() {
     vec3 specular = materialSpecular * specularLight;
 
 	
-	gl_FragColor.xyz = (diffuse+specular)*texture2D(textureSampler, pTexCoords.xy).xyz;
+	gl_FragColor.xyz = (diffuse+specular)*vec3(1.0, 1.0, 1.0);
 	gl_FragColor.w = 1.0;
 }

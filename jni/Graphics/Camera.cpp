@@ -22,13 +22,15 @@ void Camera::SetProjection(float fovy, float aspect, float near, float far) {
 void Camera::Update() {
     _viewMatrix.LoadIdentity();
 
-    Vector3 directionPoint = _position + _direction;
+
+    Vector3 directionPoint = _direction + _position;
 
 
 
     Vector3 F = Vector3(directionPoint.x - _position.x,
                         directionPoint.y - _position.y,
                         directionPoint.z - _position.z);
+
     F.Normalize();
 
     Vector3 UP = _upVector;
@@ -39,9 +41,17 @@ void Camera::Update() {
 
     Vector3 u = s.CrossProduct(F);
 
+   /* _viewMatrix.SetRow(0, Vector4(s.x, s.y, s.z, -_position.x));
+    _viewMatrix.SetRow(1, Vector4(u.x, u.y, u.z, -_position.y));
+    _viewMatrix.SetRow(2, Vector4(-F.x, -F.y, -F.z, -_position.z));*/
 
-    _viewMatrix.SetTranslationPart(-_position);
 
+  /*  Logger::Log("%f %f %f", s.x, s.y, s.z);
+    Logger::Log("%f %f %f", u.x, u.y, u.z);
+    Logger::Log("%f %f %f", -F.x, -F.y, -F.z);*/
+
+
+    _viewMatrix.SetTranslation(-_position);
 
     Matrix4x4 rotateVert;
     rotateVert.SetRotationX(_verticalAngle*180.0f/PI);
@@ -49,7 +59,7 @@ void Camera::Update() {
     Matrix4x4 rotateHor;
     rotateHor.SetRotationY(_horizontalAngle*180.0f/PI);
 
-   _viewMatrix = _viewMatrix*rotateVert*rotateHor;
+   _viewMatrix = rotateVert*rotateHor*_viewMatrix;
 
 
     /*glPushMatrix();
@@ -136,10 +146,24 @@ void Camera::MoveUp(float distance) {
 
 void Camera::RotateLeft(float rotation) {
     _horizontalAngle += rotation;
+
+    _direction = Vector3(0,0,-1);
+    _direction.RotateX(_verticalAngle*180.0f/PI);
+    _direction.RotateY(-_horizontalAngle*180.0f/PI);
+    _direction.Normalize();
+
+    _leftVector=_direction.CrossProduct(_upVector);
 }
 
 void Camera::RotateUp(float rotation) {
     _verticalAngle += rotation;
+
+    _direction = Vector3(0,0,-1);
+    _direction.RotateX(_verticalAngle*180.0f/PI);
+    _direction.RotateY(-_horizontalAngle*180.0f/PI);
+    _direction.Normalize();
+
+    _upVector=_direction.CrossProduct(_leftVector);
 }
 
 

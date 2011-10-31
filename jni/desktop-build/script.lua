@@ -19,7 +19,7 @@ shaderProgram:Get():AddShader(vertexShader);
 shaderProgram:Get():AddShader(fragmentShader);
 shaderProgram:Get():Link();
 
-dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
+dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("skocznia.ms3d");
 
 
 --vector = Vector3(1, 0, 0);
@@ -58,6 +58,14 @@ update = function(dt)
 		camera:RotateLeft(1*dt);
     elseif keysState:IsKeyPressed(Input.KEY_LEFT) then
 		camera:RotateLeft(-1*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_Z) then
+		camera:MoveUp(2*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_X) then
+		camera:MoveUp(-2*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_A) then
+		camera:MoveLeft(-2*dt);
+	elseif keysState:IsKeyPressed(Input.KEY_D) then
+		camera:MoveLeft(2*dt);
 	end
 
 
@@ -69,12 +77,12 @@ update = function(dt)
     translation:SetTranslation(Vector3(0,-1,-5));
 
     rotation = Matrix4x4();
-    rotation:SetRotationY(angle);
+    rotation:SetScale(Vector3(3.0, 3.0, 3.0));
 
     world = translation*rotation;
 
 	shaderProgram:Get():Bind();
-	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(30*math.sin(angle/100), 10, 10));
+	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(5*math.sin(angle/100), 10, 10));
     renderer:DrawGeometry(dwarfModel, world, shaderProgram);
 
 
