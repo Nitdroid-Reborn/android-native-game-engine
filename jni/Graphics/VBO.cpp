@@ -101,5 +101,5 @@ char* VBO::GetVertexAttributeOffset(VertexAttribute attr) {
 }
 
 void VBO::Draw(int start, int count) {
-    glDrawElements(GL_TRIANGLES, count*3, GL_UNSIGNED_SHORT, BUFFER_OFFSET(start*sizeof(U16)));
+//    glDrawElements(GL_TRIANGLES, count*3, GL_UNSIGNED_SHORT, BUFFER_OFFSET(start*sizeof(U16)));
 }
