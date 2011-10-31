@@ -26,6 +26,9 @@ Collider::Collider(IGeometry * geometry) :
             m_maxZ = vertices[i].position[2];
     }
     
+    m_maxX += 0.01 * (m_maxX - m_minX);
+    m_maxZ += 0.01 * (m_maxZ - m_minZ);
+    
     int triangleCount = geometry->GetIndicesCount() / 3;
     U16 * indices = geometry->GetIndices();
     
@@ -69,16 +72,44 @@ Collider::~Collider()
 
 int Collider::Index(float pos, float min, float max, int count)
 {
-    float step = (max - min) / (float)count;
-    return (int)pos / step;
+    return (int)((pos - min) / (max - min) * (float)count);
+}
+
+void Collider::Collide(const Vector3 & point, CollisionListener *listener)
+{
+    if(listener == 0)
+        return;
+    
+    int x = Index(point.x, m_minX, m_maxX, 10);
+    int z = Index(point.z, m_minZ, m_maxZ, 10);
+    
+    if(x < 0 || x >= 10 || z < 0 || z >= 10)        // point outside the boundaries of the object
+        return;
+    
+    Triangle * triangle = m_triangles[x][z];
+    
+    CollisionObject * co;
+    
+    while(triangle != 0)
+    {
+        co = triangle->Collide(point);
+        
+        if(co != 0)
+        {
+            listener->Collision(co);
+            delete co;
+        }
+        
+        triangle = triangle->next;
+    }
 }
 
 Collider::Triangle::Triangle(Vertex3D *v1, Vertex3D *v2, Vertex3D *v3)
 {
     next = 0;
-    vertices[1] = v1;
-    vertices[2] = v2;
-    vertices[3] = v3;
+    vertices[0] = v1;
+    vertices[1] = v2;
+    vertices[2] = v3;
 }
 
 Collider::Triangle::~Triangle()
@@ -93,4 +124,72 @@ void Collider::Triangle::Append(Triangle *triangle)
         next->Append(triangle);
     else
         next = triangle;
+}
+
+void Collider::Triangle::Init()
+{    
+    a.Set(vertices[1]->position[0] - vertices[0]->position[0],
+          vertices[1]->position[1] - vertices[0]->position[1],
+          vertices[1]->position[2] - vertices[0]->position[2]);
+    
+    b.Set(vertices[2]->position[0] - vertices[1]->position[0],
+          vertices[2]->position[1] - vertices[1]->position[1],
+          vertices[2]->position[2] - vertices[1]->position[2]);
+        
+    c.Set(vertices[2]->position[0] - vertices[0]->position[0],
+          vertices[2]->position[1] - vertices[0]->position[1],
+          vertices[2]->position[2] - vertices[0]->position[2]);
+    
+    v0.Set(vertices[0]->position[0],
+           vertices[0]->position[1],
+           vertices[0]->position[2]);
+    
+    v1.Set(vertices[1]->position[0],
+           vertices[1]->position[1],
+           vertices[1]->position[2]);
+
+    v2.Set(vertices[2]->position[0],
+           vertices[2]->position[1],
+           vertices[2]->position[2]);
+    
+    normal = a.CrossProduct(c);
+    normal.Normalize();
+    
+    c = -c;
+    
+    d = -normal.DotProduct(v0);
+}
+
+CollisionObject * Collider::Triangle::Collide(const Vector3 &point)
+{
+    float distance = normal.DotProduct(point) + d;
+    Vector3 p = point;
+    
+    if(distance > 0)
+        return 0;
+    
+    p = p - distance * normal;
+    
+    if(SameSide(p, v2, v1, v0) && SameSide(p, v0, v2, v1) && SameSide(p, v1, v0, v2))
+    {
+        CollisionObject * result = new CollisionObject();
+        result->position = p;
+        result->normal = normal;
+        
+        return result;
+    }
+    
+    return 0;
+}
+
+bool Collider::Triangle::SameSide(Vector3 &p1, Vector3 &p2, Vector3 &a, Vector3 &b)
+{
+    Vector3 bma = b - a;
+    Vector3 cp1 = bma.CrossProduct(p1 - a);
+    Vector3 cp2 = bma.CrossProduct(p2 - a);
+    
+    if(cp1.DotProduct(cp2) >= 0)
+        return true;
+    
+    return false;
 }
