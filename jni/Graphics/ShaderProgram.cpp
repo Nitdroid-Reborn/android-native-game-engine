@@ -43,6 +43,11 @@ int ShaderProgram::GetUniformLocation(std::string name) {
 
 bool ShaderProgram::Link() {
     if(id) {
+        glBindAttribLocation(id, 0, "vPosition");
+        glBindAttribLocation(id, 1, "vNormal");
+        glBindAttribLocation(id, 2, "vTexCoord");
+        glBindAttribLocation(id, 3, "vColor");
+
         glLinkProgram(id);
         GLint linkStatus = GL_FALSE;
         glGetProgramiv(id, GL_LINK_STATUS, &linkStatus);
@@ -254,6 +259,7 @@ void ShaderProgram::SetUniformValue(std::string name, const Matrix4x4 &m) {
 
 
 void ShaderProgram::SetAttributeArray(VBO *vbo) {
+    Logger::Log("vPosition %d", GetAttributeLocation("vPosition"));
     glVertexAttribPointer(GetAttributeLocation("vPosition"),
                           vbo->GetVertexAttributeSize(VertexPosition),
                           vbo->GetVertexAttributeType(VertexPosition),

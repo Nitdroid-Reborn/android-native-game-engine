@@ -87,12 +87,11 @@ void SpriteBatcher::EndBatch() {
 
 
     vbo->Bind();
-
     ShaderProgram* sp = shaderProgram.Get();
-  /*  sp->Bind();
+    sp->Bind();
     sp->EnableAttributeArray("vPosition");
     sp->EnableAttributeArray("vTexCoords");
-    sp->EnableAttributeArray("vColor");*/
+    sp->EnableAttributeArray("vColor");
 
 
     ITexture* currentTexture = 0;
@@ -103,8 +102,8 @@ void SpriteBatcher::EndBatch() {
     mat.SetOrtho(0.0, 800, 0.0, 480, -1.0, 10.0);
 
 
-    //sp->SetUniformValue("modelViewProjectionMatrix", mat);
-   // sp->SetUniformValue("textureSampler", 0);
+    sp->SetUniformValue("modelViewProjectionMatrix", mat);
+    sp->SetUniformValue("textureSampler", 0);
 
     for(it; it!=oldSprites.end(); ++it) {
 
@@ -115,7 +114,7 @@ void SpriteBatcher::EndBatch() {
                          (int)numIndices, &indices[0]);
 
 
-            //sp->SetAttributeArray(vbo);
+            sp->SetAttributeArray(vbo);
 
             vbo->Draw(0, numSprites*2);
             texChanges++;
@@ -257,7 +256,7 @@ void SpriteBatcher::EndBatch() {
                  numIndices, &indices[0]);
 
 
-   // sp->SetAttributeArray(vbo);
+    sp->SetAttributeArray(vbo);
 
     vbo->Draw(0, numSprites*2);
 
@@ -267,7 +266,7 @@ void SpriteBatcher::EndBatch() {
         currentTexture = 0;
     }
 
-   // sp->Release();
+    sp->Release();
     vbo->Release();
 }
 
