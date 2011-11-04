@@ -74,29 +74,39 @@ U16 ModelGeometry::GetMeshStartIndex(int mesh) {
 
 
 void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderProgram *shaderProgram) {
-    shaderProgram->Bind();
+    /*shaderProgram->Bind();
     shaderProgram->EnableAttributeArray("vPosition");
     shaderProgram->EnableAttributeArray("vTexCoords");
     shaderProgram->EnableAttributeArray("vColor");
     shaderProgram->EnableAttributeArray("vNormal");
-
+*/
     Matrix4x4 mv = camera->GetViewMatrix()*worldMatrix;
     Matrix4x4 mvp = camera->GetProjectionMatrix()*mv;
-
+/*
     shaderProgram->SetUniformValue("modelViewMatrix", mv);
     shaderProgram->SetUniformValue("modelViewProjectionMatrix", mvp);
     shaderProgram->SetUniformValue("textureSampler", 0);
 
-
+*/
 
     vbo->Bind();
 
-    shaderProgram->SetAttributeArray(vbo);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glMultMatrixf(mvp.entries);
+
+
+
+   // shaderProgram->SetAttributeArray(vbo);
     //materials[meshes[0].materialIndex].texture.Get()->Bind();
 
     //vbo->Draw(0, indicesCount/3);
     for(int i=0;i<meshesCount;i++) {
-        shaderProgram->SetUniformValue("materialDiffuse", materials[meshes[i].materialIndex].diffuse[0],
+       /* shaderProgram->SetUniformValue("materialDiffuse", materials[meshes[i].materialIndex].diffuse[0],
                                                           materials[meshes[i].materialIndex].diffuse[1],
                                                           materials[meshes[i].materialIndex].diffuse[2]);
         shaderProgram->SetUniformValue("materialAmbient", materials[meshes[i].materialIndex].ambient[0],
@@ -107,13 +117,18 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
                                                           materials[meshes[i].materialIndex].specular[2]);
 
         shaderProgram->SetUniformValue("materialShininess", materials[meshes[i].materialIndex].shinniness);
-        if(materials[meshes[i].materialIndex].texture.Get())
+        */if(materials[meshes[i].materialIndex].texture.Get())
             materials[meshes[i].materialIndex].texture.Get()->Bind();
 
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);
     }
 
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glMatrixMode(GL_MODELVIEW);
     vbo->Release();
-    shaderProgram->Release();
+   // shaderProgram->Release();
 
 }

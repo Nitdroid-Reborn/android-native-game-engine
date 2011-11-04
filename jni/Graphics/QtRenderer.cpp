@@ -42,7 +42,7 @@ void QtRenderer::OnInitWindow() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    //glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
+    glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
     //gluPerspective(54.0f, (float)w/(float)h, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

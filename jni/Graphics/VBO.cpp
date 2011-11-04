@@ -101,5 +101,15 @@ char* VBO::GetVertexAttributeOffset(VertexAttribute attr) {
 }
 
 void VBO::Draw(int start, int count) {
-//    glDrawElements(GL_TRIANGLES, count*3, GL_UNSIGNED_SHORT, BUFFER_OFFSET(start*sizeof(U16)));
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(Vertex3D), BUFFER_OFFSET(0));
+    glNormalPointer(GL_FLOAT, sizeof(Vertex3D), BUFFER_OFFSET(12));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex3D), BUFFER_OFFSET(24));
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex3D), BUFFER_OFFSET(32));
+
+    glDrawElements(GL_TRIANGLES, count*3, GL_UNSIGNED_SHORT, BUFFER_OFFSET(start*sizeof(U16)));
 }
