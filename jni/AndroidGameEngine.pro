@@ -134,7 +134,8 @@ SOURCES += DesktopMain.cpp \
     ContentManager/ShaderProgramManager.cpp \
     ContentManager/ModelGeometryManager.cpp \
     Input/AccelerometerState.cpp \
-    Physics/Collider.cpp
+    Physics/Collider.cpp \
+    Graphics/ShaderParameter.cpp
 
 
 HEADERS += \
@@ -333,12 +334,15 @@ HEADERS += \
     ContentManager/ModelGeometryManager.h \
     Input/TouchState.h \
     Input/AccelerometerState.h \
-    Physics/Collider.h
+    Physics/Collider.h \
+    Graphics/ShaderParameter.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk
+
+
 
 
 

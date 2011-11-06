@@ -215,6 +215,6 @@ void VirtualDPad::Draw() {
 
     if(pressedAny) {
         TextureRegion region2(0.5, 0.505, 0.9479, 0.9583);
-        IRenderer::get()->DrawSprite(pressPositionX, pressPositionY, VIRTUAL_INPUT_LAYER, 2*radius, 2*radius, region2, texture);
+        IRenderer::get()->DrawSprite(pressPositionX, pressPositionY, VIRTUAL_INPUT_LAYER_2, 2*radius, 2*radius, region2, texture);
     }
 }

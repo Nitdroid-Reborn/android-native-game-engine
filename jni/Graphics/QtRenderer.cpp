@@ -60,11 +60,6 @@ void QtRenderer::OnInitWindow() {
 
     glDisable(GL_DITHER);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-
     glClearColor(0,0,0,0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,7 +145,8 @@ void QtRenderer::Initialize() {
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, U8, U8, U8, U8, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
-            .def("DrawGeometry", &IRenderer::DrawGeometry)
+            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*))&IRenderer::DrawGeometry)
+            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle))&IRenderer::DrawGeometry)
             .def("GetCamera", &IRenderer::GetCamera)
             .scope
             [
@@ -184,6 +180,19 @@ void QtRenderer::Initialize() {
             .def("RotateLeft", &Camera::RotateLeft)
             .def("RotateUp", &Camera::RotateUp)
             .def("SetProjection", &Camera::SetProjection)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<ShaderParametersList>("ShaderParametersList")
+            .def(luabind::constructor<>())
+            .def("Add", (void (ShaderParametersList::*)(std::string, const Matrix4x4&))&ShaderParametersList::Add)
+            .def("Add", (void (ShaderParametersList::*)(std::string, const Vector2&))&ShaderParametersList::Add)
+            .def("Add", (void (ShaderParametersList::*)(std::string, const Vector3&))&ShaderParametersList::Add)
+            .def("Add", (void (ShaderParametersList::*)(std::string, const Vector4&))&ShaderParametersList::Add)
+            .def("Add", (void (ShaderParametersList::*)(std::string, F32))&ShaderParametersList::Add)
+            .def("Add", (void (ShaderParametersList::*)(std::string, I32))&ShaderParametersList::Add)
+            .def("Clear", &ShaderParametersList::Clear)
     ];
 
 
@@ -257,7 +266,8 @@ void QtRenderer::Run() {
 
 
                 for(int i=0;i<oldGeometry.size();i++) {
-                    oldGeometry[i].geometry->Draw(camera, oldGeometry[i].worldMatrix, oldGeometry[i].shaderProgram);
+                    oldGeometry[i].geometry->Draw(camera, oldGeometry[i].worldMatrix,
+                                                  oldGeometry[i].shaderProgram, oldGeometry[i].shaderParameters);
                 }
 
                /* for(int i=-0;i<=0;i++) {
@@ -355,11 +365,23 @@ void QtRenderer::DrawString(int x, int y, const char * str) {
 }
 
 
-void QtRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix, ShaderProgramHandle shaderProgram) {
+void QtRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix,
+                              ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters) {
     GeometryInstance gi;
     gi.geometry = geometry.Get();
     gi.worldMatrix = worldMatrix;
     gi.shaderProgram = shaderProgram.Get();
+    gi.shaderParameters = ShaderParametersList(*shaderParameters);
 
     this->geometry.push_back(gi);
 }
+
+void QtRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix,
+                              ShaderProgramHandle shaderProgram) {
+    GeometryInstance gi;
+    gi.geometry = geometry.Get();
+    gi.worldMatrix = worldMatrix;
+    gi.shaderProgram = shaderProgram.Get();
+    this->geometry.push_back(gi);
+}
+

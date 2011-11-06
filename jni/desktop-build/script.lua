@@ -81,9 +81,9 @@ update = function(dt)
 
     world = translation*rotation;
 
-	shaderProgram:Get():Bind();
-	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(5*math.sin(angle/100), 10, 10));
-    renderer:DrawGeometry(dwarfModel, world, shaderProgram);
+	shaderParams = ShaderParametersList();
+	shaderParams:Add("lightPosition", Vector3(5*math.sin(angle/100), 10, 10));
+    renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
 
 
     angle= angle + dt*30;

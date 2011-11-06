@@ -12,13 +12,14 @@ textureRegion = TextureRegion(0, 0, 0.5, 0.75);
 sound = ContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav');
 
 
-shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("nonTextured3d");
---vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.vert");
---fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.frag");
+--shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("nonTextured3d");
+shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
+vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.vert");
+fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.frag");
 
---shaderProgram:Get():AddShader(vertexShader);
---shaderProgram:Get():AddShader(fragmentShader);
---shaderProgram:Get():Link();
+shaderProgram:Get():AddShader(vertexShader);
+shaderProgram:Get():AddShader(fragmentShader);
+shaderProgram:Get():Link();
 
 dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("skocznia.ms3d");
 
@@ -83,13 +84,13 @@ update = function(dt)
     translation:SetTranslation(Vector3(0,-1,-5));
 
     rotation = Matrix4x4();
-    rotation:SetRotationY(angle);
+    rotation:SetScale(Vector3(3.0, 3.0, 3.0));
 
     world = translation*rotation;
 
-	shaderProgram:Get():Bind();
-	shaderProgram:Get():SetUniformValue("lightPosition", Vector3(30*math.sin(angle/100), 10, 10));
-    renderer:DrawGeometry(dwarfModel, world, shaderProgram);
+	shaderParams = ShaderParametersList();
+	shaderParams:Add("lightPosition", Vector3(5*math.sin(angle/100), 10, 10));
+    renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
 
 
     angle= angle + dt*30;

@@ -12,6 +12,7 @@
 
 #define NORMAL_LAYER 10
 #define VIRTUAL_INPUT_LAYER 2
+#define VIRTUAL_INPUT_LAYER_2 1.9
 #define PROFILER_LAYER_BG 1
 #define PROFILER_LAYER 0
 
@@ -34,8 +35,10 @@ public:
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f)=0;
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
     virtual void DrawString(int x, int y, const char * str)=0;
-    virtual void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix, ShaderProgramHandle shaderProgram)=0;
-
+    virtual void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
+                              ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters)=0;
+    virtual void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
+                              ShaderProgramHandle shaderProgram)=0;
     virtual Camera* GetCamera()=0;
 
     static IRenderer* get(){return singleton;}

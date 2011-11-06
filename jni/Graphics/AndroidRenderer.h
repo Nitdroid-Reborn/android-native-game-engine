@@ -14,6 +14,7 @@
 #include "TextBox.h"
 #include "Font.h"
 #include "Camera.h"
+#include "ShaderParameter.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ struct GeometryInstance {
     Matrix4x4 worldMatrix;
     ModelGeometry* geometry;
     ShaderProgram* shaderProgram;
+    ShaderParametersList shaderParameters;
 };
 
 
@@ -48,7 +50,10 @@ public:
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f);
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
-    void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix, ShaderProgramHandle shaderProgram);
+    void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
+                      ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters);
+    void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
+                      ShaderProgramHandle shaderProgram);
 
     Camera* GetCamera() {return mainThreadCamera;}
 

@@ -3,6 +3,7 @@
 #include "IGeometry.h"
 #include <vector>
 #include "ContentManager/ITextureManager.h"
+
 class VBO;
 class ShaderProgram;
 
@@ -43,7 +44,8 @@ public:
     U16 GetMeshStartIndex(int mesh);
     U16 GetMeshIndicesCount(int mesh);
 
-    void Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderProgram* shaderProgram);
+    void Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderProgram* shaderProgram,
+              const ShaderParametersList& shaderParameters);
 
 private:
     VBO* vbo;

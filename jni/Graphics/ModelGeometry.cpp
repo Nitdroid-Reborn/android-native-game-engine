@@ -73,7 +73,8 @@ U16 ModelGeometry::GetMeshStartIndex(int mesh) {
 }
 
 
-void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderProgram *shaderProgram) {
+void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix,
+                         ShaderProgram *shaderProgram, const ShaderParametersList& shaderParameters) {
     shaderProgram->Bind();
     shaderProgram->EnableAttributeArray("vPosition");
     shaderProgram->EnableAttributeArray("vTexCoords");
@@ -88,6 +89,7 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix, ShaderPro
     shaderProgram->SetUniformValue("textureSampler", 0);
 
 
+    shaderParameters.Apply(shaderProgram);
 
     vbo->Bind();
 
