@@ -2,6 +2,7 @@ package com.polrola.mateusz.AndroidGameEngine;
 
 import android.app.NativeActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -9,9 +10,12 @@ import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 
+
 public class NativeGameActivity extends NativeActivity {
 	private WakeLock wakeLock;
-
+	
+	private final int REQUESTCODE_SKIJUMP = 1;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -32,6 +36,13 @@ public class NativeGameActivity extends NativeActivity {
 	public void unlock() {
 		wakeLock.release();
 		Log.i("native-activity", "WakeLock released");
+	}
+	
+	public void SendToServer() {
+		Log.d("native-activity", "Data send");
+		Intent in = new Intent(this, SkiJumpSendScoreActivity.class);
+        in.putExtra(SkiJumpSendScoreActivity.INDATA_SCORE, (int)(Math.random() * 0xffff));
+        startActivityForResult(in, REQUESTCODE_SKIJUMP);
 	}
 	
 	static {

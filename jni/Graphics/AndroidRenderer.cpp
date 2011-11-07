@@ -140,9 +140,7 @@ void AndroidRenderer::InitWindow() {
 
 
     camera->SetProjection(54, (float)w/(float)h, 0.1, 100.0f);
-    camera->SetPosition(Vector3(0,0,0));
-    camera->SetDirection(Vector3(0,0,-1));
-    camera->SetUpVector(Vector3(0,1,0));
+
 
     mainThreadCamera->Clone(camera);
 
@@ -304,6 +302,10 @@ void AndroidRenderer::Initialize() {
 
     camera = new Camera();
     mainThreadCamera = new Camera();
+
+    camera->SetPosition(Vector3(0,0,0));
+    camera->SetDirection(Vector3(0,0,-1));
+    camera->SetUpVector(Vector3(0,1,0));
 
 
     Logger::Log(1, "Android Renderer initialized");

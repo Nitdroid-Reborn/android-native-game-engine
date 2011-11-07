@@ -215,6 +215,7 @@ void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
 }
 
 void AndroidEngine::OnGainedFocus() {
+    isRunning = 1;
     renderer->OnGainedFocus();
 }
 

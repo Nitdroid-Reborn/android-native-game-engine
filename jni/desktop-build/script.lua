@@ -19,7 +19,7 @@ shaderProgram:Get():AddShader(vertexShader);
 shaderProgram:Get():AddShader(fragmentShader);
 shaderProgram:Get():Link();
 
-dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("skocznia.ms3d");
+dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
 
 
 --vector = Vector3(1, 0, 0);
@@ -74,15 +74,24 @@ update = function(dt)
     end
 
     translation = Matrix4x4();
-    translation:SetTranslation(Vector3(0,-1,-5));
+    translation:SetTranslation(Vector3(-2,-1,-5));
 
     rotation = Matrix4x4();
-    rotation:SetScale(Vector3(3.0, 3.0, 3.0));
+    rotation:SetScale(Vector3(2.0, 2.0, 2.0));
 
     world = translation*rotation;
 
 	shaderParams = ShaderParametersList();
-	shaderParams:Add("lightPosition", Vector3(5*math.sin(angle/100), 10, 10));
+	shaderParams:Add("lightPosition", Vector3(15*math.sin(angle/10), 10, 10));
+    renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
+
+
+	translation:SetTranslation(Vector3(2, -1, -5));
+
+	world = translation*rotation;
+
+	shaderParams = ShaderParametersList();
+	shaderParams:Add("lightPosition", Vector3(10, 15*math.sin(angle/10), 10));
     renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
 
 
