@@ -125,26 +125,62 @@ I32 ShaderParameter::GetDataAsInt() const{
 
 
 void ShaderParametersList::Add(std::string name, const Matrix4x4 &v) {
+    for(int i=0;i<parameters.size();i++) {
+        if(parameters[i].GetName()==name) {
+            parameters[i] = ShaderParameter(name, v);
+            return;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 
 void ShaderParametersList::Add(std::string name, const Vector2 &v) {
+    for(int i=0;i<parameters.size();i++) {
+        if(parameters[i].GetName()==name) {
+            parameters[i] = ShaderParameter(name, v);
+            return;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 
 void ShaderParametersList::Add(std::string name, const Vector3 &v) {
+    for(std::vector<ShaderParameter>::iterator it = parameters.begin(); it != parameters.end(); ++it) {
+        if((*it).GetName()==name) {
+            parameters.erase(it);
+            break;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 
 void ShaderParametersList::Add(std::string name, const Vector4 &v) {
+    for(std::vector<ShaderParameter>::iterator it = parameters.begin(); it != parameters.end(); ++it) {
+        if((*it).GetName()==name) {
+            parameters.erase(it);
+            break;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 
 void ShaderParametersList::Add(std::string name, F32 v) {
+    for(std::vector<ShaderParameter>::iterator it = parameters.begin(); it != parameters.end(); ++it) {
+        if((*it).GetName()==name) {
+            parameters.erase(it);
+            break;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 
 void ShaderParametersList::Add(std::string name, I32 v) {
+    for(std::vector<ShaderParameter>::iterator it = parameters.begin(); it != parameters.end(); ++it) {
+        if((*it).GetName()==name) {
+            parameters.erase(it);
+            break;
+        }
+    }
     parameters.push_back(ShaderParameter(name, v));
 }
 

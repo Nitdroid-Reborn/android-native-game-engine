@@ -9,7 +9,7 @@
 #include <Audio/WaveSound.h>
 #include <Audio/Sound.h>
 
-
+#include <GameObject/RenderableGameObject.h>
 
 extern "C" {
     #include <Scripts/lua/lua.h>
@@ -87,6 +87,8 @@ void AndroidEngine::Initialize() {
     virtualInputSystem->AddKey(centerKey);
     virtualInputSystem->AddKey(dpad);
 
+    gameObjectManager = new GameObjectManager();
+    gameObjectManager->Initialize();
 
     volume = 1.0f;
     angle = 0.0f;
@@ -162,6 +164,7 @@ void AndroidEngine::Release() {
     delete script;
     script = NULL;
 
+    gameObjectManager->Release();
     contentManager->GetTextureManager()->ReleaseTexture(texture);
 
     audioSystem->StopMusic();
@@ -276,6 +279,8 @@ void AndroidEngine::Update(float dt) {
     this->dt = dt;
 
     script->callFunction("update", dt);
+
+    gameObjectManager->Update(dt);
 
     virtualInputSystem->Draw();
 }

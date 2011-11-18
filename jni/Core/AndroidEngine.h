@@ -23,7 +23,7 @@
 #include <ContentManager/AndroidContentManager.h>
 #include <Audio/AndroidAudioSystem.h>
 #include <Scripts/Script.h>
-
+#include <GameObject/GameObjectManager.h>
 //#include "Box2D/Box2D.h"
 
 
@@ -94,7 +94,7 @@ private:
     ScriptManager* scriptManager;
 
     VirtualInput* virtualInputSystem;
-
+    GameObjectManager* gameObjectManager;
 
     float angle;
 

@@ -114,7 +114,10 @@ LOCAL_SRC_FILES := main.cpp \
                    ContentManager/ShaderProgramManager.cpp \
                    ContentManager/ModelGeometryManager.cpp \
                    Input/AccelerometerState.cpp \
-                   Graphics/ShaderParameter.cpp
+                   Graphics/ShaderParameter.cpp \
+                   GameObject/GameObjectManager.cpp \
+                   GameObject/RenderableGameObject.cpp \
+                   Utils/Hash.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz

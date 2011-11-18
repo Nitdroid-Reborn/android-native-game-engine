@@ -4,6 +4,8 @@ accelState = Input.Get():GetAccel();
 audioSystem = AudioSystem.Get();
 renderer = Renderer.Get();
 contentManager = ContentManager.Get();
+gameObjectManager = GameObjectManager.Get();
+
 
 angle = 0.0;
 
@@ -21,7 +23,11 @@ shaderProgram:Get():AddShader(vertexShader);
 shaderProgram:Get():AddShader(fragmentShader);
 shaderProgram:Get():Link();
 
-dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
+
+gameObject1Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject1"), Vector3(2,-1,-5), Vector3(0,3.14,0), Vector3(2,2,2), "krasnal.ms3d", "perPixelLighting"));
+gameObject2Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject2"), Vector3(-2,-1,-5), Vector3(0,3.14,0), Vector3(2,2,2), "krasnal.ms3d", "perPixelLighting"));
+
+--dwarfModel = ContentManager.Get():GetModelGeometryManager():GetModelGeometry("krasnal.ms3d");
 
 
 --vector = Vector3(1, 0, 0);
@@ -82,25 +88,26 @@ update = function(dt)
 
     --Log("Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
 
-    translation = Matrix4x4();
-    translation:SetTranslation(Vector3(-2,-1,-5));
+   -- translation = Matrix4x4();
+   -- translation:SetTranslation(Vector3(-2,-1,-5));
 
-    rotation = Matrix4x4();
-    rotation:SetScale(Vector3(2.0, 2.0, 2.0));
+--    rotation = Matrix4x4();
+  --  rotation:SetScale(Vector3(2.0, 2.0, 2.0));
 
-    world = translation*rotation;
+    --world = translation*rotation;
 
-    shaderParams = ShaderParametersList();
-    shaderParams:Add("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
-    renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
+--    shaderParams = ShaderParametersList();
+    --shaderParams:Add("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
+  --  renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
 
 
-    translation:SetTranslation(Vector3(2, -1, -5));
+    --translation:SetTranslation(Vector3(2, -1, -5));
 
-    world = translation*rotation;
+--    world = translation*rotation;
 
-    renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
-
+  --  renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
+	  gameObjectManager:FindObject(gameObject1Id):SetShaderProgramParameter("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
+	  gameObjectManager:FindObject(gameObject2Id):SetShaderProgramParameter("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
 
 
     angle= angle + dt*30;

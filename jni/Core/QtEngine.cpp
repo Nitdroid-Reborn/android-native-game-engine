@@ -4,7 +4,7 @@
 #include <Utils/Profiler.h>
 
 #include <Graphics/ModelGeometry.h>
-
+#include <GameObject/RenderableGameObject.h>
 
 static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
@@ -66,6 +66,9 @@ void QtEngine::Initialize() {
     virtualInputSystem->AddKey(centerKey);
     virtualInputSystem->AddKey(dpad);
 
+    gameObjectManager = new GameObjectManager();
+    gameObjectManager->Initialize();
+
 
     //volume = 1.0f;
     //angle = 0.0f;
@@ -79,21 +82,38 @@ void QtEngine::Initialize() {
 
 
 
+
+
     ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource("script.lua");
     script = new Script();
 
 
     script->Run(scr.Get());
 
+
+    /*Hash id = gameObjectManager->AddObject(new RenderableGameObject(Hash("gameObject1"), Vector3(0,0,0),
+                                                          Vector3(0,0,0), Vector3(1,1,1),
+                                                          "krasnal.ms3d", "perPixelLighting"));
+*/
+    //RenderableGameObject* o  = gameObjectManager->FindObject<RenderableGameObject>(id);
+    //o->SetShaderProgramParameter("lightPosition", Vector3(0, 10, 0));
+
+  // gameObjectManager->FindObjects<RenderableGameObject>().size();
+
+
+    //Vector3* temp;
+    //script->callFunction("test", temp);
+
+ //   Logger::Log("%f %f %f", temp->x, temp->y, temp->z);
+
     contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
-
-
-
 }
 
 void QtEngine::Release() {
     delete script;
     script = NULL;
+
+
 
     audioSystem->StopMusic();
 
@@ -121,6 +141,8 @@ void QtEngine::Release() {
     scriptManager->Release();
     delete scriptManager;
     scriptManager = NULL;
+
+    gameObjectManager->Release();
 
     contentManager->Release();
     delete contentManager;
@@ -204,6 +226,8 @@ void QtEngine::Update(float dt) {
     this->dt = dt;
 
     script->callFunction("update", dt);
+
+    gameObjectManager->Update(dt);
 
     virtualInputSystem->Draw();
 }

@@ -135,7 +135,10 @@ SOURCES += DesktopMain.cpp \
     ContentManager/ModelGeometryManager.cpp \
     Input/AccelerometerState.cpp \
     Physics/Collider.cpp \
-    Graphics/ShaderParameter.cpp
+    Graphics/ShaderParameter.cpp \
+    Utils/Hash.cpp \
+    GameObject/GameObjectManager.cpp \
+    GameObject/RenderableGameObject.cpp
 
 
 HEADERS += \
@@ -335,12 +338,25 @@ HEADERS += \
     Input/TouchState.h \
     Input/AccelerometerState.h \
     Physics/Collider.h \
-    Graphics/ShaderParameter.h
+    Graphics/ShaderParameter.h \
+    Utils/Hash.h \
+    GameObject/GameObject.h \
+    GameObject/GameObjectManager.h \
+    GameObject/RenderableGameObject.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk
+
+
+
+
+
+
+
+
+
 
 
 

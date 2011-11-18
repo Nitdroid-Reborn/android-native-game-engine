@@ -13,6 +13,7 @@
 #include <VirtualInput/VirtualInput.h>
 #include <VirtualInput/VirtualDPad.h>
 #include <VirtualInput/VirtualSingleKey.h>
+#include <GameObject/GameObjectManager.h>
 
 class QGLWidget;
 
@@ -73,6 +74,8 @@ public:
     /// Script manager component of engine
     ScriptManager* scriptManager;
     Script* script;
+
+    GameObjectManager* gameObjectManager;
 
     VirtualInput* virtualInputSystem;
     VirtualSingleKey* centerKey;

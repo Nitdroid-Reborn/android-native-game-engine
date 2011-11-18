@@ -9,6 +9,7 @@ extern "C" {
 
 #include <Scripts/luabind/luabind.hpp>
 #include <Scripts/luabind/operator.hpp>
+#include <Scripts/luabind/adopt_policy.hpp>
 
 class ScriptManager
 {
