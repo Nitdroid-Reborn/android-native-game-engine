@@ -50,8 +50,8 @@ void QtRenderer::OnInitWindow() {
 
     camera->SetProjection(54, (float)w/(float)h, 0.1, 100.0f);
     camera->SetPosition(Vector3(0,0,0));
-    camera->SetDirection(Vector3(0,0,-1));
-    camera->SetUpVector(Vector3(0,1,0));
+    //camera->SetDirection(Vector3(0,0,-1));
+   // camera->SetUpVector(Vector3(0,1,0));
 
     mainThreadCamera->Clone(camera);
 
@@ -148,6 +148,7 @@ void QtRenderer::Initialize() {
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*))&IRenderer::DrawGeometry)
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle))&IRenderer::DrawGeometry)
             .def("GetCamera", &IRenderer::GetCamera)
+            .def("Flush", &IRenderer::Wait)
             .scope
             [
                 luabind::def("Get", IRenderer::get)
@@ -270,18 +271,6 @@ void QtRenderer::Run() {
                                                   oldGeometry[i].shaderProgram, oldGeometry[i].shaderParameters);
                 }
 
-               /* for(int i=-0;i<=0;i++) {
-                    Matrix4x4 translation;
-                    translation.SetTranslation(Vector3(i,-1,-5));
-
-                    Matrix4x4 rotation;
-                    rotation.SetRotationY(angle);
-
-                    Matrix4x4 world = translation*rotation;
-
-                   // sp = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("default").Get();
-                    mg->Draw(camera, world, sp);
-                }*/
             }
 
             {

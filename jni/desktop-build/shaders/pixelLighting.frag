@@ -18,7 +18,7 @@ void main() {
 	vec3 L = normalize(lp - P);
 	vec3 normal = normalize(pNormal);
 
-	float diffuseLight = max(dot(L, normal), 0.0);
+	float diffuseLight = max(dot(L, normal), 0.1);
 	vec3 diffuse = materialDiffuse*diffuseLight;
 
 	vec3 V = normalize(-P);
@@ -28,6 +28,7 @@ void main() {
     vec3 specular = materialSpecular * specularLight;
 
 	
-	gl_FragColor.xyz = (diffuse+specular)*vec3(1.0, 1.0, 1.0);//texture2D(textureSampler, pTexCoords).rgb;
-	gl_FragColor.w = 1.0;
+	vec4 tex = texture2D(textureSampler, pTexCoords).rgba;
+	gl_FragColor.xyz = (diffuse+specular)*tex.rgb;
+	gl_FragColor.w = tex.a;
 }

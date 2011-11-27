@@ -85,6 +85,8 @@ private:
 
     int32_t width;
 
+    float lastFps;
+
 
     U64 currentTime;
     U64 lastTime;

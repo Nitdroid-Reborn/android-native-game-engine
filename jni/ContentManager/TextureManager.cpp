@@ -21,6 +21,7 @@ TextureHandle TextureManager::GetTexture(const char *fileName) {
 
     TextureHandle handle;
     ITexture* tex = handleManager.Acquire(handle);
+
     tex->Load(fileName);
 
     loadedTextures[fileName] = handle;

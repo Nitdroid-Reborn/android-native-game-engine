@@ -17,10 +17,10 @@ void readText(BufferStream &stream, int size, char* buffer)
 }
 
 bool WaveSound::Load(const char *filename, U16*& data, U32& sampleCount) {
-    U32 len = IFileIO::get()->GetFileSize(filename);
+    U32 len = IFileIO::get()->GetSize(filename);
     U8* buffer = new U8[len];
 
-    IFileIO::get()->ReadFile(filename, buffer, len);
+    IFileIO::get()->Read(filename, buffer, len);
 
     BufferStream stream(buffer, len);
 

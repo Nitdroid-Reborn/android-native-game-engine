@@ -14,6 +14,7 @@ public:
 
     Hash AddObject(GameObject *object);
     GameObject* FindObject(const Hash& id);
+    GameObject* FindObject(const char* id_string);
 
 
     template<typename TYPE>

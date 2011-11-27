@@ -11,11 +11,12 @@ varying vec3 pNormal;
 varying vec2 pTexCoords;
 varying vec4 pColor;
 
+uniform mat4 modelMatrix;
 
 void main() {
 	gl_Position = modelViewProjectionMatrix * (vPosition);
 	pTexCoords = vTexCoords;
 	pColor = vColor;
-	pPosition = vPosition;
-	pNormal = vec3(modelViewMatrix * vec4(vNormal, 0.0));
+	pPosition = modelMatrix*vPosition;
+	pNormal = vec3(modelMatrix * vec4(vNormal, 0.0));
 }

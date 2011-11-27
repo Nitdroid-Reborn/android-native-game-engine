@@ -77,6 +77,7 @@ private:
     /// Pointer to app
     android_app * app;
     struct saved_state state;
+    bool loadingState;
 
 
     /// Audio component of engine

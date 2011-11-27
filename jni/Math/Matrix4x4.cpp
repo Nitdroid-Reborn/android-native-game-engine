@@ -94,6 +94,34 @@ void Matrix4x4::SetRow(int position, const Vector4& row) {
     }
 }
 
+
+void Matrix4x4::SetColumn(int position, const Vector4& row) {
+    if(position==0) {
+        entries[0] = row.x;
+        entries[1] = row.y;
+        entries[2] = row.z;
+        entries[3] = row.w;
+    }
+    else if(position==1) {
+        entries[4] = row.x;
+        entries[5] = row.y;
+        entries[6] = row.z;
+        entries[7] = row.w;
+    }
+    else if(position==2) {
+        entries[8] = row.x;
+        entries[9] = row.y;
+        entries[10] = row.z;
+        entries[11] = row.w;
+    }
+    else {
+        entries[12] = row.x;
+        entries[13] = row.y;
+        entries[14] = row.z;
+        entries[15] = row.w;
+    }
+}
+
 Vector4 Matrix4x4::GetColumn(int position) const
 {
 	if(position==0)
@@ -757,21 +785,21 @@ void Matrix4x4::SetTranslationPart(const Vector3 & translation)
 	entries[14]=translation.z;
 }
 
-void Matrix4x4::SetRotationPartEuler(const double angleX, const double angleY, const double angleZ)
+void Matrix4x4::SetRotationPartEuler(const float angleX, const float angleY, const float angleZ)
 {
-	double cr = cos( angleX );
-	double sr = sin( angleX );
-	double cp = cos( angleY );
-	double sp = sin( angleY );
-	double cy = cos( angleZ );
-	double sy = sin( angleZ );
+    float cr = (float)cos( angleX );
+    float sr = (float)sin( angleX );
+    float cp = (float)cos( angleY );
+    float sp = (float)sin( angleY );
+    float cy = (float)cos( angleZ );
+    float sy = (float)sin( angleZ );
 
 	entries[0] = ( float )( cp*cy );
 	entries[1] = ( float )( cp*sy );
 	entries[2] = ( float )( -sp );
 
-	double srsp = sr*sp;
-	double crsp = cr*sp;
+    float srsp = sr*sp;
+    float crsp = cr*sp;
 
 	entries[4] = ( float )( srsp*cy-cr*sy );
 	entries[5] = ( float )( srsp*sy+cr*cy );
@@ -829,7 +857,7 @@ void Matrix4x4::RegisterInLua() {
             .def("SetOrtho", &Matrix4x4::SetOrtho)
             .def("SetTranslationPart", &Matrix4x4::SetTranslationPart)
             .def("SetRotationPartEuler", (void (Matrix4x4::*)(const Vector3&))&Matrix4x4::SetRotationPartEuler)
-            .def("SetRotationPartEuler", (void (Matrix4x4::*)(const double, const double, const double))&Matrix4x4::SetRotationPartEuler)
+            .def("SetRotationPartEuler", (void (Matrix4x4::*)(const float, const float, const float))&Matrix4x4::SetRotationPartEuler)
             .def(luabind::const_self + luabind::other<const Matrix4x4&>())
             .def(luabind::const_self - luabind::other<const Matrix4x4&>())
             .def(luabind::const_self * float())

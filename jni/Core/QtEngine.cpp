@@ -83,28 +83,12 @@ void QtEngine::Initialize() {
 
 
 
+    loadingState = true;
 
     ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource("script.lua");
     script = new Script();
 
-
     script->Run(scr.Get());
-
-
-    /*Hash id = gameObjectManager->AddObject(new RenderableGameObject(Hash("gameObject1"), Vector3(0,0,0),
-                                                          Vector3(0,0,0), Vector3(1,1,1),
-                                                          "krasnal.ms3d", "perPixelLighting"));
-*/
-    //RenderableGameObject* o  = gameObjectManager->FindObject<RenderableGameObject>(id);
-    //o->SetShaderProgramParameter("lightPosition", Vector3(0, 10, 0));
-
-  // gameObjectManager->FindObjects<RenderableGameObject>().size();
-
-
-    //Vector3* temp;
-    //script->callFunction("test", temp);
-
- //   Logger::Log("%f %f %f", temp->x, temp->y, temp->z);
 
     contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
 }
@@ -251,57 +235,43 @@ void QtEngine::SingleFrame() {
     fpsClock.update(dt);
     dt/=1000.0f;
 
-    {
-        PROFILE("Start frame", &mainLoopProfileManager);
-        OnFrameStart();
-    }
 
-    {
-        PROFILE("Update", &mainLoopProfileManager);
-        Update(dt);
+    if(loadingState) {
+        script->callFunction("loadAssets");
+        loadingState=false;
     }
+    else {
 
-    {
-        PROFILE("Render", &mainLoopProfileManager);
-        renderer->Wait();
-    }
+        {
+            PROFILE("Start frame", &mainLoopProfileManager);
+            OnFrameStart();
+        }
 
-    {
-        PROFILE("End frame", &mainLoopProfileManager);
-        OnFrameEnd();
-    }
+        {
+            PROFILE("Update", &mainLoopProfileManager);
+            Update(dt);
+        }
 
-    mainLoopProfileManager.DumpProfileDataToBuffer();
+        {
+            PROFILE("Render", &mainLoopProfileManager);
+            renderer->Wait();
+        }
 
-   /* QtRenderer* ren = (QtRenderer*)renderer;
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_UP)) {
-       ren->GetCamera()->MoveFoward(0.1);
-    }
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_DOWN)) {
-       ren->GetCamera()->MoveFoward(-0.1);
-    }
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_LEFT)) {
-       ren->GetCamera()->RotateLeft(-0.01);
-    }
-    if(inputSystem->GetKeyState()->IsKeyPressed(ENGINE_KEYCODE_RIGHT)) {
-       ren->GetCamera()->RotateLeft(0.01);
-    }*/
+        {
+            PROFILE("End frame", &mainLoopProfileManager);
+            OnFrameEnd();
+        }
 
+        mainLoopProfileManager.DumpProfileDataToBuffer();
+        if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
+            ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
+        }
 
-    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
-        ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
-    }
-
-    if(ProfilerManager::profilerEnabled) {
-       // if(++profileCounter>120) {
+        if(ProfilerManager::profilerEnabled) {
             renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
-           // Logger::Log("%s", mainLoopProfileManager.outputBuffer.Get());
             profileCounter = 0;
-       // }
-        renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
-
-
-        //
+            renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
+        }
     }
 
     frameCounter++;

@@ -87,7 +87,7 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix,
     shaderProgram->SetUniformValue("modelViewMatrix", mv);
     shaderProgram->SetUniformValue("modelViewProjectionMatrix", mvp);
     shaderProgram->SetUniformValue("textureSampler", 0);
-
+    shaderProgram->SetUniformValue("modelMatrix", worldMatrix);
 
     shaderParameters.Apply(shaderProgram);
 
@@ -95,6 +95,8 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix,
 
     shaderProgram->SetAttributeArray(vbo);
     //materials[meshes[0].materialIndex].texture.Get()->Bind();
+
+
 
     //vbo->Draw(0, indicesCount/3);
     for(int i=0;i<meshesCount;i++) {
@@ -109,7 +111,8 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix,
                                                           materials[meshes[i].materialIndex].specular[2]);
 
         shaderProgram->SetUniformValue("materialShininess", materials[meshes[i].materialIndex].shinniness);
-        if(materials[meshes[i].materialIndex].texture.Get())
+
+        if(meshes[i].materialIndex < materialsCount && materials[meshes[i].materialIndex].texture.Get())
             materials[meshes[i].materialIndex].texture.Get()->Bind();
 
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);

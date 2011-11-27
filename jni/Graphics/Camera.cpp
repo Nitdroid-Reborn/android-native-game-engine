@@ -7,7 +7,7 @@ Camera::Camera()
     _position = Vector3(0,0,0);
     _direction = Vector3(0, 0, -1);
     _upVector = Vector3(0,1,0);
-    _leftVector=_direction.CrossProduct(_upVector);
+    _leftVector=Vector3(-1,0,0);
     _horizontalAngle = 0.0f;
     _verticalAngle = 0.0f;
     _projectionMatrix.LoadIdentity();
@@ -23,7 +23,7 @@ void Camera::Update() {
     _viewMatrix.LoadIdentity();
 
 
-    Vector3 directionPoint = _direction + _position;
+    /*Vector3 directionPoint = _direction + _position;
 
 
 
@@ -39,21 +39,20 @@ void Camera::Update() {
 
     Vector3 s = F.CrossProduct(UP);
 
-    Vector3 u = s.CrossProduct(F);
-
-   /* _viewMatrix.SetRow(0, Vector4(s.x, s.y, s.z, -_position.x));
-    _viewMatrix.SetRow(1, Vector4(u.x, u.y, u.z, -_position.y));
-    _viewMatrix.SetRow(2, Vector4(-F.x, -F.y, -F.z, -_position.z));*/
+    Vector3 u = s.CrossProduct(F);*/
 
 
-  /*  Logger::Log("%f %f %f", s.x, s.y, s.z);
-    Logger::Log("%f %f %f", u.x, u.y, u.z);
-    Logger::Log("%f %f %f", -F.x, -F.y, -F.z);*/
+    _viewMatrix.SetRow(0, Vector4(_leftVector, 0.0f));
+    _viewMatrix.SetRow(1, Vector4(_upVector, 0.0f));
+    _viewMatrix.SetRow(2, Vector4(_direction, 0.0f));
+    _viewMatrix.SetRow(3, Vector4(0, 0, 0, 1));
 
+    Matrix4x4 trans;
+    trans.SetTranslation(-_position);
+    _viewMatrix = _viewMatrix*trans;
+    //_viewMatrix.SetTranslationPart(-_position);
 
-    _viewMatrix.SetTranslation(-_position);
-
-    Matrix4x4 rotateVert;
+    /*Matrix4x4 rotateVert;
     rotateVert.SetRotationX(_verticalAngle*180.0f/PI);
 
     Matrix4x4 rotateHor;
@@ -61,7 +60,7 @@ void Camera::Update() {
 
    _viewMatrix = rotateVert*rotateHor*_viewMatrix;
 
-
+*/
     /*glPushMatrix();
     glLoadIdentity();
 
@@ -133,7 +132,7 @@ void Camera::SetVerticalAngle(float verticalAngle) {
 }
 
 void Camera::MoveFoward(float distance) {
-    _position += _direction*distance;
+    _position -= _direction*distance;
 }
 
 void Camera::MoveLeft(float distance) {
@@ -152,7 +151,19 @@ void Camera::RotateLeft(float rotation) {
     _direction.RotateY(-_horizontalAngle*180.0f/PI);
     _direction.Normalize();
 
-    _leftVector=_direction.CrossProduct(_upVector);
+    _leftVector=Vector3(-1,0,0);
+    _leftVector.RotateX(_verticalAngle*180.0f/PI);
+    _leftVector.RotateY(-_horizontalAngle*180.0f/PI);
+    _leftVector.Normalize();
+
+
+    _upVector=Vector3(0,1,0);
+    _upVector.RotateX(_verticalAngle*180.0f/PI);
+    _upVector.RotateY(-_horizontalAngle*180.0f/PI);
+
+    _upVector.Normalize();
+
+    //_leftVector=_direction.CrossProduct(_upVector);
 }
 
 void Camera::RotateUp(float rotation) {
@@ -163,7 +174,20 @@ void Camera::RotateUp(float rotation) {
     _direction.RotateY(-_horizontalAngle*180.0f/PI);
     _direction.Normalize();
 
-    _upVector=_direction.CrossProduct(_leftVector);
+    _leftVector=Vector3(-1,0,0);
+    _leftVector.RotateX(_verticalAngle*180.0f/PI);
+    _leftVector.RotateY(-_horizontalAngle*180.0f/PI);
+    _leftVector.Normalize();
+
+
+    _upVector=Vector3(0,1,0);
+    _upVector.RotateX(_verticalAngle*180.0f/PI);
+    _upVector.RotateY(-_horizontalAngle*180.0f/PI);
+
+    _upVector.Normalize();
+
+
+    //_upVector.RotateX(_verticalAngle*180.0f/PI);//_direction.CrossProduct(_leftVector);
 }
 
 

@@ -139,7 +139,7 @@ void AndroidRenderer::InitWindow() {
     glViewport(0, 0, (int) w, (int) h);
 
 
-    camera->SetProjection(54, (float)w/(float)h, 0.1, 100.0f);
+    camera->SetProjection(54, (float)w/(float)h, 0.1, 1000.0f);
 
 
     mainThreadCamera->Clone(camera);
@@ -249,6 +249,7 @@ void AndroidRenderer::Initialize() {
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*))&IRenderer::DrawGeometry)
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle))&IRenderer::DrawGeometry)
             .def("GetCamera", &IRenderer::GetCamera)
+            .def("Flush", &IRenderer::Wait)
             .scope
             [
                 luabind::def("Get", IRenderer::get)
@@ -370,7 +371,6 @@ void AndroidRenderer::Run() {
 
 
                     camera->Update();
-                    //textBox.Draw();
 
                     {
                         PROFILE("Model rendering", &rendererProfileManager);
@@ -409,9 +409,13 @@ void AndroidRenderer::Run() {
 
                      if(frameCounter>60) {
                          frameCounter=0;
+                         lastFps = 60.0f/((float)fpsClock.getMSeconds()/1000.0f);
                          Logger::Log(0, "FPS: %f", 60.0f/((float)fpsClock.getMSeconds()/1000.0f));
                          fpsClock.reset();
-                    }
+                     }
+                     char temp[255];
+                     sprintf(temp, "FPS: %f", lastFps);
+                     DrawString(650, 400, temp);
 
                     lastTime = currentTime;
                    // }

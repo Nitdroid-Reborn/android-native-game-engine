@@ -81,7 +81,7 @@ void RenderableGameObject::Update(float dt) {
     Matrix4x4 scale;
 
     translation.SetTranslation(position);
-    rotation.SetRotationPartEuler(orientation);
+    rotation.SetRotationEuler(orientation.x, orientation.y, orientation.z);
     scale.SetScale(this->scale);
 
     Matrix4x4 worldMatrix = translation*rotation*scale;

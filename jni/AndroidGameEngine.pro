@@ -347,7 +347,9 @@ HEADERS += \
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
-    Application.mk
+    Application.mk \
+    desktop-build/script.lua
+
 
 
 

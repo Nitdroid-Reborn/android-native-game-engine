@@ -52,6 +52,8 @@ public:
     bool isRunning;
     bool isQuitting;
 
+    bool loadingState;
+
     int frameCounter;
     float dt;
     Clock fpsClock;

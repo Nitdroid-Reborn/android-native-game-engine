@@ -20,6 +20,8 @@ public:
 
 	Vector4(const Vector3 &vec):x(vec.x), y(vec.y), z(vec.z), w(1.0f)	{}
 
+    Vector4(const Vector3 &vec, float _w):x(vec.x), y(vec.y), z(vec.z), w(_w)	{}
+
 	~Vector4() {}
 
 	void Set(float newX, float newY, float newZ, float newW)

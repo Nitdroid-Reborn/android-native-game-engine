@@ -49,7 +49,7 @@ bool GameObjectManager::Initialize() {
             .def("GetPosition", &GameObject::GetPosition)
             .def("GetOrientation", &GameObject::GetOrientation)
             .def("GetScale", &GameObject::GetScale)
-            .def("SetPositon", &GameObject::SetPosition)
+            .def("SetPosition", &GameObject::SetPosition)
             .def("SetOrientation", &GameObject::SetOrientation)
             .def("SetScale", &GameObject::SetScale)
     ];
@@ -80,6 +80,7 @@ bool GameObjectManager::Initialize() {
         luabind::class_<GameObjectManager>("GameObjectManager")
             .def("AddObject", &GameObjectManager::AddObject, luabind::adopt(_2))
             .def("FindObject", (GameObject* (GameObjectManager::*)(const Hash&))&GameObjectManager::FindObject)
+            .def("FindObject", (GameObject* (GameObjectManager::*)(const char*))&GameObjectManager::FindObject)
             .def("DestroyObject", &GameObjectManager::DestroyObject)
             .scope
             [
@@ -104,6 +105,13 @@ Hash GameObjectManager::AddObject(GameObject* object) {
 
 
 GameObject* GameObjectManager::FindObject(const Hash &id) {
+    if(objects.count(id.GetValue())!=0)
+        return objects.at(id.GetValue());
+    return 0;
+}
+
+GameObject* GameObjectManager::FindObject(const char* id_string) {
+    Hash id(id_string);
     if(objects.count(id.GetValue())!=0)
         return objects.at(id.GetValue());
     return 0;

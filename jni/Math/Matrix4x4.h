@@ -21,7 +21,8 @@ public:
 	Vector4 GetRow(int position) const;
 	Vector4 GetColumn(int position) const;
 
-        void SetRow(int position, const Vector4& row);
+    void SetRow(int position, const Vector4& row);
+    void SetColumn(int position, const Vector4& row);
 	
 	void LoadIdentity(void);
 	void LoadZero(void);
@@ -90,7 +91,7 @@ public:
 	void SetOrtho(float left, float right, float bottom, float top, float n, float f);
 
 	void SetTranslationPart(const Vector3 &translation);
-	void SetRotationPartEuler(const double angleX, const double angleY, const double angleZ);
+    void SetRotationPartEuler(const float angleX, const float angleY, const float angleZ);
 	void SetRotationPartEuler(const Vector3 &rotations)
 	{
 		SetRotationPartEuler((double)rotations.x, (double)rotations.y, (double)rotations.z);

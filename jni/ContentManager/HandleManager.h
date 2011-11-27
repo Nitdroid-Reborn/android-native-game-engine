@@ -192,7 +192,7 @@ inline BASEDATA* HandleManager<BASEDATA, FACTORY, TAG>::Dereference(const Handle
 
     U16 index = handle.GetIndex();
     if(index >= data.size() || magicNumbers[index]!=handle.GetMagic()) {
-        Logger::Log(0, "handle index: %d, magic: %d", handle.GetIndex(), handle.GetMagic());
+        Logger::Log("handle index: %d, magic: %d", handle.GetIndex(), handle.GetMagic());
         ASSERT(0, "Invalid handle used");
         return 0;
     }

@@ -116,10 +116,6 @@ void AndroidEngine::Initialize() {
     ];
 
 
-   // delete script;
-
-
-
 
     ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");
     script = new Script();
@@ -127,34 +123,7 @@ void AndroidEngine::Initialize() {
 
     contentManager->GetScriptSourceManager()->ReleaseScriptSource(scr);
 
-    //script2.runString("someSound = IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'); doSth = function() IContentManager.Get():GetSoundManager():GetSound('/sdcard/flet.wav'):Get():Play(0.5); Logger.Log('dzialam') end;");
-
-    //script2.callFunction("doSth");
-
-    //SoundHandle sound = contentManager->GetSoundManager()->GetSound("/sdcard/flet.wav");
-
-
-   // Logger::Log("%d",sound.GetReferenceCount());
-   // script.callFunction("doSth");*/
-
-
-    //Logger::Log("Ref count %d", sound2.GetReferenceCount());
-
-    //Run a script
-   /*  if(mainState.run_chunk("IContentManager.Get():GetSoundManager():GetSound('/sdcard/violin.wav'):Get():Play(0.5);"))Logger::Log("\n-Script run successfully");///sdcard/test.lua"))
-    else Logger::Log("Script error: %s", OOLUA::get_last_error(mainState.get_ptr()).c_str());
-*/
-
-
-
-  //  acm->texManager.ReleaseTexture(handle);
-
-    //contentManager->LoadTexture("logo.png");
-
-   /* texture = new Texture("logo.png");
-    spriteBatcher = new SpriteBatcher(100);
-
-*/
+    loadingState=true;
 
 }
 
@@ -304,45 +273,50 @@ void AndroidEngine::SingleFrame() {
     fpsClock.update(dt);
     dt/=1000.0f;
 
-
-    {
-        PROFILE("Start frame", &mainLoopProfileManager);
-        OnFrameStart();
+    if(loadingState) {
+        script->callFunction("loadAssets");
+        loadingState=false;
     }
+    else {
+        {
+            PROFILE("Start frame", &mainLoopProfileManager);
+            OnFrameStart();
+        }
 
-    {
-        PROFILE("Update", &mainLoopProfileManager);
-        Update(dt);
-    }
+        {
+            PROFILE("Update", &mainLoopProfileManager);
+            Update(dt);
+        }
 
-    {
-        PROFILE("Render", &mainLoopProfileManager);
-        renderer->Wait();
-    }
+        {
+            PROFILE("Render", &mainLoopProfileManager);
+            renderer->Wait();
+        }
 
-    {
-        PROFILE("End frame", &mainLoopProfileManager);
-        OnFrameEnd();
-    }
+        {
+            PROFILE("End frame", &mainLoopProfileManager);
+            OnFrameEnd();
+        }
 
-    mainLoopProfileManager.DumpProfileDataToBuffer();
-
-
-
-    if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_MENU)) {
-        ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
-    }
-
-    if(ProfilerManager::profilerEnabled) {
-       // if(++profileCounter>120) {
-           // renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
-            //Logger::Log("%s", mainLoopProfileManager.outputBuffer.Get());
-            profileCounter = 0;
-       // }
-        //renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
+        mainLoopProfileManager.DumpProfileDataToBuffer();
 
 
-        //
+
+        if(inputSystem->GetKeyState()->IsKeyJustPressed(ENGINE_KEYCODE_J)) {
+            ProfilerManager::profilerEnabled=!ProfilerManager::profilerEnabled;
+        }
+
+        if(ProfilerManager::profilerEnabled) {
+           // if(++profileCounter>120) {
+               // renderer->DrawSprite(400, 240, PROFILER_LAYER_BG, 800, 480, 0, 0, 0, 192);
+                //Logger::Log("%s", mainLoopProfileManager.outputBuffer.Get());
+                profileCounter = 0;
+           // }
+            //renderer->DrawString(5, 450, mainLoopProfileManager.outputBuffer.Get());
+
+
+            //
+        }
     }
 
     frameCounter++;
