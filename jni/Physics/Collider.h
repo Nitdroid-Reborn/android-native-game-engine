@@ -8,6 +8,7 @@ struct CollisionObject
     CollisionObject(){}
     Vector3 position;
     Vector3 normal;
+    float distance;
 };
 
 class CollisionListener

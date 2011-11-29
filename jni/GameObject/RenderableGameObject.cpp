@@ -13,6 +13,7 @@ RenderableGameObject::RenderableGameObject(Hash _id, const Vector3 &_position, c
     modelHandle = manager->GetModelGeometryManager()->GetModelGeometry(modelName.c_str());
     shaderProgramHandle = manager->GetShaderProgramManager()->GetShaderProgram(shaderProgramName.c_str());
     this->transparent = transparent;
+    visible = true;
 }
 
 RenderableGameObject::~RenderableGameObject() {
@@ -77,15 +78,17 @@ void RenderableGameObject::ClearShaderParameters() {
 
 
 void RenderableGameObject::Update(float dt) {
-    Matrix4x4 translation;
-    Matrix4x4 rotation;
-    Matrix4x4 scale;
+    if(visible) {
+        Matrix4x4 translation;
+        Matrix4x4 rotation;
+        Matrix4x4 scale;
 
-    translation.SetTranslation(position);
-    rotation.SetRotationEuler(orientation.x, orientation.y, orientation.z);
-    scale.SetScale(this->scale);
+        translation.SetTranslation(position);
+        rotation.SetRotationEuler(orientation.x, orientation.y, orientation.z);
+        scale.SetScale(this->scale);
 
-    Matrix4x4 worldMatrix = translation*rotation*scale;
+        Matrix4x4 worldMatrix = translation*rotation*scale;
 
-    IRenderer::get()->DrawGeometry(modelHandle, worldMatrix, shaderProgramHandle, &shaderParamsList, transparent);
+        IRenderer::get()->DrawGeometry(modelHandle, worldMatrix, shaderProgramHandle, &shaderParamsList, transparent);
+    }
 }

@@ -117,6 +117,8 @@ LOCAL_SRC_FILES := main.cpp \
                    Graphics/ShaderParameter.cpp \
                    GameObject/GameObjectManager.cpp \
                    GameObject/RenderableGameObject.cpp \
+                   GameObject/PhysicalGameObject.cpp \
+                   Physics/Collider.cpp \
                    Utils/Hash.cpp
 
 

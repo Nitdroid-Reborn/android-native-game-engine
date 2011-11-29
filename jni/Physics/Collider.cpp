@@ -97,7 +97,7 @@ bool Collider::Collide(const Vector3 & point, CollisionObject& co)
         return false;
     
     Triangle * triangle = m_triangles[x][z];
-        
+    CollisionObject col;
     while(triangle != 0)
     {
 
@@ -177,7 +177,7 @@ bool Collider::Triangle::Collide(const Vector3 &point, CollisionObject& result)
     float distance = normal.DotProduct(point) + d;
     Vector3 p = point;
     
-    if(distance > 0 || distance < -0.1)
+    if(distance > 0)
         return 0;
     
     p = p - distance * normal;

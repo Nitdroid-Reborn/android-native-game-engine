@@ -276,6 +276,9 @@ void AndroidEngine::SingleFrame() {
     if(loadingState) {
         script->callFunction("loadAssets");
         loadingState=false;
+        currentTime = GetCurrentTimeInMsec();
+        float dt = (float)(currentTime - lastTime);
+        dt/=1000.0f;
     }
     else {
         {

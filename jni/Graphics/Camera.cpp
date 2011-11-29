@@ -41,6 +41,22 @@ void Camera::Update() {
 
     Vector3 u = s.CrossProduct(F);*/
 
+    _direction = Vector3(0,0,-1);
+    _direction.RotateX(_verticalAngle*180.0f/PI);
+    _direction.RotateY(-_horizontalAngle*180.0f/PI);
+    _direction.Normalize();
+
+    _leftVector=Vector3(-1,0,0);
+    _leftVector.RotateX(_verticalAngle*180.0f/PI);
+    _leftVector.RotateY(-_horizontalAngle*180.0f/PI);
+    _leftVector.Normalize();
+
+
+    _upVector=Vector3(0,1,0);
+    _upVector.RotateX(_verticalAngle*180.0f/PI);
+    _upVector.RotateY(-_horizontalAngle*180.0f/PI);
+
+    _upVector.Normalize();
 
     _viewMatrix.SetRow(0, Vector4(_leftVector, 0.0f));
     _viewMatrix.SetRow(1, Vector4(_upVector, 0.0f));
@@ -146,22 +162,7 @@ void Camera::MoveUp(float distance) {
 void Camera::RotateLeft(float rotation) {
     _horizontalAngle += rotation;
 
-    _direction = Vector3(0,0,-1);
-    _direction.RotateX(_verticalAngle*180.0f/PI);
-    _direction.RotateY(-_horizontalAngle*180.0f/PI);
-    _direction.Normalize();
 
-    _leftVector=Vector3(-1,0,0);
-    _leftVector.RotateX(_verticalAngle*180.0f/PI);
-    _leftVector.RotateY(-_horizontalAngle*180.0f/PI);
-    _leftVector.Normalize();
-
-
-    _upVector=Vector3(0,1,0);
-    _upVector.RotateX(_verticalAngle*180.0f/PI);
-    _upVector.RotateY(-_horizontalAngle*180.0f/PI);
-
-    _upVector.Normalize();
 
     //_leftVector=_direction.CrossProduct(_upVector);
 }
@@ -169,22 +170,6 @@ void Camera::RotateLeft(float rotation) {
 void Camera::RotateUp(float rotation) {
     _verticalAngle += rotation;
 
-    _direction = Vector3(0,0,-1);
-    _direction.RotateX(_verticalAngle*180.0f/PI);
-    _direction.RotateY(-_horizontalAngle*180.0f/PI);
-    _direction.Normalize();
-
-    _leftVector=Vector3(-1,0,0);
-    _leftVector.RotateX(_verticalAngle*180.0f/PI);
-    _leftVector.RotateY(-_horizontalAngle*180.0f/PI);
-    _leftVector.Normalize();
-
-
-    _upVector=Vector3(0,1,0);
-    _upVector.RotateX(_verticalAngle*180.0f/PI);
-    _upVector.RotateY(-_horizontalAngle*180.0f/PI);
-
-    _upVector.Normalize();
 
 
     //_upVector.RotateX(_verticalAngle*180.0f/PI);//_direction.CrossProduct(_leftVector);
