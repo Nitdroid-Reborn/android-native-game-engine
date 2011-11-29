@@ -138,7 +138,8 @@ SOURCES += DesktopMain.cpp \
     Graphics/ShaderParameter.cpp \
     Utils/Hash.cpp \
     GameObject/GameObjectManager.cpp \
-    GameObject/RenderableGameObject.cpp
+    GameObject/RenderableGameObject.cpp \
+    GameObject/PhysicalGameObject.cpp
 
 
 HEADERS += \
@@ -342,13 +343,16 @@ HEADERS += \
     Utils/Hash.h \
     GameObject/GameObject.h \
     GameObject/GameObjectManager.h \
-    GameObject/RenderableGameObject.h
+    GameObject/RenderableGameObject.h \
+    GameObject/PhysicalGameObject.h
 
 OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
     desktop-build/script.lua
+
+
 
 
 

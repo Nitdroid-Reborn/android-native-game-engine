@@ -5,6 +5,7 @@
 
 struct CollisionObject
 {
+    CollisionObject(){}
     Vector3 position;
     Vector3 normal;
 };
@@ -23,7 +24,7 @@ public:
     Collider(IGeometry * geometry);
     ~Collider();
     
-    void Collide(const Vector3 & point, CollisionListener * listener = 0);
+    bool Collide(const Vector3 & point, CollisionObject &co);
     
 private:
     class Triangle
@@ -34,7 +35,7 @@ private:
         
         void Append(Triangle * triangle);
         
-        CollisionObject * Collide(const Vector3 & point);
+        bool Collide(const Vector3 &point, CollisionObject& result);
         
         Triangle * next;
         Vertex3D * vertices[3];
@@ -52,7 +53,7 @@ private:
     int Index(float pos, float min, float max, int count);
     
     
-    Triangle * m_triangles[10][10];
+    Triangle * m_triangles[1][1];
     
     float m_minX, m_maxX;
     float m_minZ, m_maxZ;

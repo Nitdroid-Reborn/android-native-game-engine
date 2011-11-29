@@ -7,8 +7,9 @@ contentManager = ContentManager.Get();
 gameObjectManager = GameObjectManager.Get();
 
 angle = 0.0;
-gameObject1Id=0;
-skyboxId=0;
+skocznia=0;
+skocznia_drzewa=0;
+skybox=0;
 sound=0;
 
 
@@ -38,23 +39,38 @@ loadAssets = function()
 	vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.vert");
 	fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.frag");
 
+        shaderProgram:Get():AddShader(vertexShader);
+        shaderProgram:Get():AddShader(fragmentShader);
+        shaderProgram:Get():Link();
+
+
+        shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLightingAlpha");
+        vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLightingAlpha.vert");
+        fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLightingAlpha.frag");
+        shaderProgram:Get():AddShader(vertexShader);
+        shaderProgram:Get():AddShader(fragmentShader);
+        shaderProgram:Get():Link();
+
+
 	percent=0.4;
 
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         renderer:DrawString(10, 10, "Loading shaders");
 
-	shaderProgram:Get():AddShader(vertexShader);
-	shaderProgram:Get():AddShader(fragmentShader);
-	shaderProgram:Get():Link();
 
 
-        gameObject1Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject1"), Vector3(0,0,0), Vector3(0,3.14,0), Vector3(0.5,0.5,0.5), "skocznia_teksury.ms3d", "perPixelLighting"));
+
+        gameObject1Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject1"), Vector3(0,0,0), Vector3(0,3.14,0), Vector3(0.5,0.5,0.5), "skocznia_teksury.ms3d", "perPixelLighting", false));
         gameObjectManager:FindObject(gameObject1Id):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+
+        gameObject2Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject2"), Vector3(0,0,0), Vector3(0,3.14,0), Vector3(0.5,0.5,0.5), "drzewa.ms3d", "perPixelLightingAlpha", true));
+        gameObjectManager:FindObject(gameObject2Id):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+
 	percent=0.8;
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         renderer:DrawString(10, 10, "Loading geometry");
 
-	skyboxId = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d"));
+        skyboxId = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d", false));
         renderer:DrawString(10, 10, "Loading skybox");
 	percent=1;
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
@@ -116,17 +132,17 @@ update = function(dt)
 
     newSkyboxPosition = camera:GetPosition();
     newSkyboxPosition = newSkyboxPosition+Vector3(0,30,0);
-    gameObjectManager:FindObject(skyboxId):SetPosition(newSkyboxPosition);
+    gameObjectManager:FindObject(skybox):SetPosition(newSkyboxPosition);
 
 
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
-        gravity = accelState:GetAcceleration();
-        renderer:DrawString(0, 400, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
-        gravity = accelState:GetRawAcceleration();
-        renderer:DrawString(0, 370, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
+        --gravity = accelState:GetAcceleration();
+        --renderer:DrawString(0, 400, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
+        --gravity = accelState:GetRawAcceleration();
+        --renderer:DrawString(0, 370, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
 
 
     --Log("Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));

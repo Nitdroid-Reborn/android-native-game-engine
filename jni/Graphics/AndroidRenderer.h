@@ -51,9 +51,10 @@ public:
     void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f);
     void DrawString(int x, int y, const char * str);
     void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
-                      ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters);
+                      ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters,
+                      bool transparent=false);
     void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
-                      ShaderProgramHandle shaderProgram);
+                      ShaderProgramHandle shaderProgram, bool transparent=false);
 
     Camera* GetCamera() {return mainThreadCamera;}
 
@@ -101,6 +102,9 @@ private:
     float angle;
     std::vector<GeometryInstance> geometry;
     std::vector<GeometryInstance> oldGeometry;
+
+    std::vector<GeometryInstance> alphaGeometry;
+    std::vector<GeometryInstance> oldAlphaGeometry;
 };
 
 #endif // ANDROIDRENDERER_H

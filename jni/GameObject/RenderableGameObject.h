@@ -7,7 +7,8 @@ class RenderableGameObject : public GameObject
 {
 public:
     RenderableGameObject(Hash _id, const Vector3& _position, const Vector3& _orientation,
-                         const Vector3& _scale, std::string modelName, std::string shaderProgramName);
+                         const Vector3& _scale, std::string modelName, std::string shaderProgramName,
+                         bool transparent=false);
 
     ~RenderableGameObject();
 
@@ -34,6 +35,7 @@ public:
 protected:
     static GameObjectType type;
     bool visible;
+    bool transparent;
     std::string modelName;
     std::string shaderName;
     ModelGeometryHandle modelHandle;

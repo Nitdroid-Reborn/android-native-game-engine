@@ -4,6 +4,7 @@
 #include <Scripts/ScriptManager.h>
 #include <Math/MathLib.h>
 #include "RenderableGameObject.h"
+#include "PhysicalGameObject.h"
 
 GameObjectManager* GameObjectManager::singleton=NULL;
 GameObjectType GameObject::type;
@@ -57,7 +58,7 @@ bool GameObjectManager::Initialize() {
     luabind::module(L)
     [
         luabind::class_<RenderableGameObject, GameObject>("RenderableGameObject")
-            .def(luabind::constructor<Hash, const Vector3&, const Vector3&, const Vector3&, std::string, std::string>())
+            .def(luabind::constructor<Hash, const Vector3&, const Vector3&, const Vector3&, std::string, std::string, bool>())
             .def("SetVisible", &RenderableGameObject::SetVisible)
             .def("GetVisible", &RenderableGameObject::GetVisible)
             .def("GetShaderProgram", &RenderableGameObject::GetShaderProgram)
@@ -71,6 +72,13 @@ bool GameObjectManager::Initialize() {
             .def("SetShaderProgramParameter", (void (RenderableGameObject::*)(std::string name, const F32))&RenderableGameObject::SetShaderProgramParameter)
             .def("SetShaderProgramParameter", (void (RenderableGameObject::*)(std::string name, const I32))&RenderableGameObject::SetShaderProgramParameter)
             .def("ClearShaderParameters", &RenderableGameObject::ClearShaderParameters)
+    ];
+
+    luabind::module(L)
+    [
+        luabind::class_<PhysicalGameObject, RenderableGameObject>("PhysicalGameObject")
+            .def(luabind::constructor<Hash, const Vector3&, const Vector3&, const Vector3&, std::string, std::string, bool>())
+            .def("Collide", &PhysicalGameObject::Collide)
     ];
 
 

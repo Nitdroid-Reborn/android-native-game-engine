@@ -147,6 +147,7 @@ void AndroidRenderer::InitWindow() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
     glDisable(GL_DITHER);
 
     //glEnableClientState(GL_VERTEX_ARRAY);
@@ -246,8 +247,8 @@ void AndroidRenderer::Initialize() {
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
-            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*))&IRenderer::DrawGeometry)
-            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle))&IRenderer::DrawGeometry)
+            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*, bool))&IRenderer::DrawGeometry)
+            .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, bool))&IRenderer::DrawGeometry)
             .def("GetCamera", &IRenderer::GetCamera)
             .def("Flush", &IRenderer::Wait)
             .scope
@@ -378,6 +379,11 @@ void AndroidRenderer::Run() {
                         for(int i=0;i<oldGeometry.size();i++) {
                             oldGeometry[i].geometry->Draw(camera, oldGeometry[i].worldMatrix, oldGeometry[i].shaderProgram, oldGeometry[i].shaderParameters);
                         }
+
+                        for(int i=0;i<oldAlphaGeometry.size();i++) {
+                            oldAlphaGeometry[i].geometry->Draw(camera, oldAlphaGeometry[i].worldMatrix,
+                                                          oldAlphaGeometry[i].shaderProgram, oldAlphaGeometry[i].shaderParameters);
+                        }
                     }
 
 
@@ -434,6 +440,9 @@ void AndroidRenderer::Wait() {
     mutex.Lock();
     batcher->SwapSpriteBuffer();
     oldGeometry = geometry;
+    oldAlphaGeometry = alphaGeometry;
+
+    alphaGeometry.clear();
     geometry.clear();
     camera->Clone(mainThreadCamera);
     mutex.Unlock();
@@ -469,22 +478,33 @@ void AndroidRenderer::DrawString(int x, int y, const char * str) {
     textBox.DrawStr(x, y, (char*)str);
 }
 
-void AndroidRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix, ShaderProgramHandle shaderProgram) {
-    GeometryInstance gi;
-    gi.geometry = geometry.Get();
-    gi.worldMatrix = worldMatrix;
-    gi.shaderProgram = shaderProgram.Get();
-
-    this->geometry.push_back(gi);
-}
 
 void AndroidRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix,
-                                   ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters) {
+                              ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters,
+                              bool transparent) {
     GeometryInstance gi;
     gi.geometry = geometry.Get();
     gi.worldMatrix = worldMatrix;
     gi.shaderProgram = shaderProgram.Get();
     gi.shaderParameters = ShaderParametersList(*shaderParameters);
-    this->geometry.push_back(gi);
+
+    if(!transparent)
+        this->geometry.push_back(gi);
+    else
+        this->alphaGeometry.push_back(gi);
+}
+
+void AndroidRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix,
+                              ShaderProgramHandle shaderProgram,
+                              bool transparent) {
+    GeometryInstance gi;
+    gi.geometry = geometry.Get();
+    gi.worldMatrix = worldMatrix;
+    gi.shaderProgram = shaderProgram.Get();
+
+    if(!transparent)
+        this->geometry.push_back(gi);
+    else
+        this->alphaGeometry.push_back(gi);
 }
 #endif

@@ -4,7 +4,7 @@
 GameObjectType RenderableGameObject::type = Renderable;
 
 RenderableGameObject::RenderableGameObject(Hash _id, const Vector3 &_position, const Vector3 &_orientation, const Vector3 &_scale,
-                                           std::string modelName, std::string shaderProgramName) : GameObject(_id, _position, _orientation, _scale)
+                                           std::string modelName, std::string shaderProgramName, bool transparent) : GameObject(_id, _position, _orientation, _scale)
 {
 
     IContentManager* manager = IContentManager::get();
@@ -12,6 +12,7 @@ RenderableGameObject::RenderableGameObject(Hash _id, const Vector3 &_position, c
     this->shaderName = shaderProgramName;
     modelHandle = manager->GetModelGeometryManager()->GetModelGeometry(modelName.c_str());
     shaderProgramHandle = manager->GetShaderProgramManager()->GetShaderProgram(shaderProgramName.c_str());
+    this->transparent = transparent;
 }
 
 RenderableGameObject::~RenderableGameObject() {
@@ -86,5 +87,5 @@ void RenderableGameObject::Update(float dt) {
 
     Matrix4x4 worldMatrix = translation*rotation*scale;
 
-    IRenderer::get()->DrawGeometry(modelHandle, worldMatrix, shaderProgramHandle, &shaderParamsList);
+    IRenderer::get()->DrawGeometry(modelHandle, worldMatrix, shaderProgramHandle, &shaderParamsList, transparent);
 }

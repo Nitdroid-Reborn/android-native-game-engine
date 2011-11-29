@@ -6,8 +6,18 @@ contentManager = ContentManager.Get();
 gameObjectManager = GameObjectManager.Get();
 
 angle = 0.0;
-gameObject1Id=0;
-skyboxId=0;
+skocznia=0;
+skocznia_drzewa=0;
+nartaLewa=0;
+nartaPrawa=0;
+skybox=0;
+katNart=0;
+
+speed=Vector3();
+
+contactPoint=Vector3();
+contactPointNormal=Vector3();
+ dot=0;
 
 local clock = os.clock
 function sleep(n)  -- seconds
@@ -15,6 +25,13 @@ function sleep(n)  -- seconds
   while clock() - t0 <= n do end
 end
 
+function round(val, decimal)
+  if (decimal) then
+    return math.floor( (val * 10^decimal) + 0.5) / (10^decimal)
+  else
+    return math.floor(val+0.5)
+  end
+end
 
 function drawProgress(bgTexture, progressTexture, region, progress)
 	renderer:DrawSprite(400.0, 240.0, 10.0, 800.0, 480.0, region, bgTexture, 0.0);
@@ -34,28 +51,50 @@ loadAssets = function()
 	percent=0.2;
 
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
+        renderer:DrawString(10, 10, "Loading sounds");
 
-	shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
-	vertexShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.vert");
-	fragmentShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.frag");
 
-	percent=0.4;
+        shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
+        vertexShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.vert");
+        fragmentShader = contentManager:GetShaderManager():GetShader("shaders/pixelLighting.frag");
 
-	drawProgress(loaderScreen, progressBar, textureRegion, percent);
+        shaderProgram:Get():AddShader(vertexShader);
+        shaderProgram:Get():AddShader(fragmentShader);
+        shaderProgram:Get():Link();
 
-	shaderProgram:Get():AddShader(vertexShader);
-	shaderProgram:Get():AddShader(fragmentShader);
-	shaderProgram:Get():Link();
 
-        gameObject1Id = gameObjectManager:AddObject(RenderableGameObject(Hash("gameObject1"), Vector3(0,0,0), Vector3(0,3.14,0), Vector3(0.5,0.5,0.5), "skocznia/skocznia_teksury.ms3d", "perPixelLighting"));
-        gameObjectManager:FindObject(gameObject1Id):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
-	percent=0.8;
-	drawProgress(loaderScreen, progressBar, textureRegion, percent);
+        shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLightingAlpha");
+        vertexShader = contentManager:GetShaderManager():GetShader("shaders/pixelLightingAlpha.vert");
+        fragmentShader = contentManager:GetShaderManager():GetShader("shaders/pixelLightingAlpha.frag");
+        shaderProgram:Get():AddShader(vertexShader);
+        shaderProgram:Get():AddShader(fragmentShader);
+        shaderProgram:Get():Link();
 
-        skyboxId = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d"));
+        percent=0.4;
+        drawProgress(loaderScreen, progressBar, textureRegion, percent);
+        renderer:DrawString(10, 10, "Loading shaders");
 
-	percent=1;
-	drawProgress(loaderScreen, progressBar, textureRegion, percent);
+
+        skocznia = gameObjectManager:AddObject(PhysicalGameObject(Hash("skocznia"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "skocznia_teksury.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(skocznia):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+
+        skocznia_drzewa = gameObjectManager:AddObject(RenderableGameObject(Hash("skocznia_drzewa"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "drzewa.ms3d", "perPixelLightingAlpha", true));
+        gameObjectManager:FindObject(skocznia_drzewa):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+
+
+        nartaLewa = gameObjectManager:AddObject(RenderableGameObject(Hash("lewaNarta"), Vector3(0,0,-0.2), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(nartaLewa):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+        nartaPrawa = gameObjectManager:AddObject(RenderableGameObject(Hash("prawaNarta"), Vector3(0,0,0.2), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(nartaPrawa):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+
+        percent=0.8;
+        drawProgress(loaderScreen, progressBar, textureRegion, percent);
+        renderer:DrawString(10, 10, "Loading geometry");
+
+        skybox = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d", false));
+        renderer:DrawString(10, 10, "Loading skybox");
+        percent=1;
+        drawProgress(loaderScreen, progressBar, textureRegion, percent);
 end
 
 
@@ -65,12 +104,6 @@ update = function(dt)
         audioSystem:PlaySound(sound, 1.0);
     end
 
-    if keysState:IsKeyJustPressed(Input.KEY_M) then
-        audioSystem:SetMusicVolume(1.0);
-    end
-    if keysState:IsKeyJustPressed(Input.KEY_N) then
-        audioSystem:SetMusicVolume(0.3);
-    end
 
     if keysState:IsKeyPressed(Input.KEY_CENTER) then
         angle = 0;
@@ -97,20 +130,67 @@ update = function(dt)
     elseif keysState:IsKeyPressed(Input.KEY_S) then
             camera:MoveForward(-4*dt);
     elseif keysState:IsKeyPressed(Input.KEY_A) then
-            camera:MoveLeft(-4*dt);
+            camera:MoveLeft(-1*dt);
     elseif keysState:IsKeyPressed(Input.KEY_D) then
-            camera:MoveLeft(4*dt);
+            camera:MoveLeft(1*dt);
     end
 
-	newSkyboxPosition = camera:GetPosition();
-        newSkyboxPosition = newSkyboxPosition+Vector3(0,10,0);
-	gameObjectManager:FindObject(skyboxId):SetPosition(newSkyboxPosition);
+    skoczniaObj = gameObjectManager:FindObject(nartaLewa);
+    if keysState:IsKeyPressed(Input.KEY_I) then
+            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,-0.01, 0));
+    elseif keysState:IsKeyPressed(Input.KEY_K) then
+            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0.01,0.0));
+    elseif keysState:IsKeyPressed(Input.KEY_J) then
+            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0,0.01));
+    elseif keysState:IsKeyPressed(Input.KEY_L) then
+            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0,-0.01));
+    end
+
+
+    if keysState:IsKeyPressed(Input.KEY_M) then
+            katNart=katNart+0.1;
+    elseif keysState:IsKeyPressed(Input.KEY_N) then
+            katNart=katNart-0.1;
+    end
+
+    newSkyboxPosition = camera:GetPosition();
+    newSkyboxPosition = newSkyboxPosition+Vector3(0,10,0);
+    gameObjectManager:FindObject(skybox):SetPosition(newSkyboxPosition);
+
+
+    hor = camera:GetHorizontalAngle();
+    ver = camera:GetVerticalAngle();
+
+  --  gameObjectManager:FindObject(nartaLewa):SetPosition(camera:GetPosition() + Vector3(-0.045, -0.5, -0.1));
+  --  gameObjectManager:FindObject(nartaLewa):SetOrientation(Vector3(-katNart, -katNart/3, 0));
+  --  gameObjectManager:FindObject(nartaPrawa):SetPosition(camera:GetPosition() + Vector3(0.045, -0.5, -0.1));
+  --  gameObjectManager:FindObject(nartaPrawa):SetOrientation(Vector3(-katNart, katNart/3, 0));
 
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
 
+    gravity = Vector3(0, -0.5, 0);
+    gravityDir = gravity:GetNormalized();
+    n = (contactPointNormal)*-1*contactPointNormal:DotProduct((gravity));
+    delta = gravity + n;
+
+    speed = speed + delta*dt;
+
+    renderer:DrawString(10, 10, "X: " .. round(n.x,2) .. " y " .. round(n.y, 2) .. " z " .. round(n.z,2));
+    skoczniaObj:SetPosition(skoczniaObj:GetPosition() + speed*dt);
+
+
+
+    while gameObjectManager:FindObject(skocznia):Collide(skoczniaObj:GetPosition(), contactPoint, contactPointNormal) do
+        skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0.01,0));
+        normal = Vector3(0, 1, 0);
+        dot = normal:DotProduct(contactPointNormal);
+        dot = math.acos(dot);
+    end
+
+    skoczniaObj:SetOrientation(Vector3(dot, 0, 0));
 
 	--object = gameObjectManager:FindObject(gameObject1Id);
 	--object:SetPosition(Vector3(1,1,0)*math.sin(angle/20));

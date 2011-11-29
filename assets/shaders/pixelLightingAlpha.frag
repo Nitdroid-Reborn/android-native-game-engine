@@ -21,10 +21,16 @@ void main() {
 	float diffuseLight = max(dot(L, normal), 0.1);
 	vec3 diffuse = materialDiffuse*diffuseLight;
 
-		
-	vec4 tex = texture2D(textureSampler, pTexCoords).rgba;
+	vec3 V = normalize(-P);
+  	vec3 H = normalize(L + V);
+    float specularLight = pow(max(dot(H, normal), 0.0), materialShininess);
+    if(diffuseLight <= 0.0) specularLight = 0.0;
+    vec3 specular = materialSpecular * specularLight;
 
-	gl_FragColor.xyz = (diffuse)*tex.rgb;
+	
+	vec4 tex = texture2D(textureSampler, pTexCoords).rgba;
+	if(tex.a<0.1) discard;
+	gl_FragColor.xyz = (diffuse+specular)*tex.rgb;
 
 	gl_FragColor.w = tex.a;
 }
