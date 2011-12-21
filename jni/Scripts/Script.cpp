@@ -1,5 +1,6 @@
 #include "Script.h"
 #include "ScriptManager.h"
+#include "ContentManager/IContentManager.h"
 //#include <Scripts/oolua/oolua_storage.h>
 //#include <Scripts/oolua/oolua_check_result.h>
 //#include <Scripts/oolua/oolua_error.h>
@@ -35,7 +36,6 @@ static void stackDump (lua_State *L) {
       }
       printf("\n");  /* end the listing */
     }
-
 
 
 

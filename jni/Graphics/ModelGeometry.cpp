@@ -116,6 +116,10 @@ void ModelGeometry::Draw(Camera* camera, const Matrix4x4& worldMatrix,
             materials[meshes[i].materialIndex].texture.Get()->Bind();
 
         vbo->Draw(meshes[i].startIndex, meshes[i].indicesCount/3);
+
+        if(meshes[i].materialIndex < materialsCount && materials[meshes[i].materialIndex].texture.Get())
+            materials[meshes[i].materialIndex].texture.Get()->Unbind();
+
     }
 
     vbo->Release();

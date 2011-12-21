@@ -75,7 +75,7 @@ bool WaveSound::Load(const char *filename, U16*& data, U32& sampleCount) {
     stream.read(&significantBitsPerSample, sizeof(U16));
 
     ASSERT(channels == 1, "Only 1 channel data");
-    ASSERT(sampleRate == 44100, "Only 44100Hz data");
+    ASSERT(sampleRate == 22050, "Only 22050Hz data");
     ASSERT(significantBitsPerSample == 16, "Only 16bits data");
 
     U8 temp;

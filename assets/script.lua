@@ -1,3 +1,4 @@
+--engine subsystems
 touchState = Input.Get():GetTouch();
 keysState = Input.Get():GetKeys();
 accelState = Input.Get():GetAccel();
@@ -6,31 +7,54 @@ renderer = Renderer.Get();
 contentManager = ContentManager.Get();
 gameObjectManager = GameObjectManager.Get();
 
-angle = 0.0;
-skocznia=0;
-skocznia_drzewa=0;
-skocznia_fizyka=0;
-nartaLewa=0;
-nartaPrawa=0;
-skybox=0;
-katNart=-0.15;
-sound=0;
+--handlers to game objects
+rampObj=0;
+treesObj=0;
+rampPhysicsObj=0;
+leftSkiObj=0;
+rightSkiObj=0;
+skyboxObj=0;
 
-speed=Vector3();
+--include script source
+scr = ScriptSource();
+scr:Load(":ski.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
+
+scr = ScriptSource();
+scr:Load(":inair.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
+
+scr = ScriptSource();
+scr:Load(":start.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
 
 
-inAir=false;
+startDelay=0;
 
-gravity = Vector3(0, -0.9, 0);
-gravityDir = gravity:GetNormalized();
+jumpSound=0;
+landingSound=0;
+
+math.randomseed( os.time() );
+
+sounds = {
+            start = {
+                        bad = {},
+                        good = {}
+                    },
+            landing = {
+                         short = {},
+                         normal = {},
+                         long = {}
+                       }
+         }
+
+collisionDelay=0;
 
 
-narty = {
-        lewa = { object = 0, speed = Vector3(), angle = 0, contactPoint = Vector3(), contactPointNormal = Vector3(0, 1,0), contact=false },
-        prawa = {object = 0, speed = Vector3(), angle = 0, contactPoint = Vector3(), contactPointNormal = Vector3(0,1,0), contact=false }
-    }
-
-
+state = "Start"
 
 function round(val, decimal)
   if (decimal) then
@@ -47,22 +71,47 @@ function drawProgress(bgTexture, progressTexture, region, progress)
 	renderer:Flush();
 end
 
+
+
 loadAssets = function()
 	percent=0.0;
+        Log("du[a");
+
 	loaderScreen = contentManager:GetTextureManager():GetTexture(":loaderScreen.png");
 	progressBar = contentManager:GetTextureManager():GetTexture(":progressBar.png");
 	textureRegion = TextureRegion(0.0, 0.0, 1.0, 1.0);
 
+
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         renderer:DrawString(10, 10, "Loading...");
 
+        sounds.start.bad[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/bad1.wav');
+        sounds.start.bad[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/bad2.wav');
+        sounds.start.bad[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/bad3.wav');
+        sounds.start.good[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok1.wav');
+        sounds.start.good[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok2.wav');
+        sounds.start.good[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok3.wav');
+        sounds.start.good[4] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok4.wav');
 
-        sound = ContentManager.Get():GetSoundManager():GetSound('sound.wav');
+        sounds.landing.short[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/short1.wav');
+        sounds.landing.short[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/short2.wav');
+        sounds.landing.short[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/short3.wav');
+        sounds.landing.normal[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/normal1.wav');
+        sounds.landing.normal[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/normal2.wav');
+        sounds.landing.normal[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/normal3.wav');
+        sounds.landing.long[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long1.wav');
+        sounds.landing.long[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long2.wav');
+        sounds.landing.long[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long3.wav');
+
+
+        jumpSound = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok1.wav');
+        landingSound = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long1.wav');
 	percent=0.2;
 
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         renderer:DrawString(10, 10, "Loading sounds");
 
+        --load and compile shaders
 	shaderProgram = contentManager:GetShaderProgramManager():GetShaderProgram("perPixelLighting");
 	vertexShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.vert");
 	fragmentShader = contentManager:GetShaderManager():GetShader(":shaders/pixelLighting.frag");
@@ -87,32 +136,34 @@ loadAssets = function()
 
 
 
+        --loads ramp 3d model and set shader params
+        rampObj = gameObjectManager:AddObject(RenderableGameObject(Hash("ramp"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "skocznia_teksury.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(rampObj):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
 
-        skocznia = gameObjectManager:AddObject(RenderableGameObject(Hash("skocznia"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "skocznia_teksury.ms3d", "perPixelLighting", false));
-        gameObjectManager:FindObject(skocznia):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
+        --loads trees model and set shader params
+        treesObj = gameObjectManager:AddObject(RenderableGameObject(Hash("trees"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "drzewa.ms3d", "perPixelLightingAlpha", true));
+        gameObjectManager:FindObject(treesObj):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
 
-        skocznia_drzewa = gameObjectManager:AddObject(RenderableGameObject(Hash("skocznia_drzewa"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "drzewa.ms3d", "perPixelLightingAlpha", true));
-        gameObjectManager:FindObject(skocznia_drzewa):SetShaderProgramParameter("lightPosition", Vector3(-50, 50, -50));
+        --loads ramp physics model
+        rampPhysicsObj = gameObjectManager:AddObject(PhysicalGameObject(Hash("ramp_physics"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "skocznia_fizyka.ms3d", "perPixelLightingAlpha", true));
+        gameObjectManager:FindObject(rampPhysicsObj):SetVisible(false);
 
+        --loads ski model
+        leftSkiObj = gameObjectManager:AddObject(RenderableGameObject(Hash("leftSki"), Vector3(-0.1,4.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(leftSkiObj):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
+        skis.left.object = gameObjectManager:FindObject(leftSkiObj);
 
-        skocznia_fizyka = gameObjectManager:AddObject(PhysicalGameObject(Hash("skocznia_fizyka"), Vector3(0,0,0), Vector3(0,0,0), Vector3(0.5,0.5,0.5), "skocznia_fizyka.ms3d", "perPixelLightingAlpha", true));
-        gameObjectManager:FindObject(skocznia_fizyka):SetVisible(false);
-
-
-        nartaLewa = gameObjectManager:AddObject(RenderableGameObject(Hash("lewaNarta"), Vector3(-0.1,12.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
-        gameObjectManager:FindObject(nartaLewa):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
-        narty.lewa.object = gameObjectManager:FindObject(nartaLewa);
-
-        nartaPrawa = gameObjectManager:AddObject(RenderableGameObject(Hash("prawaNarta"), Vector3(0.0,12.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
-        gameObjectManager:FindObject(nartaPrawa):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
-        narty.prawa.object = gameObjectManager:FindObject(nartaPrawa);
+        rightSkiObj = gameObjectManager:AddObject(RenderableGameObject(Hash("rightSki"), Vector3(0.0,4.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        gameObjectManager:FindObject(rightSkiObj):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
+        skis.right.object = gameObjectManager:FindObject(rightSkiObj);
 
 
 	percent=0.8;
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         renderer:DrawString(10, 10, "Loading geometry");
 
-        skybox = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d", false));
+        --loads skybox
+        skyboxObj = gameObjectManager:AddObject(RenderableGameObject(Hash("skybox"), Vector3(0,30,0), Vector3(0,0,0), Vector3(15, 15, 15), "skybox.ms3d", "textured_3d", false));
         renderer:DrawString(10, 10, "Loading skybox");
 	percent=1;
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
@@ -121,116 +172,21 @@ loadAssets = function()
 end
 
 
-update_ski = function(dt)
-    delta = gravity;
-
-    if narty.lewa.contact==true then
-        n = (narty.lewa.contactPointNormal)*-1*narty.lewa.contactPointNormal:DotProduct((gravity));
-        delta = delta + n;
-    end
-
-    --update position
-    narty.lewa.speed = narty.lewa.speed + delta*dt;
-    narty.lewa.object:SetPosition(narty.lewa.object:GetPosition() + narty.lewa.speed*dt);
-
-    colliderObject = gameObjectManager:FindObject(skocznia_fizyka);
-    normal = Vector3(0, 1, 0);
-    right = Vector3(1, 0, 0);
-
-    --check collision
-    wasCollision=false;
-    while colliderObject:Collide(narty.lewa.object:GetPosition(), narty.lewa.contactPoint, narty.lewa.contactPointNormal) do
-        narty.lewa.object:SetPosition(narty.lewa.object:GetPosition() + narty.lewa.contactPointNormal*0.05);
-        wasCollision=true;
-    end
-
-    --if there was a collision update orientation
-    if wasCollision==true then
-        narty.lewa.contact=true;
-        narty.lewa.angle = normal:DotProduct(narty.lewa.contactPointNormal);
-        sign = normal:CrossProduct(narty.lewa.contactPointNormal):DotProduct(right);
-        if sign>0 then
-            narty.lewa.angle = math.acos(narty.lewa.angle);
-        else
-            narty.lewa.angle = -math.acos(narty.lewa.angle);
-        end
-        narty.lewa.object:SetOrientation(Vector3(narty.lewa.angle, 0, 0));
-        if inAir==true then
-            inAir=false;
-        end
-
-    else
-        narty.lewa.contact=false;
-        if inAir==true then
-            narty.lewa.object:SetOrientation(Vector3(0, 2*katNart, 0));
-        end
-    end
-
-
-    --update position
-    delta = gravity;
-
-    if narty.prawa.contact==true then
-        n = (narty.prawa.contactPointNormal)*-1*narty.prawa.contactPointNormal:DotProduct((gravity));
-        delta = delta + n;
-    end
-
-    narty.prawa.speed = narty.prawa.speed + delta*dt;
-    narty.prawa.object:SetPosition(narty.prawa.object:GetPosition() + narty.prawa.speed*dt);
-
-
-    --check collision
-    wasCollision=false;
-    while colliderObject:Collide(narty.prawa.object:GetPosition(), narty.prawa.contactPoint, narty.prawa.contactPointNormal) do
-        narty.prawa.object:SetPosition(narty.prawa.object:GetPosition() + narty.prawa.contactPointNormal*0.05);
-        wasCollision=true;
-    end
-
-    --if there was a collision update orientation
-    if wasCollision==true then
-        narty.prawa.contact=true;
-        narty.prawa.angle = normal:DotProduct(narty.prawa.contactPointNormal);
-        sign = normal:CrossProduct(narty.prawa.contactPointNormal):DotProduct(right);
-        if sign>0 then
-            narty.prawa.angle = math.acos(narty.prawa.angle);
-        else
-            narty.prawa.angle = -math.acos(narty.prawa.angle);
-        end
-        narty.prawa.object:SetOrientation(Vector3(narty.prawa.angle, 0, 0));
-        if inAir==true then
-            inAir=false;
-        end
-    else
-        narty.prawa.contact=false;
-        if inAir==true then
-            narty.prawa.object:SetOrientation(Vector3(0, -2*katNart, 0));
-        end
-    end
-
-    camera:SetPosition((narty.prawa.object:GetPosition() + narty.lewa.object:GetPosition())/2 + narty.prawa.contactPointNormal*0.2);
-    camera:SetVerticalAngle(narty.prawa.angle);
-end
-
 update = function(dt)
-   -- if keysState:IsKeyJustPressed(Input.KEY_CENTER) then
-   --     audioSystem:PlaySound(sound, 1.0);
-   -- end
+--    if keysState:IsKeyJustPressed(Input.KEY_M) then
+--        audioSystem:SetMusicVolume(1.0);
+--    end
+--    if keysState:IsKeyJustPressed(Input.KEY_N) then
+--        audioSystem:SetMusicVolume(0.3);
+--    end
 
-    if keysState:IsKeyJustPressed(Input.KEY_M) then
-        audioSystem:SetMusicVolume(1.0);
-    end
-    if keysState:IsKeyJustPressed(Input.KEY_N) then
-        audioSystem:SetMusicVolume(0.3);
-    end
-
-    if keysState:IsKeyPressed(Input.KEY_CENTER) then
-        angle = 0;
-    end
-
+--    if keysState:IsKeyPressed(Input.KEY_CENTER) then
+--        angle = 0;
+--    end
+    --get camera object
     camera = renderer:GetCamera();
 
-
-
+    --check and interpret input
     if keysState:IsKeyPressed(Input.KEY_UP) then
             camera:RotateUp(1*dt);
     elseif keysState:IsKeyPressed(Input.KEY_DOWN) then
@@ -239,7 +195,6 @@ update = function(dt)
             camera:RotateLeft(1*dt);
     elseif keysState:IsKeyPressed(Input.KEY_LEFT) then
             camera:RotateLeft(-1*dt);
-
     elseif keysState:IsKeyPressed(Input.KEY_Z) then
             camera:MoveUp(2*dt);
     elseif keysState:IsKeyPressed(Input.KEY_X) then
@@ -253,54 +208,40 @@ update = function(dt)
             camera:MoveLeft(-4*dt);
     elseif keysState:IsKeyPressed(Input.KEY_D) then
             camera:MoveLeft(4*dt);
+    elseif keysState:IsKeyJustPressed(Input.KEY_CENTER) then
+            --resets scene
+            skis.left.object:SetPosition(Vector3(-0.1,4.5,-10));
+            skis.right.object:SetPosition(Vector3(0.0,4.5,-10));
+            skis.left.velocity = Vector3(0,0,0);
+            skis.right.velocity = Vector3(0,0,0);
+            skiesXAngle=0;
+            skiesZAngle=0;
+            skis.left.angle = 0;
+            skis.right.angle = 0;
+            skis.left.contact=false;
+            skis.right.contact=false;
+            inAir=false;
+            state="Start";
     end
 
-    if keysState:IsKeyPressed(Input.KEY_CENTER) and inAir==false then
-            narty.lewa.speed = narty.lewa.speed + Vector3(0, 5.2, 0);
-            narty.prawa.speed = narty.prawa.speed + Vector3(0, 5.2, 0);
-            inAir=true;
-    end
-
+    --moves skybox to stay in center of view
     newSkyboxPosition = camera:GetPosition();
     newSkyboxPosition = newSkyboxPosition+Vector3(0,30,0);
-    gameObjectManager:FindObject(skybox):SetPosition(newSkyboxPosition);
+    gameObjectManager:FindObject(skyboxObj):SetPosition(newSkyboxPosition);
 
 
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
+    --if player is fyling
+    if state=="Start" then
+        updateState_Start(dt);
+    elseif state=="InAir" then
+        updateState_InAir(dt);
+    end
+
+    --check for collision and landing
     update_ski(dt);
-    accel = accelState:GetAcceleration();
-    camera:SetHorizontalAngle(round(accel.y,2)/60*180/3.1415);
-        --renderer:DrawString(0, 400, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
-        --gravity = accelState:GetRawAcceleration();
-        --renderer:DrawString(0, 370, "Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
 
-
-    --Log("Acceleration " .. round(gravity.x, 2) .. " " .. round(gravity.y, 2) .. " " .. round(gravity.z, 2));
-
-   -- translation = Matrix4x4();
-   -- translation:SetTranslation(Vector3(-2,-1,-5));
-
---    rotation = Matrix4x4();
-  --  rotation:SetScale(Vector3(2.0, 2.0, 2.0));
-
-    --world = translation*rotation;
-
---    shaderParams = ShaderParametersList();
-    --shaderParams:Add("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
-  --  renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
-
-
-    --translation:SetTranslation(Vector3(2, -1, -5));
-
---    world = translation*rotation;
-
-  --  renderer:DrawGeometry(dwarfModel, world, shaderProgram, shaderParams);
-         -- gameObjectManager:FindObject(gameObject1Id):SetShaderProgramParameter("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
-       --   gameObjectManager:FindObject(gameObject2Id):SetShaderProgramParameter("lightPosition", Vector3(2*gravity.y, 2*gravity.x, 10));
-
-
-    angle= angle + dt*30;
 end

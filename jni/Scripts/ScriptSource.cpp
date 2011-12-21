@@ -14,6 +14,7 @@ ScriptSource::~ScriptSource() {
 }
 
 bool ScriptSource::Load(const char *fileName) {
+
     IFileIO* fileIO = IFileIO::get();
     U32 size = fileIO->GetSize(fileName);
 

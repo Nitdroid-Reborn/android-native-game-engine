@@ -116,6 +116,15 @@ bool QtContentManager::Initialize() {
     ];
 
 
+    luabind::module(L)
+    [
+        luabind::class_<ScriptSource>("ScriptSource")
+            .def(luabind::constructor<>())
+            .def("GetSource", &ScriptSource::GetSource)
+            .def("Load", &ScriptSource::Load)
+            .def("Dispose", &ScriptSource::Dispose)
+    ];
+
     Logger::Log(1, "Qt Content Manager initialized");
     return true;
 }

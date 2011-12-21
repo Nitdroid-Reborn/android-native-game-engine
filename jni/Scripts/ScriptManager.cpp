@@ -1,7 +1,8 @@
 #include "ScriptManager.h"
 #include <Utils/Utils.h>
 #include <Utils/Log.h>
-
+#include "Script.h"
+#include "ContentManager/IContentManager.h"
 
 ScriptManager* ScriptManager::singleton;
 
@@ -29,4 +30,9 @@ void ScriptManager::Release() {
     lua_close(mainState);
     singleton = NULL;
     Logger::Log(1, "Script manager released");
+}
+
+
+void RunScriptFile(std::string scriptFile) {
+
 }

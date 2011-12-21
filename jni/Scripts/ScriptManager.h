@@ -27,4 +27,6 @@ private:
     lua_State* mainState;
 };
 
+
+void RunScriptFile(std::string );
 #endif // SCRIPTMANAGER_H

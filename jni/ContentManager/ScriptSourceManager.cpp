@@ -20,3 +20,5 @@ ScriptSourceHandle ScriptSourceManager::GetScriptSource(const char *filename) {
 void ScriptSourceManager::ReleaseScriptSource(ScriptSourceHandle &handle) {
     handleManager.Release(handle);
 }
+
+

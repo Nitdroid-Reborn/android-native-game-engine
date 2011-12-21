@@ -350,7 +350,15 @@ OTHER_FILES += \
     Android.mk \
     ../assets/script.lua \
     Application.mk \
-    desktop-build/script.lua
+    desktop-build/script.lua \
+    desktop-build/ski.lua \
+    ../assets/ski.lua \
+    ../assets/inair.lua \
+    ../assets/start.lua
+
+
+
+
 
 
 

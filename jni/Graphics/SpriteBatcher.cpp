@@ -92,7 +92,7 @@ void SpriteBatcher::EndBatch() {
     sp->EnableAttributeArray("vPosition");
     sp->EnableAttributeArray("vTexCoords");
     sp->EnableAttributeArray("vColor");
-
+    sp->SetUniformValue("useTextures", 0);
 
     ITexture* currentTexture = 0;
     vector<Sprite>::iterator it = oldSprites.begin();
@@ -118,15 +118,22 @@ void SpriteBatcher::EndBatch() {
 
             vbo->Draw(0, numSprites*2);
             texChanges++;
-            if(!(*it).texture)
+            if(currentTexture)
                 currentTexture->Unbind();
 
             currentTexture = (*it).texture;
             numSprites=0;
             verticesIndex=0;
 
-            if(currentTexture)
+
+            if(currentTexture) {
                 currentTexture->Bind();
+                sp->SetUniformValue("useTextures", 1);
+            }
+            else {
+                Logger::Log("unbind");
+                sp->SetUniformValue("useTextures", 0);
+            }
         }
 
         float halfWidth = (*it).width/2;
@@ -288,9 +295,11 @@ void SpriteBatcher::DrawSprite(U8 r, U8 g, U8 b, U8 a, F32 x, F32 y, F32 z,
                                F32 width, F32 height, F32 angle) {
 
     Sprite s(x, y, z, width, height, angle, TextureRegion(), 0);
+    s.texture = 0;
     s.r = r;
     s.g = g;
     s.b = b;
     s.a = a;
+
     sprites.push_back(s);
 }

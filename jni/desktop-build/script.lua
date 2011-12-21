@@ -12,19 +12,8 @@ skocznia_fizyka=0;
 nartaLewa=0;
 nartaPrawa=0;
 skybox=0;
-katNart=-0.15;
 
-speed=Vector3();
-inAir=false;
-
-gravity = Vector3(0, -1.9, 0);
-gravityDir = gravity:GetNormalized();
-
-
-narty = {
-         lewa = { object = 0, speed = Vector3(), angle = 0, contactPoint = Vector3(), contactPointNormal = Vector3(0, 1,0), contact=false },
-         prawa = {object = 0, speed = Vector3(), angle = 0, contactPoint = Vector3(), contactPointNormal = Vector3(0,1,0), contact=false }
-        }
+dofile("ski.lua");
 
 local clock = os.clock
 function sleep(n)  -- seconds
@@ -93,11 +82,11 @@ loadAssets = function()
         gameObjectManager:FindObject(skocznia_fizyka):SetVisible(false);
 
 
-        nartaLewa = gameObjectManager:AddObject(RenderableGameObject(Hash("lewaNarta"), Vector3(-0.1,4.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        nartaLewa = gameObjectManager:AddObject(RenderableGameObject(Hash("lewaNarta"), Vector3(-0.1,4.5,-5), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
         gameObjectManager:FindObject(nartaLewa):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
         narty.lewa.object = gameObjectManager:FindObject(nartaLewa);
 
-        nartaPrawa = gameObjectManager:AddObject(RenderableGameObject(Hash("prawaNarta"), Vector3(0.0,4.5,-10), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
+        nartaPrawa = gameObjectManager:AddObject(RenderableGameObject(Hash("prawaNarta"), Vector3(0.0,4.5,-5), Vector3(0,0,0), Vector3(0.5, 0.5, 0.5), "narta.ms3d", "perPixelLighting", false));
         gameObjectManager:FindObject(nartaPrawa):SetShaderProgramParameter("lightPosition", Vector3(-50, 250, -50));
         narty.prawa.object = gameObjectManager:FindObject(nartaPrawa);
 
@@ -115,97 +104,6 @@ loadAssets = function()
 end
 
 
-
-
-update_ski = function(dt)
-    delta = gravity;
-
-    if narty.lewa.contact==true then
-        n = (narty.lewa.contactPointNormal)*-1*narty.lewa.contactPointNormal:DotProduct((gravity));
-        delta = delta + n;
-    end
-
-    --update position
-    narty.lewa.speed = narty.lewa.speed + delta*dt;
-    narty.lewa.object:SetPosition(narty.lewa.object:GetPosition() + narty.lewa.speed*dt);
-
-    colliderObject = gameObjectManager:FindObject(skocznia_fizyka);
-    normal = Vector3(0, 1, 0);
-    right = Vector3(1, 0, 0);
-
-    --check collision
-    wasCollision=false;
-    while colliderObject:Collide(narty.lewa.object:GetPosition(), narty.lewa.contactPoint, narty.lewa.contactPointNormal) do
-        narty.lewa.object:SetPosition(narty.lewa.object:GetPosition() + narty.lewa.contactPointNormal*0.005);
-        wasCollision=true;
-    end
-
-    --if there was a collision update orientation
-    if wasCollision==true then
-        narty.lewa.contact=true;
-        narty.lewa.angle = normal:DotProduct(narty.lewa.contactPointNormal);
-        sign = normal:CrossProduct(narty.lewa.contactPointNormal):DotProduct(right);
-        if sign>0 then
-            narty.lewa.angle = math.acos(narty.lewa.angle);
-        else
-            narty.lewa.angle = -math.acos(narty.lewa.angle);
-        end
-        narty.lewa.object:SetOrientation(Vector3(narty.lewa.angle, 0, 0));
-        if inAir==true then
-            inAir=false;
-        end
-
-    else
-        narty.lewa.contact=false;
-        if inAir==true then
-            narty.lewa.object:SetOrientation(Vector3(0, 2*katNart, 0));
-        end
-    end
-
-
-    --update position
-    delta = gravity;
-
-    if narty.prawa.contact==true then
-        n = (narty.prawa.contactPointNormal)*-1*narty.prawa.contactPointNormal:DotProduct((gravity));
-        delta = delta + n;
-    end
-
-    narty.prawa.speed = narty.prawa.speed + delta*dt;
-    narty.prawa.object:SetPosition(narty.prawa.object:GetPosition() + narty.prawa.speed*dt);
-
-
-    --check collision
-    wasCollision=false;
-    while colliderObject:Collide(narty.prawa.object:GetPosition(), narty.prawa.contactPoint, narty.prawa.contactPointNormal) do
-        narty.prawa.object:SetPosition(narty.prawa.object:GetPosition() + narty.prawa.contactPointNormal*0.005);
-        wasCollision=true;
-    end
-
-    --if there was a collision update orientation
-    if wasCollision==true then
-        narty.prawa.contact=true;
-        narty.prawa.angle = normal:DotProduct(narty.prawa.contactPointNormal);
-        sign = normal:CrossProduct(narty.prawa.contactPointNormal):DotProduct(right);
-        if sign>0 then
-            narty.prawa.angle = math.acos(narty.prawa.angle);
-        else
-            narty.prawa.angle = -math.acos(narty.prawa.angle);
-        end
-        narty.prawa.object:SetOrientation(Vector3(narty.prawa.angle, 0, 0));
-        if inAir==true then
-            inAir=false;
-        end
-    else
-        narty.prawa.contact=false;
-        if inAir==true then
-            narty.prawa.object:SetOrientation(Vector3(0, -2*katNart, 0));
-        end
-    end
-
-    camera:SetPosition((narty.prawa.object:GetPosition() + narty.lewa.object:GetPosition())/2 + narty.prawa.contactPointNormal*0.2);
-    camera:SetVerticalAngle(narty.prawa.angle);
-end
 
 update = function(dt)
     if keysState:IsKeyJustPressed(Input.KEY_CENTER) then
@@ -241,30 +139,41 @@ update = function(dt)
             camera:MoveLeft(-1*dt);
     elseif keysState:IsKeyPressed(Input.KEY_D) then
             camera:MoveLeft(1*dt);
+    elseif keysState:IsKeyJustPressed(Input.KEY_R) then
+            narty.lewa.object:SetPosition(Vector3(-0.1,4.5,-10));
+            narty.prawa.object:SetPosition(Vector3(0.0,4.5,-10));
+            narty.lewa.speed = Vector3(0,0,0);
+            narty.prawa.speed = Vector3(0,0,0);
+            katNart=0;
+            leftRightAngle=0;
+            narty.lewa.angle = 0;
+            narty.prawa.angle = 0;
+            narty.lewa.contact=false;
+            narty.prawa.contact=false;
+            inAir=false;
     end
 
     skoczniaObj = gameObjectManager:FindObject(nartaLewa);
-    if keysState:IsKeyPressed(Input.KEY_I) then
-            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,-0.01, 0));
-    elseif keysState:IsKeyPressed(Input.KEY_K) then
-            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0.01,0.0));
-    elseif keysState:IsKeyPressed(Input.KEY_J) then
-            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0,0.01));
-    elseif keysState:IsKeyPressed(Input.KEY_L) then
-            skoczniaObj:SetPosition(skoczniaObj:GetPosition() + Vector3(0,0,-0.01));
-    end
 
 
     if keysState:IsKeyPressed(Input.KEY_SPACE) and inAir==false then
-            narty.lewa.speed = narty.lewa.speed + Vector3(0, 2.2, 0);
-            narty.prawa.speed = narty.prawa.speed + Vector3(0, 2.2, 0);
-            inAir=true;
+           narty.lewa.speed = narty.lewa.speed + Vector3(0, 2.2, 0);
+           narty.prawa.speed = narty.prawa.speed + Vector3(0, 2.2, 0);
+           inAir=true;
     end
 
     if keysState:IsKeyPressed(Input.KEY_M) then
-            katNart=katNart+0.1;
+        leftRightAngle=leftRightAngle+0.01;
+-- katNart=katNart+0.01;
     elseif keysState:IsKeyPressed(Input.KEY_N) then
-            katNart=katNart-0.1;
+        --    katNart=katNart-0.01;
+        leftRightAngle=leftRightAngle-0.01;
+    end
+
+    if keysState:IsKeyPressed(Input.KEY_K) then
+         katNart=katNart+0.01;
+    elseif keysState:IsKeyPressed(Input.KEY_L) then
+        katNart=katNart-0.01;
     end
 
     newSkyboxPosition = camera:GetPosition();

@@ -155,6 +155,14 @@ bool AndroidContentManager::Initialize() {
         luabind::class_<ModelGeometryHandle>("ModelGeometryHandle")
     ];
 
+    luabind::module(L)
+    [
+        luabind::class_<ScriptSource>("ScriptSource")
+            .def(luabind::constructor<>())
+            .def("GetSource", &ScriptSource::GetSource)
+            .def("Load", &ScriptSource::Load)
+            .def("Dispose", &ScriptSource::Dispose)
+    ];
 
     Logger::Log(1, "Android Content Manager initialized");
     return true;

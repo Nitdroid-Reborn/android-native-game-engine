@@ -245,6 +245,7 @@ void AndroidRenderer::Initialize() {
     [
         luabind::class_<IRenderer>("Renderer")
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
+            .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, U8, U8, U8, U8, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
             .def("DrawString", &IRenderer::DrawString)
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*, bool))&IRenderer::DrawGeometry)
