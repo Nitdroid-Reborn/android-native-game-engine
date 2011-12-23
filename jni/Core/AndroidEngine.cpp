@@ -121,6 +121,10 @@ void AndroidEngine::Initialize() {
             luabind::def("SendResultToServer", &JNICommunication::SendResult)
     ];
 
+    luabind::module(manager->getState()) [
+            luabind::def("Vibrate", &JNICommunication::Vibrate)
+    ];
+
 
 
     ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");

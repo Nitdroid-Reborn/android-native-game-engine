@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.Vibrator;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
@@ -15,7 +16,7 @@ public class NativeGameActivity extends NativeActivity {
 	private WakeLock wakeLock;
 	
 	private final int REQUESTCODE_SKIJUMP = 1;
-	
+	private Vibrator vibrator;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -24,6 +25,8 @@ public class NativeGameActivity extends NativeActivity {
 		Context context = (Context)this;
 		PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "native-activity");
+		
+		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
@@ -43,6 +46,10 @@ public class NativeGameActivity extends NativeActivity {
 		Intent in = new Intent(this, SkiJumpSendScoreActivity.class);
         in.putExtra(SkiJumpSendScoreActivity.INDATA_SCORE, (int)((float)distance/10));
         startActivityForResult(in, REQUESTCODE_SKIJUMP);
+	}
+	
+	public void Vibrate(int miliseconds) {
+		vibrator.vibrate(miliseconds);
 	}
 	
 	static {

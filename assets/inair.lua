@@ -69,6 +69,8 @@ updateState_InAir = function(dt)
                 audioSystem:PlaySoundLoop(sounds.loops[2], 0.5);
 
                 audioSystem:PlaySound(sounds.landingNormal, 1.0);
+
+                Vibrate(100);
                 if zPos>120 then
                     soundIndex = math.random(1,3);
                     audioSystem:PlaySound(sounds.landing.long[soundIndex], 1.0);
@@ -80,11 +82,13 @@ updateState_InAir = function(dt)
                     audioSystem:PlaySound(sounds.landing.short[soundIndex], 1.0);
                 end
 
+
                 restartTime = os.time();
             else
                 audioSystem:PlaySound(sounds.landingBum, 1.0);
                 soundIndex = math.random(1,3);
                 audioSystem:PlaySound(sounds.landing.bum[soundIndex], 1.0);
+                Vibrate(750);
                 crash=true;
                 state="Crash";
                 restartTime = os.time();

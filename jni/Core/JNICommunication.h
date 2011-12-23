@@ -9,6 +9,7 @@ public:
     JNICommunication(android_app* app) {this->app=app;}
 
     static void SendResult(float distance);
+    static void Vibrate(unsigned int miliseconds);
 
 private:
     static android_app* app;

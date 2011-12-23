@@ -45,8 +45,8 @@ update_ski = function(dt)
     wasCollision=false;
     distanceFromCollider=Vector3();
 
-    while colliderObject:Collide(skis.left.object:GetPosition(), skis.left.contactPoint, skis.left.contactPointNormal, distanceFromCollider) do
-        skis.left.object:SetPosition(skis.left.object:GetPosition() + skis.left.contactPointNormal*0.005);
+    if colliderObject:Collide(skis.left.object:GetPosition(), skis.left.contactPoint, skis.left.contactPointNormal, distanceFromCollider) then
+        skis.left.object:SetPosition(skis.left.object:GetPosition() - skis.left.contactPointNormal*distanceFromCollider);
         wasCollision=true;
     end
 
@@ -101,8 +101,8 @@ update_ski = function(dt)
 
     --check collision
     wasCollision=false;
-    while colliderObject:Collide(skis.right.object:GetPosition(), skis.right.contactPoint, skis.right.contactPointNormal, distanceFromCollider) do
-        skis.right.object:SetPosition(skis.right.object:GetPosition() + skis.right.contactPointNormal*0.005);
+    if colliderObject:Collide(skis.right.object:GetPosition(), skis.right.contactPoint, skis.right.contactPointNormal, distanceFromCollider) then
+        skis.right.object:SetPosition(skis.right.object:GetPosition() - skis.right.contactPointNormal*distanceFromCollider);
         wasCollision=true;
     end
 

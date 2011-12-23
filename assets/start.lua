@@ -10,6 +10,7 @@ updateState_Start = function(dt)
         inAir=true;
 
         state="InAir";
+        Vibrate(100);
         skis.left.contact=false;
         skis.right.contact=false;
 
