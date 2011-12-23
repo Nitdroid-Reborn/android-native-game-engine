@@ -23,6 +23,7 @@ private:
 
 public:
     void DrawStr(int x, int y, char* string);
+    void DrawStr(int x, int y, char* string, U8 r, U8 g, U8 b);
     Font2* font;
 };
 

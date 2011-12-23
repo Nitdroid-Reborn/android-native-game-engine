@@ -34,7 +34,9 @@ public:
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, F32 angle=0.0f)=0;
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f)=0;
     virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, F32 angle=0.0f)=0;
+    virtual void DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f)=0;
     virtual void DrawString(int x, int y, const char * str)=0;
+    virtual void DrawString(int x, int y, const char * str, U8 r, U8 g, U8 b)=0;
     virtual void DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4& worldMatrix,
                               ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters,
                               bool transparent=false)=0;

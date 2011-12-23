@@ -31,8 +31,26 @@ scr:Load(":start.lua");
 assert(loadstring(scr:GetSource()))()
 scr:Dispose();
 
+scr = ScriptSource();
+scr:Load(":beforeStart.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
+
+
+scr = ScriptSource();
+scr:Load(":landing.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
+
+scr = ScriptSource();
+scr:Load(":crash.lua");
+assert(loadstring(scr:GetSource()))()
+scr:Dispose();
 
 startDelay=0;
+
+wind = Vector3();
+windChange = Vector3();
 
 jumpSound=0;
 landingSound=0;
@@ -47,14 +65,22 @@ sounds = {
             landing = {
                          short = {},
                          normal = {},
-                         long = {}
-                       }
+                         long = {},
+                         bum = {}
+                       },
+            loops = { },
+            landingNormal,
+            landingBum
          }
 
 collisionDelay=0;
 
 
-state = "Start"
+state = "BeforeStart"
+jumpDistance=0;
+crash=false;
+started=false;
+restartTime=0;
 
 function round(val, decimal)
   if (decimal) then
@@ -75,8 +101,6 @@ end
 
 loadAssets = function()
 	percent=0.0;
-        Log("du[a");
-
 	loaderScreen = contentManager:GetTextureManager():GetTexture(":loaderScreen.png");
 	progressBar = contentManager:GetTextureManager():GetTexture(":progressBar.png");
 	textureRegion = TextureRegion(0.0, 0.0, 1.0, 1.0);
@@ -102,6 +126,15 @@ loadAssets = function()
         sounds.landing.long[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long1.wav');
         sounds.landing.long[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long2.wav');
         sounds.landing.long[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/long3.wav');
+        sounds.landing.bum[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/bum1.wav');
+        sounds.landing.bum[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/bum2.wav');
+        sounds.landing.bum[3] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/skok/bum3.wav');
+
+        sounds.loops[1] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/loop1.wav');
+        sounds.loops[2] = ContentManager.Get():GetSoundManager():GetSound('dzwieki/loop2.wav');
+
+        sounds.landingNormal = ContentManager.Get():GetSoundManager():GetSound('dzwieki/landing.wav');
+        sounds.landingBum = ContentManager.Get():GetSoundManager():GetSound('dzwieki/landingbum.wav');
 
 
         jumpSound = ContentManager.Get():GetSoundManager():GetSound('dzwieki/najazd/ok1.wav');
@@ -169,21 +202,41 @@ loadAssets = function()
 	drawProgress(loaderScreen, progressBar, textureRegion, percent);
         camera = renderer:GetCamera();
         camera:SetPosition(Vector3(0, 5, -11));
+        audioSystem:StopSoundLoop();
+        audioSystem:PlaySoundLoop(sounds.loops[1], 0.5);
+
+
+        wind.x = 0.1*(-math.random());
+        wind.y = 0;
+        wind.z = 6*(math.random()-0.5);
+
+        camera:SetPosition((skis.right.object:GetPosition() + skis.left.object:GetPosition())/2 + skis.right.contactPointNormal*0.2);
+        camera:SetVerticalAngle(skis.right.angle);
 end
 
+resetScene = function()
+    skis.left.object:SetPosition(Vector3(-0.1,4.5,-10));
+    skis.right.object:SetPosition(Vector3(0.0,4.5,-10));
+    skis.left.velocity = Vector3(0,0,0);
+    skis.right.velocity = Vector3(0,0,0);
+    skiesXAngle=0;
+    skiesZAngle=0;
+    skis.left.angle = 0;
+    skis.right.angle = 0;
+    skis.left.contact=false;
+    skis.right.contact=false;
+    inAir=false;
+    state="BeforeStart";
+    audioSystem:StopSoundLoop();
+    audioSystem:PlaySoundLoop(sounds.loops[1], 0.5);
+    crash=false;
+    started=false;
+end
 
 update = function(dt)
---    if keysState:IsKeyJustPressed(Input.KEY_M) then
---        audioSystem:SetMusicVolume(1.0);
---    end
---    if keysState:IsKeyJustPressed(Input.KEY_N) then
---        audioSystem:SetMusicVolume(0.3);
---    end
+   -- Log("DT " .. dt);
 
---    if keysState:IsKeyPressed(Input.KEY_CENTER) then
---        angle = 0;
---    end
-    --get camera object
+
     camera = renderer:GetCamera();
 
     --check and interpret input
@@ -202,7 +255,9 @@ update = function(dt)
 
     elseif keysState:IsKeyPressed(Input.KEY_W) then
             camera:MoveForward(4*dt);
+            audioSystem:PlaySoundLoop(sounds.landing.short[1], 1.0);
     elseif keysState:IsKeyPressed(Input.KEY_S) then
+            audioSystem:StopSoundLoop();
             camera:MoveForward(-4*dt);
     elseif keysState:IsKeyPressed(Input.KEY_A) then
             camera:MoveLeft(-4*dt);
@@ -210,18 +265,7 @@ update = function(dt)
             camera:MoveLeft(4*dt);
     elseif keysState:IsKeyJustPressed(Input.KEY_CENTER) then
             --resets scene
-            skis.left.object:SetPosition(Vector3(-0.1,4.5,-10));
-            skis.right.object:SetPosition(Vector3(0.0,4.5,-10));
-            skis.left.velocity = Vector3(0,0,0);
-            skis.right.velocity = Vector3(0,0,0);
-            skiesXAngle=0;
-            skiesZAngle=0;
-            skis.left.angle = 0;
-            skis.right.angle = 0;
-            skis.left.contact=false;
-            skis.right.contact=false;
-            inAir=false;
-            state="Start";
+            resetScene();
     end
 
     --moves skybox to stay in center of view
@@ -229,19 +273,32 @@ update = function(dt)
     newSkyboxPosition = newSkyboxPosition+Vector3(0,30,0);
     gameObjectManager:FindObject(skyboxObj):SetPosition(newSkyboxPosition);
 
-
     if keysState:IsKeyJustPressed(Input.KEY_P) then
         audioSystem:PlayMusic("/sdcard/music.mp3", 1.0);
     end
 
     --if player is fyling
-    if state=="Start" then
+    if state=="BeforeStart" then
+        updateState_BeforeStart(dt);
+    elseif state=="Start" then
         updateState_Start(dt);
     elseif state=="InAir" then
         updateState_InAir(dt);
+    elseif state=="Landing" then
+        updateState_Landing(dt);
+    elseif state=="Crash" then
+        updateState_Crash(dt);
     end
 
-    --check for collision and landing
-    update_ski(dt);
+    if started==true then
+        --check for collision and landing
+        update_ski(dt);
+    end
+
+    wind.x = 0;--wind.x + windChange.x*dt;
+    wind.z = 0;--wind.z + windChange.z*dt;
+
+   -- windChange.x = math.random()*3*(math.random()-0.5);
+    --windChange.z = math.random()*6*(math.random()-0.5);
 
 end

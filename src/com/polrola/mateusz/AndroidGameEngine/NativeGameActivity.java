@@ -38,10 +38,10 @@ public class NativeGameActivity extends NativeActivity {
 		Log.i("native-activity", "WakeLock released");
 	}
 	
-	public void SendToServer() {
+	public void SendToServer(int distance) {
 		Log.d("native-activity", "Data send");
 		Intent in = new Intent(this, SkiJumpSendScoreActivity.class);
-        in.putExtra(SkiJumpSendScoreActivity.INDATA_SCORE, (int)(Math.random() * 0xffff));
+        in.putExtra(SkiJumpSendScoreActivity.INDATA_SCORE, (int)((float)distance/10));
         startActivityForResult(in, REQUESTCODE_SKIJUMP);
 	}
 	

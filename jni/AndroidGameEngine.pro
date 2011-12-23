@@ -139,7 +139,8 @@ SOURCES += DesktopMain.cpp \
     Utils/Hash.cpp \
     GameObject/GameObjectManager.cpp \
     GameObject/RenderableGameObject.cpp \
-    GameObject/PhysicalGameObject.cpp
+    GameObject/PhysicalGameObject.cpp \
+    Core/JNICommunication.cpp
 
 
 HEADERS += \
@@ -344,7 +345,8 @@ HEADERS += \
     GameObject/GameObject.h \
     GameObject/GameObjectManager.h \
     GameObject/RenderableGameObject.h \
-    GameObject/PhysicalGameObject.h
+    GameObject/PhysicalGameObject.h \
+    Core/JNICommunication.h
 
 OTHER_FILES += \
     Android.mk \
@@ -354,7 +356,15 @@ OTHER_FILES += \
     desktop-build/ski.lua \
     ../assets/ski.lua \
     ../assets/inair.lua \
-    ../assets/start.lua
+    ../assets/start.lua \
+    ../assets/crash.lua \
+    ../assets/landing.lua \
+    ../assets/beforeStart.lua
+
+
+
+
+
 
 
 

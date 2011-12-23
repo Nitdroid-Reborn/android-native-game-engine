@@ -13,7 +13,9 @@ updateState_Start = function(dt)
         skis.left.contact=false;
         skis.right.contact=false;
 
-        if zPos>-2  and zPos<0 then
+        audioSystem:StopSoundLoop();
+        audioSystem:PlaySoundLoop(sounds.loops[1], 1.0);
+        if zPos>-1.5  and zPos<0 then
             soundIndex = math.random(1,4);
             audioSystem:PlaySound(sounds.start.good[soundIndex], 1.0);
         else
@@ -21,6 +23,7 @@ updateState_Start = function(dt)
             audioSystem:PlaySound(sounds.start.bad[soundIndex], 1.0);
         end
         startDelay=20;
+        skiesXAngle=-0.2;
     end
 
     if zPos>0.5 and inAir==false then
@@ -29,6 +32,8 @@ updateState_Start = function(dt)
         --set that player is flying and unset any posible skis contact flags
         inAir=true;
 
+        audioSystem:StopSoundLoop();
+        audioSystem:PlaySoundLoop(sounds.loops[1], 1.0);
         state="InAir";
         skis.left.contact=false;
         skis.right.contact=false;

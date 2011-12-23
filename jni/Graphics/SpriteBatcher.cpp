@@ -303,3 +303,14 @@ void SpriteBatcher::DrawSprite(U8 r, U8 g, U8 b, U8 a, F32 x, F32 y, F32 z,
 
     sprites.push_back(s);
 }
+
+
+void SpriteBatcher::DrawSprite(ITexture *texture, F32 x, F32 y, F32 z, F32 width, F32 height,
+                               TextureRegion texRegion, U8 r, U8 g, U8 b, U8 a, F32 angle) {
+    Sprite s(x, y, z, width, height, angle, texRegion, texture);
+    s.r = r;
+    s.g = g;
+    s.b = b;
+    s.a = a;
+    sprites.push_back(s);
+}

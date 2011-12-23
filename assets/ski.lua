@@ -43,7 +43,9 @@ update_ski = function(dt)
 
     --check collision
     wasCollision=false;
-    while colliderObject:Collide(skis.left.object:GetPosition(), skis.left.contactPoint, skis.left.contactPointNormal) do
+    distanceFromCollider=Vector3();
+
+    while colliderObject:Collide(skis.left.object:GetPosition(), skis.left.contactPoint, skis.left.contactPointNormal, distanceFromCollider) do
         skis.left.object:SetPosition(skis.left.object:GetPosition() + skis.left.contactPointNormal*0.005);
         wasCollision=true;
     end
@@ -68,7 +70,7 @@ update_ski = function(dt)
         --if we were in air
         if inAir==true then
             inAir=false;
-            Log("Position z: " .. skis.left.object:GetPosition().z*7);
+            jumpDistance=skis.left.object:GetPosition().z*7;
         end
     else
         skis.left.contact=false;
@@ -99,7 +101,7 @@ update_ski = function(dt)
 
     --check collision
     wasCollision=false;
-    while colliderObject:Collide(skis.right.object:GetPosition(), skis.right.contactPoint, skis.right.contactPointNormal) do
+    while colliderObject:Collide(skis.right.object:GetPosition(), skis.right.contactPoint, skis.right.contactPointNormal, distanceFromCollider) do
         skis.right.object:SetPosition(skis.right.object:GetPosition() + skis.right.contactPointNormal*0.005);
         wasCollision=true;
     end
@@ -134,12 +136,13 @@ update_ski = function(dt)
         end
     end
 
-
     --update camera position
-    camera:SetPosition((skis.right.object:GetPosition() + skis.left.object:GetPosition())/2 + skis.right.contactPointNormal*0.2);
-    camera:SetVerticalAngle(skis.right.angle);
+    if crash==false then
+        camera:SetPosition((skis.right.object:GetPosition() + skis.left.object:GetPosition())/2 + skis.right.contactPointNormal*0.2);
+        camera:SetVerticalAngle(skis.right.angle);
 
-    if inAir==true then
-        camera:SetVerticalAngle(skis.right.angle-skiesXAngle);
+        if inAir==true then
+            camera:SetVerticalAngle(skis.right.angle-skiesXAngle);
+        end
     end
 end

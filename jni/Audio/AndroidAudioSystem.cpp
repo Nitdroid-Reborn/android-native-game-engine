@@ -8,6 +8,9 @@
 IAudioSystem* IAudioSystem::singleton = NULL;
 
 BufferQueuePlayer AndroidAudioSystem::bufferPlayers[20];
+BufferQueuePlayer AndroidAudioSystem::loopPlayer;
+const ISound* AndroidAudioSystem::loopedSound=0;
+bool AndroidAudioSystem::loop=false;
 vector<int> AndroidAudioSystem::freeBufferPlayers;
 
 AndroidAudioSystem::AndroidAudioSystem() {
@@ -53,6 +56,9 @@ bool AndroidAudioSystem::Initialize() {
     for(int i=0;i<20;i++) {
         CreateBufferQueuePlayer(bufferPlayers[i]);
     }
+
+    CreateBufferQueuePlayer(loopPlayer);
+
     //mark all sound players as free
     freeBufferPlayers.resize(20);
     for(int i=0;i<20;i++) {
@@ -77,6 +83,9 @@ bool AndroidAudioSystem::Initialize() {
             .def("SetMusicVolume", &IAudioSystem::SetMusicVolume)
             .def("PlaySound", ( void (IAudioSystem::*)(const ISound*, F32))&IAudioSystem::PlaySound)
             .def("PlaySound", ( void (IAudioSystem::*)(const SoundHandle&, F32))&IAudioSystem::PlaySound)
+            .def("PlaySoundLoop", ( void (IAudioSystem::*)(const ISound*, F32))&IAudioSystem::PlaySoundLoop)
+            .def("PlaySoundLoop", ( void (IAudioSystem::*)(const SoundHandle&, F32))&IAudioSystem::PlaySoundLoop)
+            .def("StopSoundLoop", &IAudioSystem::StopSoundLoop)
             .scope
             [
                 luabind::def("Get", IAudioSystem::get)
@@ -112,6 +121,12 @@ bool AndroidAudioSystem::Release() {
             bufferPlayers[i].bqPlayerVolume = NULL;
         }
     }
+    (*(loopPlayer.bqPlayerObject))->Destroy(loopPlayer.bqPlayerObject);
+    loopPlayer.bqPlayerBufferQueue = NULL;
+    loopPlayer.bqPlayerObject = NULL;
+    loopPlayer.bqPlayerPlay = NULL;
+    loopPlayer.bqPlayerVolume = NULL;
+
 
     // destroy output mix object, and invalidate all associated interfaces
     if (outputMixObject != NULL) {
@@ -186,6 +201,10 @@ void AndroidAudioSystem::BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, 
             break;
     }
 
+    if(fb == loopPlayer.bqPlayerBufferQueue && loop) {
+        (*loopPlayer.bqPlayerBufferQueue)->Enqueue(loopPlayer.bqPlayerBufferQueue, loopedSound->GetData(), loopedSound->GetDataLength());
+    }
+
     if(i<20) {
         //mark it as free
         freeBufferPlayers.push_back(i);
@@ -217,6 +236,33 @@ void AndroidAudioSystem::PlaySound(const SoundHandle& handle, F32 volume) {
     //if handle was correct
     if(s!=NULL)
         PlaySound(s, volume);
+}
+
+void AndroidAudioSystem::PlaySoundLoop(const ISound*s, F32 volume) {
+
+    loopedSound = s;
+
+    loop = true;
+
+    volume = 1.0f - volume;
+    volume = pow(volume, 5);
+
+    (*loopPlayer.bqPlayerVolume)->SetVolumeLevel(loopPlayer.bqPlayerVolume, (I16)(volume*(SL_MILLIBEL_MIN)));
+
+    (*loopPlayer.bqPlayerBufferQueue)->Enqueue(loopPlayer.bqPlayerBufferQueue, s->GetData(), s->GetDataLength());
+}
+
+void AndroidAudioSystem::PlaySoundLoop(const SoundHandle& h, F32 volume) {
+    const ISound* s = h.Get();
+
+    //if handle was correct
+    if(s!=NULL)
+        PlaySoundLoop(s, volume);
+}
+
+void AndroidAudioSystem::StopSoundLoop() {
+    (*loopPlayer.bqPlayerBufferQueue)->Clear(loopPlayer.bqPlayerBufferQueue);
+    loop = false;
 }
 
 void AndroidAudioSystem::PlayMusic(const char *filename, F32 volume) {

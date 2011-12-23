@@ -98,10 +98,16 @@ bool Collider::Collide(const Vector3 & point, CollisionObject& co)
     
     Triangle * triangle = m_triangles[x][z];
     CollisionObject col;
+    float minDistance=50000;
     while(triangle != 0)
     {
 
-        if(triangle->Collide(point, co))
+        bool collision = triangle->Collide(point, co);
+        if(co.distance!=-1) {
+            if(co.distance<minDistance)
+                minDistance=co.distance;
+        }
+        if(collision)
         {
             return true;
         }
@@ -109,6 +115,7 @@ bool Collider::Collide(const Vector3 & point, CollisionObject& co)
         triangle = triangle->next;
     }
 
+    co.distance=minDistance;
     return false;
 }
 
@@ -173,21 +180,29 @@ void Collider::Triangle::Init()
 bool Collider::Triangle::Collide(const Vector3 &point, CollisionObject& result)
 {
 
+    result.distance=-1;
     if(normal == Vector3())return false;
     float distance = normal.DotProduct(point) + d;
     Vector3 p = point;
     
-    if(distance > 0)
-        return 0;
+    bool possible=false;
+    if(distance > 0) {
+        p = p+distance*normal;
+    }
+    else {
+        possible=true;
+        p = p - distance * normal;
+    }
     
-    p = p - distance * normal;
+
     
     if(SameSide(p, v2, v1, v0) && SameSide(p, v0, v2, v1) && SameSide(p, v1, v0, v2))
     {
         result.position = p;
         result.normal = normal;
-        
-        return true;
+        result.distance = distance;
+        if(possible)
+            return true;
     }
     
     return false;

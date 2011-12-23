@@ -11,7 +11,7 @@ PhysicalGameObject::~PhysicalGameObject() {
         delete collider;
 }
 
-bool PhysicalGameObject::Collide(const Vector3 &point, Vector3& pos, Vector3& normal) {
+bool PhysicalGameObject::Collide(const Vector3 &point, Vector3& pos, Vector3& normal, Vector3& distance) {
 
     Matrix4x4 translation;
     Matrix4x4 rotation;
@@ -29,11 +29,14 @@ bool PhysicalGameObject::Collide(const Vector3 &point, Vector3& pos, Vector3& no
     CollisionObject result;
 
     bool col = collider->Collide(pointInModelSpace, result);
+    distance.y = result.distance;
     if(col) {
         pos = worldMatrix*result.position;
         Vector4 normal4 = Vector4(result.normal, 0);
         normal4 = worldMatrix*normal4;
         normal = result.normal;//Vector3(normal4.x, normal4.y, normal4.z);
+
     }
     return col;
 }
+

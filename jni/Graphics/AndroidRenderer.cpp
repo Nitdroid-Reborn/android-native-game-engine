@@ -247,7 +247,8 @@ void AndroidRenderer::Initialize() {
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, U8, U8, U8, U8, F32))&IRenderer::DrawSprite)
             .def("DrawSprite", (void (IRenderer::*)(F32, F32, F32, F32, F32, TextureRegion&, TextureHandle&, F32))&IRenderer::DrawSprite)
-            .def("DrawString", &IRenderer::DrawString)
+            .def("DrawString", (void (IRenderer::*)(int, int, const char* ))&IRenderer::DrawString)
+            .def("DrawString", (void (IRenderer::*)(int, int, const char*, U8, U8, U8 ))&IRenderer::DrawString)
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, const ShaderParametersList*, bool))&IRenderer::DrawGeometry)
             .def("DrawGeometry", (void (IRenderer::*)(ModelGeometryHandle, const Matrix4x4 &, ShaderProgramHandle, bool))&IRenderer::DrawGeometry)
             .def("GetCamera", &IRenderer::GetCamera)
@@ -475,10 +476,17 @@ void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height,
     batcher->DrawSprite(r, g, b, a, x, y, layer, width, height, angle);
 }
 
+void AndroidRenderer::DrawSprite(F32 x, F32 y, F32 layer, F32 width, F32 height, TextureRegion& region, TextureHandle& handle, U8 r, U8 g, U8 b, U8 a, F32 angle) {
+    batcher->DrawSprite(handle.Get(), x, y, layer, width, height, region, r, g, b, a, angle);
+}
+
 void AndroidRenderer::DrawString(int x, int y, const char * str) {
     textBox.DrawStr(x, y, (char*)str);
 }
 
+void AndroidRenderer::DrawString(int x, int y, const char * str, U8 r, U8 g, U8 b) {
+    textBox.DrawStr(x, y, (char*)str, r, g, b);
+}
 
 void AndroidRenderer::DrawGeometry(ModelGeometryHandle geometry, const Matrix4x4 &worldMatrix,
                               ShaderProgramHandle shaderProgram, const ShaderParametersList* shaderParameters,

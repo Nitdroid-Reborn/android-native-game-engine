@@ -24,6 +24,7 @@
 #include <Audio/AndroidAudioSystem.h>
 #include <Scripts/Script.h>
 #include <GameObject/GameObjectManager.h>
+#include "JNICommunication.h"
 //#include "Box2D/Box2D.h"
 
 
@@ -101,6 +102,8 @@ private:
 
     VirtualSingleKey* centerKey;
     VirtualDPad* dpad;
+
+    JNICommunication* jniInterface;
 
     /// Flags indicating if engine is running or is quitting
     bool isRunning;

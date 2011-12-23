@@ -13,7 +13,7 @@ public:
 
     ~PhysicalGameObject();
 
-    bool Collide(const Vector3& point, Vector3 &pos, Vector3 &normal);
+    bool Collide(const Vector3& point, Vector3 &pos, Vector3 &normal, Vector3& distance);
 
 protected:
     Collider* collider;

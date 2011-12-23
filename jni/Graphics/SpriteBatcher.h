@@ -64,6 +64,9 @@ public:
     void DrawSprite(U8 r, U8 g, U8 b, U8 a, F32 x, F32 y, F32 z, F32 width, F32 height,
                     F32 angle=0.0f);
 
+    void DrawSprite(ITexture* texture, F32 x, F32 y, F32 z, F32 width, F32 height,
+                    TextureRegion texRegion, U8 r, U8 g, U8 b, U8 a, F32 angle=0.0f);
+
     void SwapSpriteBuffer();
 
     void Bind();

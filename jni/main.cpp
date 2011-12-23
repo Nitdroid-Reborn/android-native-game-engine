@@ -145,7 +145,7 @@ void ReleaseWakeLock(android_app* app) {
 }
 
 
-void SendToServer(android_app* app) {
+/*void SendToServer(android_app* app) {
 
 
     JavaVM* lJavaVM = app->activity->vm;
@@ -164,11 +164,11 @@ void SendToServer(android_app* app) {
     jobject lNativeActivity = app->activity->clazz;
     jclass ClassNativeActivity = lJNIEnv->GetObjectClass(lNativeActivity);
 
-    jmethodID method = lJNIEnv->GetMethodID(ClassNativeActivity, "SendToServer", "()V");
-    lJNIEnv->CallVoidMethod(lNativeActivity, method);
+    jmethodID method = lJNIEnv->GetMethodID(ClassNativeActivity, "SendToServer", "(I)V");
+    lJNIEnv->CallVoidMethod(lNativeActivity, method, );
 
     lJavaVM->DetachCurrentThread();
-}
+}*/
 
 
 
@@ -287,7 +287,7 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
 
             if(engineKeyEvent.action == ENGINE_KEYACTION_DOWN && engineKeyEvent.keyCode == ENGINE_KEYCODE_MENU) {
                     Logger::Log("send");
-                SendToServer(app);
+                //SendToServer(app);
                 return 1;
             }
 
@@ -325,7 +325,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 
 
         case APP_CMD_GAINED_FOCUS:
-            engine->OnGainedFocus();
+
             if (accelerometerSensor != NULL) {
                 ASensorEventQueue_enableSensor(sensorEventQueue,
                         accelerometerSensor);
@@ -334,6 +334,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
                         accelerometerSensor, (1000L/60)*1000);
             }
             AcquireWakeLock(app);
+            engine->OnGainedFocus();
             break;
 
 

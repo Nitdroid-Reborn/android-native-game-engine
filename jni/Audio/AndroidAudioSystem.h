@@ -37,6 +37,10 @@ public:
     void PlaySound(const ISound*s, F32 volume);
     void PlaySound(const SoundHandle& handle, F32 volume);
 
+    void PlaySoundLoop(const ISound*s, F32 volume);
+    void PlaySoundLoop(const SoundHandle&h, F32 volume);
+    void StopSoundLoop();
+
 private:
     //callback of buffer playback end, it marks music player as free
     static void BufferPlayerCallback(SLAndroidSimpleBufferQueueItf fb, void* context);
@@ -58,9 +62,12 @@ private:
 
     //sound players
     static BufferQueuePlayer bufferPlayers[20];
+    static BufferQueuePlayer loopPlayer;
     //list of free sound players
     static vector<int> freeBufferPlayers;
 
+    static const ISound* loopedSound;
+    static bool loop;
 
     U16 maxVolumeLevel;
 };

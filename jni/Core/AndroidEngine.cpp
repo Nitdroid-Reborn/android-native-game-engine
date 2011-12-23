@@ -84,11 +84,14 @@ void AndroidEngine::Initialize() {
     centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 700, 80, 50);
     dpad = new VirtualDPad(125, 125, 100, 25);
     virtualInputSystem = new VirtualInput();
-    virtualInputSystem->AddKey(centerKey);
-    virtualInputSystem->AddKey(dpad);
+    //virtualInputSystem->AddKey(centerKey);
+    //virtualInputSystem->AddKey(dpad);
 
     gameObjectManager = new GameObjectManager();
     gameObjectManager->Initialize();
+
+
+    jniInterface = new JNICommunication(app);
 
     volume = 1.0f;
     angle = 0.0f;
@@ -111,8 +114,11 @@ void AndroidEngine::Initialize() {
     ScriptManager* manager = ScriptManager::Get();
 
     luabind::module(manager->getState()) [
-
             luabind::def("Log", &Logger::LuaLog)
+    ];
+
+    luabind::module(manager->getState()) [
+            luabind::def("SendResultToServer", &JNICommunication::SendResult)
     ];
 
 
@@ -169,6 +175,9 @@ void AndroidEngine::Release() {
     delete fileIOSystem;
     fileIOSystem = NULL;
 
+    delete jniInterface;
+    jniInterface=NULL;
+
    // mutex.UnlockQuasiFIFO();
 }
 
@@ -188,6 +197,8 @@ void AndroidEngine::ProcessKeyInput(const KeyEvent& event) {
 
 void AndroidEngine::OnGainedFocus() {
     isRunning = 1;
+    currentTime = GetCurrentTimeInMsec();
+    lastTime = currentTime;
     renderer->OnGainedFocus();
 }
 

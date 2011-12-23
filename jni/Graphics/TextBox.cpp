@@ -60,3 +60,41 @@ void TextBox::DrawStr(int x, int y, char *string) {
     }
 }
 
+
+void TextBox::DrawStr(int x, int y, char *string, U8 r, U8 g, U8 b) {
+    int cursorX;
+    int cursorY;
+    const char* cP;
+
+    IRenderer*renderer= IRenderer::get();
+
+    cursorX = x;
+    cursorY = y;
+    cP = (const char*)string;
+
+    while (*cP != '\0') {
+        // Visible characters
+        if ( 32 <= *cP && *cP<=126) {
+
+            char ch = *cP;
+
+            TextureRegion region(font->glyphs[ch].u1,
+                                 font->glyphs[ch].v1,
+                                 font->glyphs[ch].u2,
+                                 font->glyphs[ch].v2);
+
+
+            renderer->DrawSprite((F32)(cursorX + font->glyphs[ch].left + font->glyphs[ch].w/2), (F32)(cursorY + (font->glyphs[ch].top - font->glyphs[ch].h) + font->glyphs[ch].h/2),
+                                 PROFILER_LAYER,
+                                 (F32)(font->glyphs[ch].w), (F32)(font->glyphs[ch].h), region, font->fontTexture, r,g,b, 255);
+
+
+            cursorX += font->glyphs[ch].advance;
+        }
+        if ( *cP == '\n' ) {
+                cursorX = x;
+                cursorY -= font->maxGlyphHeight*1.1;
+        }
+        cP++;
+    }
+}

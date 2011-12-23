@@ -49,6 +49,7 @@ public class SkiJumpSendScoreActivity extends Activity
         Intent data = getIntent();
         mPlayerScore = data.getIntExtra(INDATA_SCORE, -1);
         mPlayerDefName = data.getStringExtra(INDATA_NAME);
+        
 
         if (mPlayerDefName != null && mPlayerDefName.length() > 0)
         {
@@ -81,6 +82,9 @@ public class SkiJumpSendScoreActivity extends Activity
         }
         else
         {
+        	/*boolean r = AddScore(name, mPlayerScore);
+            setResult(r ? RESULT_SUCCESS : RESULT_ERROR);
+            finish();*/
             Thread t = new Thread()
             {
                 public void run()

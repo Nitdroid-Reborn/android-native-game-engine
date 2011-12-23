@@ -52,6 +52,12 @@ public:
       */
     virtual void PlaySound(const SoundHandle& handle, F32 volume=1.0f)=0;
 
+
+    virtual void PlaySoundLoop(const ISound*s, F32 volume)=0;
+    virtual void PlaySoundLoop(const SoundHandle&h, F32 volume)=0;
+    virtual void StopSoundLoop()=0;
+
+
     //! Returns instance of audio subsystem
     static IAudioSystem* get(){return singleton;}
 
