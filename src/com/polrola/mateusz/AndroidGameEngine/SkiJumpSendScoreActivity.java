@@ -14,8 +14,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -40,12 +43,18 @@ public class SkiJumpSendScoreActivity extends Activity
     private String mPlayerDefName = "";
     private int mPlayerScore = -1;
 
+    private WakeLock wakeLock;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_hiscores);
 
+        Context context = (Context)this;
+		PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "native-activity");
+		
         Intent data = getIntent();
         mPlayerScore = data.getIntExtra(INDATA_SCORE, -1);
         mPlayerDefName = data.getStringExtra(INDATA_NAME);
@@ -56,10 +65,23 @@ public class SkiJumpSendScoreActivity extends Activity
             ((EditText) findViewById(R.id.hiscores_name))
                     .setText(mPlayerDefName);
         }
-        
+
         setResult(RESULT_CANCELED);
     }
 
+    @Override
+    protected void onResume() {
+    	// TODO Auto-generated method stub
+    	super.onResume();
+    	wakeLock.acquire();
+    }
+    @Override
+    protected void onPause() {
+    	// TODO Auto-generated method stub
+    	super.onPause();
+    	wakeLock.release();
+    }
+    
     public void onBtnSend(View v)
     {
         EditText inputName = (EditText) findViewById(R.id.hiscores_name);
@@ -155,7 +177,7 @@ public class SkiJumpSendScoreActivity extends Activity
                 
                 if (success)
                 {
-                    Log.d(TAG, "Server returned: " + responseString);
+                    //Log.d(TAG, "Server returned: " + responseString);
                 }
                 else
                 {

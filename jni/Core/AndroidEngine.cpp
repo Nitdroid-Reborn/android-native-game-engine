@@ -51,9 +51,6 @@ AndroidEngine::AndroidEngine(android_app* app) : IEngine()
     if (app->savedState != NULL) {
         state = *(struct saved_state*)app->savedState;
     }
-
-
-    //
 }
 
 AndroidEngine::~AndroidEngine() {
@@ -90,19 +87,11 @@ void AndroidEngine::Initialize() {
     gameObjectManager = new GameObjectManager();
     gameObjectManager->Initialize();
 
-
     jniInterface = new JNICommunication(app);
 
     volume = 1.0f;
     angle = 0.0f;
 
-
-    //audioSystem->PlayMusic("/sdcard/music.mp3", 1.0);
-
- //   sound1 = contentManager->GetSoundManager()->GetSound("/sdcard/violin.wav");
-
-
-    texture = IContentManager::get()->GetTextureManager()->GetTexture(":logo.png");
 
     lastTime = GetCurrentTimeInMsec();
 
@@ -125,9 +114,13 @@ void AndroidEngine::Initialize() {
             luabind::def("Vibrate", &JNICommunication::Vibrate)
     ];
 
+    luabind::module(manager->getState()) [
+            luabind::def("ShowMenu", &JNICommunication::ShowMenu)
+    ];
 
 
-    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":script.lua");
+
+    ScriptSourceHandle scr = contentManager->GetScriptSourceManager()->GetScriptSource(":scripts/script.lua");
     script = new Script();
     script->Run(scr.Get());
 
@@ -144,7 +137,6 @@ void AndroidEngine::Release() {
     script = NULL;
 
     gameObjectManager->Release();
-    contentManager->GetTextureManager()->ReleaseTexture(texture);
 
     audioSystem->StopMusic();
 

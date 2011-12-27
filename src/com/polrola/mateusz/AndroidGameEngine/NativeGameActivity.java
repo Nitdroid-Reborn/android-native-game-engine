@@ -42,7 +42,6 @@ public class NativeGameActivity extends NativeActivity {
 	}
 	
 	public void SendToServer(int distance) {
-		Log.d("native-activity", "Data send");
 		Intent in = new Intent(this, SkiJumpSendScoreActivity.class);
         in.putExtra(SkiJumpSendScoreActivity.INDATA_SCORE, (int)((float)distance/10));
         startActivityForResult(in, REQUESTCODE_SKIJUMP);
@@ -50,6 +49,12 @@ public class NativeGameActivity extends NativeActivity {
 	
 	public void Vibrate(int miliseconds) {
 		vibrator.vibrate(miliseconds);
+	}
+	
+	public void ShowMenu() {
+		Intent in = new Intent(this, MainMenu.class);
+		in.putExtra(MainMenu.INDATA_ENABLE_NEWGAME_BUTTON, (boolean)false);
+		startActivity(in);
 	}
 	
 	static {

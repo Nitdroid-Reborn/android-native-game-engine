@@ -10,6 +10,7 @@ public:
 
     static void SendResult(float distance);
     static void Vibrate(unsigned int miliseconds);
+    static void ShowMenu();
 
 private:
     static android_app* app;

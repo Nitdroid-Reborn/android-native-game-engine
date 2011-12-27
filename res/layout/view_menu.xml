@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/main_bg_gradient"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:layout_width="213dp"
+            android:layout_height="123dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="30dp" />
+
+        <Button
+            style="@style/Btn"
+            android:id="@+id/new_game_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/menu_bar_mid"
+            android:onClick="onBtnNewGame"
+            android:text="Nowa gra" />
+
+        <Button
+            style="@style/Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/menu_bar_mid"
+            android:onClick="onBtnCredits"
+            android:text="Autorzy" />
+
+        <Button
+            style="@style/Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/menu_bar_bottom"
+            android:onClick="onBtnExit"
+            android:text="Wyjście" />
+    </LinearLayout>
+
+</LinearLayout>

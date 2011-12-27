@@ -84,22 +84,31 @@ void AndroidRenderer::InitWindow() {
 
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-    eglInitialize(display, 0, 0);
+    if(display==EGL_NO_DISPLAY)
+        exit(1);
+
+    if(eglInitialize(display, 0, 0)==EGL_FALSE)
+        exit(1);
 
     /* Here, the application chooses the configuration it desires. In this
      * sample, we have a very simplified selection process, where we pick
      * the first EGLConfig that matches our criteria */
-    eglChooseConfig(display, attribs, &config, 1, &numConfigs);
+    if(eglChooseConfig(display, attribs, &config, 1, &numConfigs)==EGL_FALSE)
+        exit(1);
 
     /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
      * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
      * As soon as we picked a EGLConfig, we can safely reconfigure the
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+    if(eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format)==EGL_FALSE)
+        exit(1);
 
     ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
 
     surface = eglCreateWindowSurface(display, config, app->window, NULL);
+
+    if(surface==EGL_NO_SURFACE)
+        exit(1);
 
     const AndroidContentManager* manager = (const AndroidContentManager*)IContentManager::get();
 
@@ -110,6 +119,9 @@ void AndroidRenderer::InitWindow() {
 
 
     context = eglCreateContext(display, config, manager->GetEGLContext(), attrib_list);
+
+    if(context==EGL_NO_CONTEXT)
+        exit(1);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         Logger::Log("Unable to eglMakeCurrent");
@@ -193,7 +205,7 @@ void AndroidRenderer::Initialize() {
 
     SpriteBatcher::batcherProfileManager = &rendererProfileManager;
 
-    myFont.Load("/sdcard/Verdana.ttf", 15);
+    myFont.Load("/system/fonts/DroidSans.ttf", 15);
 
 
     textBox.font = &myFont;
@@ -300,7 +312,7 @@ void AndroidRenderer::Initialize() {
             .def("Clear", &ShaderParametersList::Clear)
     ];
 
-    ScriptSourceHandle initGraphicsScriptSrc = IContentManager::get()->GetScriptSourceManager()->GetScriptSource(":initGraphics.lua");
+    ScriptSourceHandle initGraphicsScriptSrc = IContentManager::get()->GetScriptSourceManager()->GetScriptSource(":scripts/initGraphics.lua");
     Script initGraphicsScript;
     initGraphicsScript.Run(initGraphicsScriptSrc.Get());
 

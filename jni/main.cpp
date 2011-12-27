@@ -285,12 +285,6 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
             else
                 engineKeyEvent.action = ENGINE_KEYACTION_UP;
 
-            if(engineKeyEvent.action == ENGINE_KEYACTION_DOWN && engineKeyEvent.keyCode == ENGINE_KEYCODE_MENU) {
-                    Logger::Log("send");
-                //SendToServer(app);
-                return 1;
-            }
-
 
             engine->ProcessKeyInput(engineKeyEvent);
 

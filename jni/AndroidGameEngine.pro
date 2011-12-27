@@ -350,16 +350,16 @@ HEADERS += \
 
 OTHER_FILES += \
     Android.mk \
-    ../assets/script.lua \
+    ../assets/scripts/script.lua \
     Application.mk \
     desktop-build/script.lua \
     desktop-build/ski.lua \
-    ../assets/ski.lua \
-    ../assets/inair.lua \
-    ../assets/start.lua \
-    ../assets/crash.lua \
-    ../assets/landing.lua \
-    ../assets/beforeStart.lua
+    ../assets/scripts/ski.lua \
+    ../assets/scripts/inair.lua \
+    ../assets/scripts/start.lua \
+    ../assets/scripts/crash.lua \
+    ../assets/scripts/landing.lua \
+    ../assets/scripts/beforeStart.lua
 
 
 

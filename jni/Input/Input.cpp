@@ -124,7 +124,7 @@ bool Input::Initialize() {
                 luabind::value("KEY_SLASH", 55),
                 luabind::value("KEY_AT", 56),
                 luabind::value("KEY_PLUS", 57),
-                luabind::value("KEY_MINUS", 58),
+                luabind::value("KEY_MENU", 58),
                 luabind::value("KEY_ESCAPE", 59)
             ]
 
