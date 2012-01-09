@@ -37,6 +37,42 @@ AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
     terminateWindow = false;
     closing = false;
     active = true;
+    fbo=0;
+    fboVBO=0;
+
+    fullScreenQuadVertices[0].position[0] = -1;
+    fullScreenQuadVertices[0].position[1] = 1;
+    fullScreenQuadVertices[0].position[2] = 0;
+    fullScreenQuadVertices[0].texCoords[0] = 0;
+    fullScreenQuadVertices[0].texCoords[1] = 1;
+
+
+    fullScreenQuadVertices[1].position[0] = -1;
+    fullScreenQuadVertices[1].position[1] = -1;
+    fullScreenQuadVertices[1].position[2] = 0;
+    fullScreenQuadVertices[1].texCoords[0] = 0;
+    fullScreenQuadVertices[1].texCoords[1] = 0;
+
+    fullScreenQuadVertices[2].position[0] = 1;
+    fullScreenQuadVertices[2].position[1] = -1;
+    fullScreenQuadVertices[2].position[2] = 0;
+    fullScreenQuadVertices[2].texCoords[0] = 1;
+    fullScreenQuadVertices[2].texCoords[1] = 0;
+
+    fullScreenQuadVertices[3].position[0] = 1;
+    fullScreenQuadVertices[3].position[1] = 1;
+    fullScreenQuadVertices[3].position[2] = 0;
+    fullScreenQuadVertices[3].texCoords[0] = 1;
+    fullScreenQuadVertices[3].texCoords[1] = 1;
+
+
+
+    fullScreenQuadIndices[0] = 0;
+    fullScreenQuadIndices[1] = 1;
+    fullScreenQuadIndices[2] = 2;
+    fullScreenQuadIndices[3] = 2;
+    fullScreenQuadIndices[4] = 3;
+    fullScreenQuadIndices[5] = 0;
 
 }
 
@@ -154,6 +190,17 @@ void AndroidRenderer::InitWindow() {
     camera->SetProjection(54, (float)w/(float)h, 0.1, 1000.0f);
 
 
+    if(fbo)
+        delete fbo;
+    fbo = new FrameBufferObject(w,h,GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+
+    if(fboVBO)
+        delete fboVBO;
+    fboVBO = new VBO();
+    fboVBO->SetData(4, &fullScreenQuadVertices[0],
+                    6, &fullScreenQuadIndices[0]);
+
+
     mainThreadCamera->Clone(camera);
 
     glEnable(GL_BLEND);
@@ -171,8 +218,7 @@ void AndroidRenderer::InitWindow() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     angle=0.0f;
-
-
+    shaderProgram = IContentManager::get()->GetShaderProgramManager()->GetShaderProgram("fullscreen");
     contextValid=true;
 }
 
@@ -191,8 +237,6 @@ void AndroidRenderer::TerminateWindow() {
     display = EGL_NO_DISPLAY;
     context = EGL_NO_CONTEXT;
     surface = EGL_NO_SURFACE;
-
-
 }
 
 void AndroidRenderer::Initialize() {
@@ -342,6 +386,12 @@ void AndroidRenderer::Release() {
     delete mainThreadCamera;
 
     camera = mainThreadCamera = NULL;
+
+    if(fbo)
+        delete fbo;
+    if(fboVBO)
+        delete fboVBO;
+
     mutex.Unlock();
 }
 
@@ -382,6 +432,8 @@ void AndroidRenderer::Run() {
 
                     //if(contextValid) {
 
+                    //fbo->Bind();
+
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
@@ -401,6 +453,27 @@ void AndroidRenderer::Run() {
                     }
 
 
+                   /* fbo->Release();
+
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                    fboVBO->Bind();
+                    ShaderProgram* sp = shaderProgram.Get();
+                    sp->Bind();
+                    sp->EnableAttributeArray("vPosition");
+                    sp->EnableAttributeArray("vTexCoords");
+                    sp->EnableAttributeArray("vColor");
+                    sp->SetAttributeArray(fboVBO);
+                    Vector3 diff = camera->GetPosition() - cameraLastPos;
+                    sp->SetUniformValue("speed", diff.GetLength());
+
+                    glBindTexture(GL_TEXTURE_2D, fbo->Texture());
+                    fboVBO->Draw(0, 2);
+
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                    sp->Release();
+                    fboVBO->Release();*/
+
                     {
                        PROFILE("Batch", &rendererProfileManager);
 
@@ -413,6 +486,8 @@ void AndroidRenderer::Run() {
                        glEnable(GL_DEPTH_TEST);
 
                     }
+
+                    cameraLastPos = camera->GetPosition();
 
                     angle+=1.1;
 

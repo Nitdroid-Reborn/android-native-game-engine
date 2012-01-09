@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/menu_bar_mid"
             android:clickable="false"
-            android:text="Tomasz Dudziński" />
+            android:text="Tomasz Dubiński" />
 
         <Button
             style="@style/Btn"

@@ -15,6 +15,7 @@
 #include "Font.h"
 #include "Camera.h"
 #include "ShaderParameter.h"
+#include "FrameBufferObject.h"
 
 using namespace std;
 
@@ -107,6 +108,13 @@ private:
 
     std::vector<GeometryInstance> alphaGeometry;
     std::vector<GeometryInstance> oldAlphaGeometry;
+
+    FrameBufferObject* fbo;
+    VBO* fboVBO;
+    Vertex3D fullScreenQuadVertices[4];
+    U16 fullScreenQuadIndices[6];
+    ShaderProgramHandle shaderProgram;
+    Vector3 cameraLastPos;
 };
 
 #endif // ANDROIDRENDERER_H

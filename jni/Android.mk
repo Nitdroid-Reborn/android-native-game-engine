@@ -120,7 +120,8 @@ LOCAL_SRC_FILES := main.cpp \
                    GameObject/PhysicalGameObject.cpp \
                    Physics/Collider.cpp \
                    Utils/Hash.cpp \
-                   Core/JNICommunication.cpp
+                   Core/JNICommunication.cpp \
+                   Graphics/FrameBufferObject.cpp
 
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz

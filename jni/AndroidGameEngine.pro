@@ -140,7 +140,8 @@ SOURCES += DesktopMain.cpp \
     GameObject/GameObjectManager.cpp \
     GameObject/RenderableGameObject.cpp \
     GameObject/PhysicalGameObject.cpp \
-    Core/JNICommunication.cpp
+    Core/JNICommunication.cpp \
+    Graphics/FrameBufferObject.cpp
 
 
 HEADERS += \
@@ -346,7 +347,8 @@ HEADERS += \
     GameObject/GameObjectManager.h \
     GameObject/RenderableGameObject.h \
     GameObject/PhysicalGameObject.h \
-    Core/JNICommunication.h
+    Core/JNICommunication.h \
+    Graphics/FrameBufferObject.h
 
 OTHER_FILES += \
     Android.mk \
@@ -360,6 +362,8 @@ OTHER_FILES += \
     ../assets/scripts/crash.lua \
     ../assets/scripts/landing.lua \
     ../assets/scripts/beforeStart.lua
+
+
 
 
 

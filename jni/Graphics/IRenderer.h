@@ -15,6 +15,7 @@
 #define VIRTUAL_INPUT_LAYER_2 1.9
 #define PROFILER_LAYER_BG 1
 #define PROFILER_LAYER 0
+#define FBO_LAYER -1
 
 class IRenderer : public Thread
 {

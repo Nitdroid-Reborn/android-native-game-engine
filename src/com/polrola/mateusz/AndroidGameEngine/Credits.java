@@ -19,3 +19,4 @@ public class Credits extends Activity
         setContentView(R.layout.view_credits);
     }
 }
+
