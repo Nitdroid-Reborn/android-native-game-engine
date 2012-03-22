@@ -76,6 +76,8 @@ private:
     Mutex mutex;
     Mutex queueMutex;
     bool active;
+    bool pause;
+    Mutex pauseMutex;
 
     EGLDisplay display;
     EGLSurface surface;

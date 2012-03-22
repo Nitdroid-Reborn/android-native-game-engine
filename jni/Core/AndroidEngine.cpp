@@ -22,7 +22,7 @@ static int profileCounter = 0;
 ProfilerManager mainLoopProfileManager;
 
 
-static void gluPerspective(GLfloat fovy, GLfloat aspect,
+/*static void gluPerspective(GLfloat fovy, GLfloat aspect,
                            GLfloat zNear, GLfloat zFar)
 {
     GLfloat xmin, xmax, ymin, ymax;
@@ -36,7 +36,7 @@ static void gluPerspective(GLfloat fovy, GLfloat aspect,
                (GLfixed)(ymin * 65536), (GLfixed)(ymax * 65536),
                (GLfixed)(zNear * 65536), (GLfixed)(zFar * 65536));
 }
-
+*/
 
 AndroidEngine::AndroidEngine(android_app* app) : IEngine()
 {
@@ -144,6 +144,7 @@ void AndroidEngine::Release() {
     delete scriptManager;
     scriptManager = NULL;
 
+    renderer->OnGainedFocus();
     renderer->Release();
     renderer->WaitForStop();
     delete renderer;

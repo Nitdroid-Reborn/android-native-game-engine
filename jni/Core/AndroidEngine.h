@@ -11,7 +11,6 @@
 #include <Input/Input.h>
 #include <android_native_app_glue.h>
 #include <android/log.h>
-#include "MyModel.h"
 #include <time.h>
 #include "VirtualInput/VirtualInput.h"
 #include "VirtualInput/VirtualSingleKey.h"

@@ -39,6 +39,7 @@ AndroidRenderer::AndroidRenderer(android_app* app) : IRenderer()
     active = true;
     fbo=0;
     fboVBO=0;
+    pause=false;
 
     fullScreenQuadVertices[0].position[0] = -1;
     fullScreenQuadVertices[0].position[1] = 1;
@@ -91,14 +92,15 @@ void AndroidRenderer::OnTerminateWindow() {
 
 void AndroidRenderer::OnGainedFocus() {
     mutex.Lock();
-    //active = true;
-  //  pauseConditionalVariable.Signal();
+    pause = false;
+    pauseMutex.Unlock();
     mutex.Unlock();
 }
 
 void AndroidRenderer::OnLostFocus() {
     mutex.Lock();
-    //active = false;
+    pauseMutex.Lock();
+    pause=true;
     mutex.Unlock();
 }
 
@@ -378,6 +380,7 @@ void AndroidRenderer::Release() {
     myFont.Dispose();
     usleep(500);
     closing = true;
+    pause=false;
     delete batcher;
     batcher = NULL;
     singleton = NULL;
@@ -400,23 +403,24 @@ void AndroidRenderer::Run() {
    // lastTime = getCurrentTimeInMsec();
     while(1) {
          mutex.Lock();
-
             if(closing) {
                 TerminateWindow();
                 mutex.Unlock();
                 Logger::Log(1, "Android Renderer released");
                 return;
-            }
-
-            if(initWindow) {
+            }else if(initWindow) {
                 InitWindow();
 
                 initWindow=false;
-            }
-
-            if(terminateWindow) {
+            } else if(terminateWindow) {
                 TerminateWindow();
                 terminateWindow = false;
+            } else if(pause) {
+                Logger::Log(1, "Android Renderer paused");
+                mutex.Unlock();
+                pauseMutex.Lock();
+                mutex.Lock();
+                pauseMutex.Unlock();
             }
 
             if(contextValid) {

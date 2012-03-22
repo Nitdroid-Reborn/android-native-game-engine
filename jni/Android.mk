@@ -5,6 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_C_INCLUDES := Scripts/lua/ Scripts/
 LOCAL_MODULE    := android-game-engine
 LOCAL_CPPFLAGS += -fexceptions
+LOCAL_EXPORT_CFLAGS += -g
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
                    Utils/Utils.cpp \

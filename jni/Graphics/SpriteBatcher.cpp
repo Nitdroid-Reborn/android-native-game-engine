@@ -107,8 +107,11 @@ void SpriteBatcher::EndBatch() {
 
     for(it; it!=oldSprites.end(); ++it) {
 
-        if(currentTexture != (*it).texture) {
+        if(currentTexture != (*it).texture || verticesIndex>=maxSprites) {
 
+            if(verticesIndex>=maxSprites) {
+                Logger::Log("sru");
+            }
 
             vbo->SetData((int)verticesIndex, &vertices[0],
                          (int)numIndices, &indices[0]);
@@ -207,7 +210,6 @@ void SpriteBatcher::EndBatch() {
             vertices[verticesIndex++].color[3] = (*it).a;
 
             numSprites++;
-
         }
         else {
             float x1 = (*it).x - halfWidth;
