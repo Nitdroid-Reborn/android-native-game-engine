@@ -4,6 +4,7 @@ import android.app.NativeActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.Vibrator;
@@ -57,5 +58,18 @@ public class NativeGameActivity extends NativeActivity {
 		startActivity(in);
 	}
 	
+	
+	public void SendCrashReport(String crashFileName) {
+		Log.e("ski jump", "Sending creash " + crashFileName);
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"mateo343@gmail.com"});
+		intent.putExtra(Intent.EXTRA_SUBJECT, "Skijumping crash report");
+		intent.putExtra(Intent.EXTRA_TEXT, "Ups crash");
+		intent.setType("application/zip");
+		Log.e("ski jump", "setting data");
+		intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + crashFileName));
+		Log.e("ski jump", "Starting activity");
+		startActivity(Intent.createChooser(intent, "Send Email"));
+	}
 
 }

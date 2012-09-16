@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     MainGLWidget w;
     w.show();
 
-    w.go();
+   // w.go();
     return a.exec();
 }
 

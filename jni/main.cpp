@@ -17,10 +17,51 @@
 #include <MemoryManagement/StackAllocator.h>
 #include <unistd.h>
 
-static U64 keyMapper[110];
+#include "client/linux/handler/exception_handler.h"
+#include "client/linux/handler/minidump_descriptor.h"
 
+static U64 keyMapper[110];
+static android_app* globalApp=0;
 U64 lastTime;
 
+bool DumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
+                  void* context,
+                  bool succeeded) {
+  Logger::Log("Dump path: %s\n %p", descriptor.path(), globalApp);
+
+  JavaVM* lJavaVM = globalApp->activity->vm;
+  JNIEnv* lJNIEnv = globalApp->activity->env;
+
+  JavaVMAttachArgs lJavaVMAttachArgs;
+  lJavaVMAttachArgs.version = JNI_VERSION_1_6;
+  lJavaVMAttachArgs.name = "NativeThread";
+  lJavaVMAttachArgs.group = NULL;
+
+  jint lResult=lJavaVM->AttachCurrentThread(&lJNIEnv, &lJavaVMAttachArgs);
+  if (lResult == JNI_ERR) {
+	  Logger::Log("error");
+  }
+
+  jobject lNativeActivity = globalApp->activity->clazz;
+
+  jclass ClassNativeActivity = lJNIEnv->GetObjectClass(lNativeActivity);
+
+  jmethodID method = lJNIEnv->GetMethodID(ClassNativeActivity, "SendCrashReport", "(Ljava/lang/String;)V");
+
+  jstring arg = lJNIEnv->NewStringUTF(descriptor.path());
+
+  lJNIEnv->CallVoidMethod(lNativeActivity, method, arg);
+  lJNIEnv->DeleteLocalRef(arg);
+
+  lJavaVM->DetachCurrentThread();
+
+  return succeeded;
+}
+
+void Crash() {
+  volatile int* a = reinterpret_cast<volatile int*>(NULL);
+  *a = 1;
+}
 
 I32 mainWindowWidth=0;
 I32 mainWindowHeight=0;
@@ -280,8 +321,10 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
         if(engineKeyCode != ENGINE_KEYCODE_UNKNOWN && keyAction != AKEY_EVENT_ACTION_MULTIPLE) {
             KeyEvent engineKeyEvent;
             engineKeyEvent.keyCode = engineKeyCode;
-            if(keyAction == AKEY_EVENT_ACTION_DOWN)
+            if(keyAction == AKEY_EVENT_ACTION_DOWN) {
                 engineKeyEvent.action = ENGINE_KEYACTION_DOWN;
+                Crash();
+            }
             else
                 engineKeyEvent.action = ENGINE_KEYACTION_UP;
 
@@ -352,6 +395,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
     }
 }
 
+
+
+
 /**
  * This is the main entry point of a native application that is using
  * android_native_app_glue.  It runs in its own thread, with its own
@@ -362,7 +408,11 @@ void android_main(struct android_app* app) {
     // Make sure glue isn't stripped.
     app_dummy();
 
+    globalApp = app;
 
+    google_breakpad::MinidumpDescriptor descriptor("/sdcard/");
+      google_breakpad::ExceptionHandler eh(descriptor, NULL, DumpCallback,
+                                           NULL, true, -1);
 
     initKeyMapper();
 

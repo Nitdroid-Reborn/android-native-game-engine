@@ -108,16 +108,17 @@ void AndroidRenderer::InitWindow() {
     Logger::Log(1, "Renderer window initialized");
     const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-            EGL_BLUE_SIZE, 8,
-            EGL_GREEN_SIZE, 8,
-            EGL_RED_SIZE, 8,
+            EGL_BLUE_SIZE, 5,
+            EGL_GREEN_SIZE, 6,
+            EGL_RED_SIZE, 5,
+            EGL_ALPHA_SIZE, 0,
             EGL_DEPTH_SIZE, 16,
             EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_NONE
     };
     EGLint w, h, format;
     EGLint numConfigs;
-    EGLConfig config;
+    EGLConfig config[25];
 
 
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -128,22 +129,41 @@ void AndroidRenderer::InitWindow() {
     if(eglInitialize(display, 0, 0)==EGL_FALSE)
         exit(1);
 
+
+    eglChooseConfig(display, attribs, NULL, 0, &numConfigs);
+    Logger::Log("Num configs: %i", numConfigs);
+
     /* Here, the application chooses the configuration it desires. In this
      * sample, we have a very simplified selection process, where we pick
      * the first EGLConfig that matches our criteria */
-    if(eglChooseConfig(display, attribs, &config, 1, &numConfigs)==EGL_FALSE)
+    if(eglChooseConfig(display, attribs, &config[0], 25, &numConfigs)==EGL_FALSE)
         exit(1);
+
 
     /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
      * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
      * As soon as we picked a EGLConfig, we can safely reconfigure the
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
-    if(eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format)==EGL_FALSE)
+
+    int rbits;
+    int gbits;
+    int bbits;
+    int abits;
+    for(int i=0;i<numConfigs;i++) {
+        rbits=gbits=bbits=abits=0;
+        eglGetConfigAttrib(display, config[i], EGL_RED_SIZE, &rbits);
+        eglGetConfigAttrib(display, config[i], EGL_GREEN_SIZE, &gbits);
+        eglGetConfigAttrib(display, config[i], EGL_BLUE_SIZE, &bbits);
+        eglGetConfigAttrib(display, config[i], EGL_ALPHA_SIZE, &abits);
+        Logger::Log("GetConfigAttrib %i %i %i %i", rbits, gbits, bbits, abits);
+    }
+
+    if(eglGetConfigAttrib(display, config[0], EGL_NATIVE_VISUAL_ID, &format)==EGL_FALSE)
         exit(1);
 
     ANativeWindow_setBuffersGeometry(app->window, 0, 0, format);
 
-    surface = eglCreateWindowSurface(display, config, app->window, NULL);
+    surface = eglCreateWindowSurface(display, config[0], app->window, NULL);
 
     if(surface==EGL_NO_SURFACE)
         exit(1);
@@ -156,7 +176,7 @@ void AndroidRenderer::InitWindow() {
     };
 
 
-    context = eglCreateContext(display, config, manager->GetEGLContext(), attrib_list);
+    context = eglCreateContext(display, config[0], manager->GetEGLContext(), attrib_list);
 
     if(context==EGL_NO_CONTEXT)
         exit(1);

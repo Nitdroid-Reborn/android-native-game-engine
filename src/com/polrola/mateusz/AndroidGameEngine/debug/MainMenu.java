@@ -47,7 +47,6 @@ public class MainMenu extends Activity
     }
     
 	static {
-		System.loadLibrary("box2d");
 		System.loadLibrary("png");
 		System.loadLibrary("android-game-engine");
 	}

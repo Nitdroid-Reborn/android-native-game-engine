@@ -2,10 +2,11 @@ LOCAL_PATH := $(call my-dir)
 
 
 include $(CLEAR_VARS)
-LOCAL_C_INCLUDES := Scripts/lua/ Scripts/
+LOCAL_C_INCLUDES := Scripts/lua/ 
+LOCAL_C_INCLUDES += Scripts/
 LOCAL_MODULE    := android-game-engine
 LOCAL_CPPFLAGS += -fexceptions
-LOCAL_EXPORT_CFLAGS += -g
+#LOCAL_EXPORT_CFLAGS += -g
 LOCAL_SRC_FILES := main.cpp \
                    Core/AndroidEngine.cpp \
                    Utils/Utils.cpp \
@@ -122,17 +123,17 @@ LOCAL_SRC_FILES := main.cpp \
                    Physics/Collider.cpp \
                    Utils/Hash.cpp \
                    Core/JNICommunication.cpp \
-                   Graphics/FrameBufferObject.cpp
-
+                   Graphics/FrameBufferObject.cpp \
+                   Scoreloop/Scoreloop.cpp \
+                   Scoreloop/JNIHelper.cpp
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv2 -lOpenSLES -lz
-LOCAL_SHARED_LIBRARIES :=  libpng box2d
-LOCAL_STATIC_LIBRARIES := android_native_app_glue boost_thread freetype2
+LOCAL_SHARED_LIBRARIES := libpng
+LOCAL_STATIC_LIBRARIES := android_native_app_glue boost_thread freetype2 breakpad_client
 
 include $(BUILD_SHARED_LIBRARY)
-
+include $(LOCAL_PATH)/../../google-breakpad/android/google_breakpad/Android.mk
 $(call import-module, boost)
 $(call import-module, freetype2)
 $(call import-module, libpng)
-$(call import-module, box2d)
 $(call import-module, android/native_app_glue)

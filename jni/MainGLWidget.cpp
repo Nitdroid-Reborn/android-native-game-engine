@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QCoreApplication>
@@ -77,13 +78,17 @@ MainGLWidget::MainGLWidget(QWidget *parent) :
 {
     initKeyMapper();
 
-    setAutoBufferSwap(false);
+    setAutoBufferSwap(true);
 
     setMinimumSize(800, 480);
     engine = new QtEngine(this);
 
     lastDown=-1;
     gogo = false;
+
+    connect(&t, SIGNAL(timeout()), this, SLOT(updateGL()));
+    t.setInterval(0);
+
 
     setWindowTitle("QtGameEngine");
 }
@@ -135,14 +140,16 @@ void MainGLWidget::mouseMoveEvent(QMouseEvent *e) {
 }
 
 void MainGLWidget::keyPressEvent(QKeyEvent *e) {
-    KeyEvent event;
-    event.keyCode = keyMapper[e->key()];
-    event.action = ENGINE_KEYACTION_DOWN;
 
-    engine->ProcessKeyInput(event);
+    keysPressed+= e->key();
+
+    //qDebug()<<"keyPress"<<e->key();
+
 }
 
 void MainGLWidget::keyReleaseEvent(QKeyEvent *e) {
+    keysPressed-= e->key();
+
     KeyEvent event;
     event.keyCode = keyMapper[e->key()];
     event.action = ENGINE_KEYACTION_UP;
@@ -154,6 +161,7 @@ void MainGLWidget::keyReleaseEvent(QKeyEvent *e) {
 void MainGLWidget::initializeGL() {
     engine->Initialize();
     engine->OnInitWindow();
+    t.start();
 }
 
 void MainGLWidget::go() {
@@ -177,12 +185,20 @@ void MainGLWidget::paintGL() {
     }
 
     if(engine->IsRunning()) {
+        foreach(int k, keysPressed) {
+            KeyEvent event;
+            event.keyCode = keyMapper[k];
+            event.action = ENGINE_KEYACTION_DOWN;
+
+            engine->ProcessKeyInput(event);
+        }
+
         engine->SingleFrame();
     }
 }
 
 void MainGLWidget::updateGL() {
-
+    paintGL();
 }
 
 void MainGLWidget::resizeGL(int w, int h) {
@@ -198,6 +214,7 @@ void MainGLWidget::focusOutEvent(QFocusEvent *) {
 }
 
 void MainGLWidget::closeEvent(QCloseEvent *) {
+    t.stop();
     engine->OnTerminateWindow();
 
     engine->Release();

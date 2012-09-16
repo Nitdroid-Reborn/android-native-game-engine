@@ -73,3 +73,15 @@ void QtAudioSystem::PlaySound(const ISound *s, F32 volume) {
 void QtAudioSystem::PlaySound(const SoundHandle &handle, F32 volume) {
 
 }
+
+void QtAudioSystem::PlaySoundLoop(const ISound *s, F32 volume) {
+
+}
+
+void QtAudioSystem::PlaySoundLoop(const SoundHandle &h, F32 volume) {
+
+}
+
+void QtAudioSystem::StopSoundLoop() {
+
+}

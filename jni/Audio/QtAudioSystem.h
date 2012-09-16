@@ -19,6 +19,10 @@ public:
     void PlaySound(const ISound*s, F32 volume);
     void PlaySound(const SoundHandle& handle, F32 volume);
 
+    void PlaySoundLoop(const ISound *s, F32 volume);
+    void PlaySoundLoop(const SoundHandle&h, F32 volume);
+    void StopSoundLoop();
+
 private:
 
 };

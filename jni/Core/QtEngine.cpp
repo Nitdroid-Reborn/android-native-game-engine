@@ -63,8 +63,8 @@ void QtEngine::Initialize() {
     centerKey = new VirtualSingleKey(ENGINE_KEYCODE_CENTER, 700, 80, 50);
     dpad = new VirtualDPad(125, 125, 100, 25);
     virtualInputSystem = new VirtualInput();
-    virtualInputSystem->AddKey(centerKey);
-    virtualInputSystem->AddKey(dpad);
+   // virtualInputSystem->AddKey(centerKey);
+   // virtualInputSystem->AddKey(dpad);
 
     gameObjectManager = new GameObjectManager();
     gameObjectManager->Initialize();
@@ -239,6 +239,9 @@ void QtEngine::SingleFrame() {
     if(loadingState) {
         script->callFunction("loadAssets");
         loadingState=false;
+        currentTime = GetCurrentTimeInMsec();
+        float dt = (float)(currentTime - lastTime);
+        dt/=1000.0f;
     }
     else {
 

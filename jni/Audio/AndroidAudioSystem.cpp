@@ -183,6 +183,7 @@ void AndroidAudioSystem::CreateBufferQueuePlayer(BufferQueuePlayer &player) {
 
     result = (*player.bqPlayerObject)->GetInterface(player.bqPlayerObject, SL_IID_VOLUME,
             &player.bqPlayerVolume);
+
     //assert(SL_RESULT_SUCCESS == result);
 
     // register callback on the buffer queue

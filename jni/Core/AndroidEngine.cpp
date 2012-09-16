@@ -8,6 +8,7 @@
 #include <Utils/Profiler.h>
 #include <Audio/WaveSound.h>
 #include <Audio/Sound.h>
+#include <Scoreloop/JNIHelper.h>
 
 #include <GameObject/RenderableGameObject.h>
 
@@ -88,6 +89,10 @@ void AndroidEngine::Initialize() {
     gameObjectManager->Initialize();
 
     jniInterface = new JNICommunication(app);
+
+
+    JNIHelper::setJavaVM(app->activity->vm);
+    JNIHelper::setJavaEnv(app->activity->env);
 
     volume = 1.0f;
     angle = 0.0f;
@@ -201,6 +206,8 @@ void AndroidEngine::OnGainedFocus() {
 
 void AndroidEngine::OnLostFocus() {
     isRunning = 0;
+
+
     renderer->OnLostFocus();
 }
 

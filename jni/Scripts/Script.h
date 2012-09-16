@@ -92,7 +92,7 @@ public:
 
     Lua_function_checking_errors callFunction;
 
-//private:
+private:
     lua_State* threadState;
     std::string scriptName;
 };

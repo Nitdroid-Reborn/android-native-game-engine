@@ -3,6 +3,8 @@
 
 #include <QGLWidget>
 #include <Core/QtEngine.h>
+#include <QTimer>
+#include <QSet>
 
 class MainGLWidget : public QGLWidget
 {
@@ -39,6 +41,9 @@ public slots:
 
 private:
     QtEngine* engine;
+    QTimer t;
+    QSet<int> keysPressed;
+    bool m_bFirstRelease;
 };
 
 #endif // MAINGLWIDGET_H

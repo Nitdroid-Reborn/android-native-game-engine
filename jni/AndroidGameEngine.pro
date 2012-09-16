@@ -141,7 +141,9 @@ SOURCES += DesktopMain.cpp \
     GameObject/RenderableGameObject.cpp \
     GameObject/PhysicalGameObject.cpp \
     Core/JNICommunication.cpp \
-    Graphics/FrameBufferObject.cpp
+    Graphics/FrameBufferObject.cpp \
+    Scoreloop/Scoreloop.cpp \
+    Scoreloop/JNIHelper.cpp
 
 
 HEADERS += \
@@ -348,7 +350,9 @@ HEADERS += \
     GameObject/RenderableGameObject.h \
     GameObject/PhysicalGameObject.h \
     Core/JNICommunication.h \
-    Graphics/FrameBufferObject.h
+    Graphics/FrameBufferObject.h \
+    Scoreloop/Scoreloop.h \
+    Scoreloop/JNIHelper.h
 
 OTHER_FILES += \
     Android.mk \

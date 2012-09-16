@@ -109,10 +109,6 @@ void SpriteBatcher::EndBatch() {
 
         if(currentTexture != (*it).texture || verticesIndex>=maxSprites) {
 
-            if(verticesIndex>=maxSprites) {
-                Logger::Log("sru");
-            }
-
             vbo->SetData((int)verticesIndex, &vertices[0],
                          (int)numIndices, &indices[0]);
 

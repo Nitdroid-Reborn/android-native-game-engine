@@ -123,12 +123,15 @@ Script::~Script() {
 bool Script::Run(const ScriptSource* src) {
     int res = luaL_loadbuffer(threadState, src->GetSource(), src->GetSourceLength(), src->GetFileName());
     if(res!=0) {
+        PrintLastError(threadState);
         return false;
     }
 
     res = luabind::detail::pcall(threadState, 0, LUA_MULTRET);
-    if(res != 0)
+    if(res != 0) {
+        PrintLastError(threadState);
         return false;
+    }
 
 
     return true;
